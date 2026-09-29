@@ -1,69 +1,113 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Zap, ShieldCheck, RotateCcw, Loader2 } from "lucide-react";
+import { useAdmin } from "@/components/AdminProvider";
+
+export default function RoleSelectorPage() {
+  const router = useRouter();
+  const { enterAdmin } = useAdmin();
+  const [confirmingReset, setConfirmingReset] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [resetMessage, setResetMessage] = useState("");
+
+  function handleAdmin() {
+    enterAdmin();
+    router.push("/admin");
+  }
+
+  async function handleReset() {
+    setResetting(true);
+    setResetMessage("");
+    try {
+      const res = await fetch("/api/demo/reset", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "No se pudo restablecer la demo");
+      setResetMessage("Demo restablecida — todo volvió al estado inicial.");
+    } catch (err) {
+      setResetMessage(err.message);
+    } finally {
+      setResetting(false);
+      setConfirmingReset(false);
+    }
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.js
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-paper px-4 text-center text-ink">
+      <span className="flex h-14 w-14 items-center justify-center rounded-md bg-accent text-accent-ink">
+        <Zap size={26} />
+      </span>
+      <h1 className="font-display text-3xl font-extrabold tracking-tight">
+        ELECTRO<span className="text-accent">BOLÍVAR</span>
+      </h1>
+      <p className="max-w-sm text-sm text-ink-soft">Demo de portfolio · elegí cómo querés entrar.</p>
+
+      <div className="mt-4 grid w-full max-w-md grid-cols-1 gap-4 sm:grid-cols-2">
+        <button
+          type="button"
+          onClick={() => router.push("/tienda")}
+          className="flex flex-col items-start gap-3 rounded-md border border-line bg-panel p-5 text-left transition hover:-translate-y-0.5 hover:border-steel"
+        >
+          <span className="flex h-11 w-11 items-center justify-center rounded-md bg-accent text-accent-ink">
+            <Zap size={20} />
+          </span>
+          <span className="block text-base font-semibold">Cliente</span>
+          <span className="block text-sm text-ink-soft">Comprar electrodomésticos</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={handleAdmin}
+          className="flex flex-col items-start gap-3 rounded-md border border-line bg-panel p-5 text-left transition hover:-translate-y-0.5 hover:border-steel"
+        >
+          <span className="flex h-11 w-11 items-center justify-center rounded-md bg-ink text-paper">
+            <ShieldCheck size={20} />
+          </span>
+          <span className="block text-base font-semibold">Administrador</span>
+          <span className="block text-sm text-ink-soft">Cargar productos y configurar la tienda</span>
+        </button>
+      </div>
+
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+        {!confirmingReset ? (
+          <button
+            type="button"
+            onClick={() => setConfirmingReset(true)}
+            className="flex items-center gap-2 rounded-full border border-line bg-panel px-4 py-2 text-sm font-semibold text-ink-soft hover:border-steel"
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+            <RotateCcw size={16} />
+            Restablecer demo
+          </button>
+        ) : (
+          <div className="flex items-center gap-2 rounded-full border border-danger/40 bg-panel px-4 py-2 text-sm text-danger">
+            <span>¿Borrar todo y volver al estado inicial?</span>
+            <button
+              type="button"
+              onClick={handleReset}
+              disabled={resetting}
+              className="flex items-center gap-1.5 rounded-full bg-danger px-3 py-1 text-xs font-semibold text-accent-ink hover:brightness-95 disabled:opacity-60"
+            >
+              {resetting && <Loader2 size={12} className="animate-spin" />}
+              Sí, restablecer
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirmingReset(false)}
+              disabled={resetting}
+              className="text-xs font-semibold hover:underline"
+            >
+              Cancelar
+            </button>
+          </div>
+        )}
+      </div>
+
+      {resetMessage && <p className="mt-3 text-sm text-ink-soft">{resetMessage}</p>}
+
+      <p className="mt-8 max-w-md text-center text-xs text-steel">
+        Es un proyecto de portfolio: no hay contraseñas reales, elegís cómo entrar y listo. Los datos son ficticios.
+      </p>
     </div>
   );
 }
