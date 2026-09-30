@@ -57,7 +57,7 @@ export default function AddToCartPanel({ product }) {
 
       <p className="flex items-center gap-1.5 text-xs text-steel">
         <CreditCard size={14} />
-        Aceptamos Mercado Pago
+        Mercado Pago, MODO, tarjeta, transferencia o efectivo
       </p>
     </div>
   );
