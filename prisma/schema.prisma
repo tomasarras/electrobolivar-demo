@@ -40,3 +40,16 @@ model StoreSettings {
   id       String  @id @default("singleton")
   whatsapp String?
 }
+
+// Rotating ad banners (e.g. the sponsor's promo), managed from the admin
+// settings screen. Each entry ships two images because the mobile bottom
+// bar and the desktop sidebar are different fixed shapes (wide banner vs.
+// tall 9:16 panel) — one crop never looks right in both.
+model PromoImage {
+  id         String   @id @default(cuid())
+  mobileUrl  String
+  desktopUrl String
+  alt        String
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+}

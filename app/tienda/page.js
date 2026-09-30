@@ -4,17 +4,22 @@ import StoreHeader from "@/components/StoreHeader";
 import ProductCard from "@/components/ProductCard";
 import PromoRail from "@/components/PromoRail";
 import { CATEGORIES } from "@/lib/categories";
+import { serializePromo } from "@/lib/promos";
 
 export const dynamic = "force-dynamic";
 
 export default async function TiendaPage({ searchParams }) {
   const { categoria } = await searchParams;
 
-  const products = await prisma.product.findMany({
-    where: categoria ? { category: categoria } : undefined,
-    include: { images: { orderBy: { order: "asc" } } },
-    orderBy: { createdAt: "desc" },
-  });
+  const [products, promoImages] = await Promise.all([
+    prisma.product.findMany({
+      where: categoria ? { category: categoria } : undefined,
+      include: { images: { orderBy: { order: "asc" } } },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.promoImage.findMany({ orderBy: { order: "asc" } }),
+  ]);
+  const promos = promoImages.map(serializePromo);
 
   return (
     <>
@@ -54,7 +59,7 @@ export default async function TiendaPage({ searchParams }) {
           </div>
         )}
       </main>
-      <PromoRail />
+      <PromoRail promos={promos} />
     </>
   );
 }

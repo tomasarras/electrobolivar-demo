@@ -3,31 +3,27 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
-// Fixed marketing content (not admin-editable). Add more entries here and
-// they join the same 30s rotation automatically.
-const PROMOS = [
-  { image: "/promo/lavarropas.png", alt: "Reparación y service de lavarropas - Refrigeración José Duarte" },
-  { image: "/promo/aire-acondicionado.png", alt: "Instalación y reparación de aires acondicionados - Refrigeración José Duarte" },
-];
-
 const ROTATE_MS = 30000;
 const TEL = "tel:2314572888";
 
 // Pinned to the side of the page on wide screens, and as a fixed bottom bar
-// on narrower ones — same treatment as the original artifact prototype.
-// Shows one promo at a time, rotating through PROMOS every ROTATE_MS.
-export default function PromoRail() {
+// on narrower ones. Each promo ships a separate mobile (wide banner) and
+// desktop (tall 9:16 panel) image, managed from Admin → Configuración, since
+// the two slots are different fixed shapes and one crop never fits both.
+export default function PromoRail({ promos }) {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
-    if (PROMOS.length <= 1) return;
+    if (!promos || promos.length <= 1) return;
     const id = setInterval(() => {
-      setIndex((i) => (i + 1) % PROMOS.length);
+      setIndex((i) => (i + 1) % promos.length);
     }, ROTATE_MS);
     return () => clearInterval(id);
-  }, []);
+  }, [promos]);
 
-  const promo = PROMOS[index];
+  if (!promos || promos.length === 0) return null;
+
+  const promo = promos[index % promos.length];
 
   return (
     <aside
@@ -36,8 +32,11 @@ export default function PromoRail() {
         xl:bottom-auto xl:left-auto xl:right-4 xl:top-28 xl:w-48 xl:border-t-0 xl:bg-transparent xl:p-0 xl:shadow-none"
     >
       <a href={TEL} className="block overflow-hidden rounded-md border border-line bg-panel">
-        <div className="relative h-24 w-full xl:h-auto xl:aspect-[9/16]">
-          <Image key={promo.image} src={promo.image} alt={promo.alt} fill className="object-cover object-top" sizes="200px" />
+        <div className="relative h-24 w-full xl:hidden">
+          <Image key={promo.mobileUrl} src={promo.mobileUrl} alt={promo.alt} fill className="object-cover object-center" sizes="100vw" />
+        </div>
+        <div className="relative hidden xl:block xl:aspect-[9/16]">
+          <Image key={promo.desktopUrl} src={promo.desktopUrl} alt={promo.alt} fill className="object-cover object-top" sizes="200px" />
         </div>
       </a>
     </aside>
