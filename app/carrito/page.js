@@ -27,6 +27,7 @@ export default function CarritoPage() {
   const [whatsapp, setWhatsapp] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState("retiro");
   const [address, setAddress] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
   const [method, setMethod] = useState("mercadopago");
   const [status, setStatus] = useState("idle"); // idle | processing | confirmed
   const [confirmedMethod, setConfirmedMethod] = useState("");
@@ -73,6 +74,7 @@ export default function CarritoPage() {
           <p className="mt-4 text-sm text-ink-soft">
             {deliveryMethod === "envio" ? `Envío a domicilio${address ? ` — ${address}` : ""}` : "Retiro en el local"}
           </p>
+          {contactPhone && <p className="mt-1 text-sm text-ink-soft">Contacto: {contactPhone}</p>}
           <p className="mt-2 text-sm text-steel">
             Simulación de pago con {confirmedMethod} — es una demo de portfolio, no se realizó ningún cobro real.
           </p>
@@ -103,7 +105,8 @@ export default function CarritoPage() {
     "Hola! Quiero consultar por este pedido de ElectroBolívar:\n" +
     items.map((i) => `${i.qty}x ${i.name} - ${formatCurrency(i.price * i.qty)}`).join("\n") +
     `\n\nTotal estimado: ${formatCurrency(total)}` +
-    `\nEntrega: ${deliveryLine}`;
+    `\nEntrega: ${deliveryLine}` +
+    (contactPhone ? `\nContacto: ${contactPhone}` : "");
   const whatsappHref = whatsapp ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}` : null;
   const payNow = PAY_NOW_METHODS[method];
 
@@ -176,6 +179,17 @@ export default function CarritoPage() {
               />
             </div>
           )}
+
+          <div className="mt-3">
+            <label className="mb-1 block font-mono text-[11px] uppercase tracking-wide text-steel">Número de contacto</label>
+            <input
+              type="tel"
+              value={contactPhone}
+              onChange={(e) => setContactPhone(e.target.value)}
+              placeholder="11 2345 6789"
+              className="w-full rounded-md border border-line bg-paper px-3 py-2 text-sm"
+            />
+          </div>
         </div>
 
         <div className="mt-6 rounded-md border border-line bg-panel p-5">
