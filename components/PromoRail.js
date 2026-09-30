@@ -6,8 +6,8 @@ import Image from "next/image";
 // Fixed marketing content (not admin-editable). Add more entries here and
 // they join the same 30s rotation automatically.
 const PROMOS = [
-  { image: "/promo/lavarropas.jpg", alt: "Reparación y service de lavarropas - Refrigeración José Duarte" },
-  { image: "/promo/aire-acondicionado.jpg", alt: "Instalación y reparación de aires acondicionados - Refrigeración José Duarte" },
+  { image: "/promo/lavarropas.png", alt: "Reparación y service de lavarropas - Refrigeración José Duarte" },
+  { image: "/promo/aire-acondicionado.png", alt: "Instalación y reparación de aires acondicionados - Refrigeración José Duarte" },
 ];
 
 const ROTATE_MS = 30000;
@@ -36,8 +36,8 @@ export default function PromoRail() {
         xl:bottom-auto xl:left-auto xl:right-4 xl:top-28 xl:w-48 xl:border-t-0 xl:bg-transparent xl:p-0 xl:shadow-none"
     >
       <a href={TEL} className="block overflow-hidden rounded-md border border-line bg-panel">
-        <div className="relative h-16 w-full xl:h-auto xl:aspect-square">
-          <Image key={promo.image} src={promo.image} alt={promo.alt} fill className="object-cover" sizes="200px" />
+        <div className="relative h-24 w-full xl:h-auto xl:aspect-[9/16]">
+          <Image key={promo.image} src={promo.image} alt={promo.alt} fill className="object-cover object-top" sizes="200px" />
         </div>
       </a>
     </aside>
