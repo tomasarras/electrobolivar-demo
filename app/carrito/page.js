@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { X, CreditCard, Landmark, Banknote, MessageCircle, Loader2, CheckCircle2, Copy, Check } from "lucide-react";
+import { X, CreditCard, Landmark, Banknote, MessageCircle, Loader2, CheckCircle2, Copy, Check, Store, Truck } from "lucide-react";
 import StoreHeader from "@/components/StoreHeader";
 import ProductImagePlaceholder from "@/components/ProductImagePlaceholder";
 import { formatCurrency } from "@/lib/format";
@@ -25,6 +25,8 @@ const ALIAS = "electrobolivar.mp";
 export default function CarritoPage() {
   const { items, loaded, updateQty, removeItem, clearCart, total } = useCart();
   const [whatsapp, setWhatsapp] = useState("");
+  const [deliveryMethod, setDeliveryMethod] = useState("retiro");
+  const [address, setAddress] = useState("");
   const [method, setMethod] = useState("mercadopago");
   const [status, setStatus] = useState("idle"); // idle | processing | confirmed
   const [confirmedMethod, setConfirmedMethod] = useState("");
@@ -68,7 +70,10 @@ export default function CarritoPage() {
           <CheckCircle2 size={48} className="mx-auto text-accent-2" />
           <h1 className="mt-4 font-display text-2xl font-bold">¡Pedido confirmado!</h1>
           <p className="mt-2 font-mono text-sm text-ink-soft">Pedido #{orderCode}</p>
-          <p className="mt-4 text-sm text-steel">
+          <p className="mt-4 text-sm text-ink-soft">
+            {deliveryMethod === "envio" ? `Envío a domicilio${address ? ` — ${address}` : ""}` : "Retiro en el local"}
+          </p>
+          <p className="mt-2 text-sm text-steel">
             Simulación de pago con {confirmedMethod} — es una demo de portfolio, no se realizó ningún cobro real.
           </p>
           <Link href="/tienda" className="mt-6 inline-block rounded-md bg-ink px-6 py-3 text-sm font-semibold text-paper">
@@ -93,10 +98,12 @@ export default function CarritoPage() {
     );
   }
 
+  const deliveryLine = deliveryMethod === "envio" ? `Envío a domicilio${address ? ` - ${address}` : ""}` : "Retiro en el local";
   const message =
     "Hola! Quiero consultar por este pedido de ElectroBolívar:\n" +
     items.map((i) => `${i.qty}x ${i.name} - ${formatCurrency(i.price * i.qty)}`).join("\n") +
-    `\n\nTotal estimado: ${formatCurrency(total)}`;
+    `\n\nTotal estimado: ${formatCurrency(total)}` +
+    `\nEntrega: ${deliveryLine}`;
   const whatsappHref = whatsapp ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}` : null;
   const payNow = PAY_NOW_METHODS[method];
 
@@ -136,6 +143,40 @@ export default function CarritoPage() {
             </li>
           ))}
         </ul>
+
+        <div className="mt-6 rounded-md border border-line bg-panel p-5">
+          <p className="mb-2 font-mono text-[11px] uppercase tracking-wide text-steel">Forma de entrega</p>
+          <div className="grid grid-cols-2 gap-3">
+            <MethodCard
+              active={deliveryMethod === "retiro"}
+              onClick={() => setDeliveryMethod("retiro")}
+              icon={Store}
+              color="#1c1b18"
+              label="Retiro en el local"
+              description="Lo retirás vos en el local"
+            />
+            <MethodCard
+              active={deliveryMethod === "envio"}
+              onClick={() => setDeliveryMethod("envio")}
+              icon={Truck}
+              color="#b85315"
+              label="Envío a domicilio"
+              description="Te lo llevamos nosotros"
+            />
+          </div>
+
+          {deliveryMethod === "envio" && (
+            <div className="mt-3">
+              <label className="mb-1 block font-mono text-[11px] uppercase tracking-wide text-steel">Dirección de entrega</label>
+              <input
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Calle, número, localidad"
+                className="w-full rounded-md border border-line bg-paper px-3 py-2 text-sm"
+              />
+            </div>
+          )}
+        </div>
 
         <div className="mt-6 rounded-md border border-line bg-panel p-5">
           <div className="flex justify-between text-base font-semibold">
