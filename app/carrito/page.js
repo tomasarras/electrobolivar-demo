@@ -3,15 +3,18 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { X } from "lucide-react";
+import { X, CreditCard, MessageCircle, Loader2, CheckCircle2 } from "lucide-react";
 import StoreHeader from "@/components/StoreHeader";
 import ProductImagePlaceholder from "@/components/ProductImagePlaceholder";
 import { formatCurrency } from "@/lib/format";
 import { useCart } from "@/components/CartProvider";
 
 export default function CarritoPage() {
-  const { items, loaded, updateQty, removeItem, total } = useCart();
+  const { items, loaded, updateQty, removeItem, clearCart, total } = useCart();
   const [whatsapp, setWhatsapp] = useState("");
+  const [method, setMethod] = useState("mercadopago");
+  const [mpStatus, setMpStatus] = useState("idle"); // idle | processing | confirmed
+  const [orderCode, setOrderCode] = useState("");
 
   useEffect(() => {
     fetch("/api/settings")
@@ -20,7 +23,35 @@ export default function CarritoPage() {
       .catch(() => setWhatsapp(""));
   }, []);
 
+  function handlePayMercadoPago() {
+    setMpStatus("processing");
+    setTimeout(() => {
+      setOrderCode(`EB-${Date.now().toString().slice(-6)}`);
+      setMpStatus("confirmed");
+      clearCart();
+    }, 1400);
+  }
+
   if (!loaded) return null;
+
+  if (mpStatus === "confirmed") {
+    return (
+      <>
+        <StoreHeader />
+        <main className="mx-auto max-w-lg px-4 py-20 text-center sm:px-6">
+          <CheckCircle2 size={48} className="mx-auto text-accent-2" />
+          <h1 className="mt-4 font-display text-2xl font-bold">¡Pedido confirmado!</h1>
+          <p className="mt-2 font-mono text-sm text-ink-soft">Pedido #{orderCode}</p>
+          <p className="mt-4 text-sm text-steel">
+            Simulación de pago con Mercado Pago — es una demo de portfolio, no se realizó ningún cobro real.
+          </p>
+          <Link href="/tienda" className="mt-6 inline-block rounded-md bg-ink px-6 py-3 text-sm font-semibold text-paper">
+            Volver al catálogo
+          </Link>
+        </main>
+      </>
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -85,7 +116,64 @@ export default function CarritoPage() {
             <span className="font-mono">{formatCurrency(total)}</span>
           </div>
 
-          {whatsappHref ? (
+          <p className="mb-2 mt-6 font-mono text-[11px] uppercase tracking-wide text-steel">Método de pago</p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => setMethod("mercadopago")}
+              className={`flex items-center gap-3 rounded-md border p-3 text-left transition-colors ${
+                method === "mercadopago" ? "border-ink bg-panel-2" : "border-line hover:border-steel"
+              }`}
+            >
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#00b1ea] text-white">
+                <CreditCard size={18} />
+              </span>
+              <span>
+                <span className="block text-sm font-semibold">Mercado Pago</span>
+                <span className="block text-xs text-ink-soft">Tarjeta, transferencia o efectivo</span>
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setMethod("whatsapp")}
+              className={`flex items-center gap-3 rounded-md border p-3 text-left transition-colors ${
+                method === "whatsapp" ? "border-ink bg-panel-2" : "border-line hover:border-steel"
+              }`}
+            >
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-2 text-paper">
+                <MessageCircle size={18} />
+              </span>
+              <span>
+                <span className="block text-sm font-semibold">WhatsApp</span>
+                <span className="block text-xs text-ink-soft">Coordinás el pago con el vendedor</span>
+              </span>
+            </button>
+          </div>
+
+          {method === "mercadopago" ? (
+            <>
+              <button
+                type="button"
+                onClick={handlePayMercadoPago}
+                disabled={mpStatus === "processing"}
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-md bg-[#00b1ea] py-3 text-sm font-semibold text-white hover:brightness-105 disabled:opacity-70"
+              >
+                {mpStatus === "processing" ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" /> Procesando…
+                  </>
+                ) : (
+                  <>
+                    <CreditCard size={16} /> Pagar con Mercado Pago
+                  </>
+                )}
+              </button>
+              <p className="mt-2 text-center text-xs text-steel">
+                Demo de portfolio: la pasarela es una simulación, no se procesa ningún pago real.
+              </p>
+            </>
+          ) : whatsappHref ? (
             <a
               href={whatsappHref}
               target="_blank"

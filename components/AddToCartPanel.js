@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { PlayCircle } from "lucide-react";
+import { PlayCircle, CreditCard } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
 
 export default function AddToCartPanel({ product }) {
@@ -54,6 +54,11 @@ export default function AddToCartPanel({ product }) {
           </button>
         )}
       </div>
+
+      <p className="flex items-center gap-1.5 text-xs text-steel">
+        <CreditCard size={14} />
+        Aceptamos Mercado Pago
+      </p>
     </div>
   );
 }
