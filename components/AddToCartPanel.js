@@ -50,7 +50,7 @@ export default function AddToCartPanel({ product }) {
             }}
             className="rounded-md bg-accent px-6 py-3 text-sm font-semibold text-accent-ink hover:brightness-105"
           >
-            Ir al pedido
+            Comprar ahora
           </button>
         )}
       </div>
