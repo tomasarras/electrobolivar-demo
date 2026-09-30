@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Loader2, X } from "lucide-react";
+import { upload } from "@vercel/blob/client";
+import { Loader2, X, Film } from "lucide-react";
 import { CATEGORIES } from "@/lib/categories";
 
 const MAX_IMAGES = 4;
+const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
 
 export default function ProductForm({ product }) {
   const router = useRouter();
@@ -21,6 +23,7 @@ export default function ProductForm({ product }) {
   const [description, setDescription] = useState(product?.description || "");
   const [images, setImages] = useState((product?.images || []).map((img) => img.url));
   const [uploading, setUploading] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -49,6 +52,33 @@ export default function ProductForm({ product }) {
 
   function removeImage(url) {
     setImages((prev) => prev.filter((u) => u !== url));
+  }
+
+  async function handleVideoFile(e) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (file.size > MAX_VIDEO_BYTES) {
+      setError("El video no puede pesar más de 50MB.");
+      return;
+    }
+    setUploadingVideo(true);
+    setError("");
+    try {
+      const blob = await upload(file.name, file, {
+        access: "public",
+        handleUploadUrl: "/api/video-upload",
+      });
+      setVideoUrl(blob.url);
+    } catch (err) {
+      setError(err.message || "No se pudo subir el video");
+    } finally {
+      setUploadingVideo(false);
+    }
+  }
+
+  function removeVideo() {
+    setVideoUrl("");
   }
 
   async function handleSubmit(e) {
@@ -154,14 +184,22 @@ export default function ProductForm({ product }) {
         )}
       </Field>
 
-      <Field label="Link de video (opcional)">
-        <input
-          type="url"
-          value={videoUrl}
-          onChange={(e) => setVideoUrl(e.target.value)}
-          placeholder="https://..."
-          className="input"
-        />
+      <Field label="Video (opcional, hasta 50MB)">
+        <input type="file" accept="video/*" onChange={handleVideoFile} disabled={uploadingVideo} />
+        {uploadingVideo && (
+          <p className="mt-1 flex items-center gap-1.5 text-xs text-steel">
+            <Loader2 size={12} className="animate-spin" /> Subiendo…
+          </p>
+        )}
+        {videoUrl && !uploadingVideo && (
+          <div className="mt-2 flex items-center gap-2 text-sm text-ink-soft">
+            <Film size={16} />
+            <span>Video cargado</span>
+            <button type="button" onClick={removeVideo} className="text-danger hover:underline">
+              Quitar
+            </button>
+          </div>
+        )}
       </Field>
 
       <Field label="Descripción breve">
