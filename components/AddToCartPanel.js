@@ -39,7 +39,7 @@ export default function AddToCartPanel({ product }) {
           disabled={outOfStock}
           className="rounded-md border border-ink px-6 py-3 text-sm font-semibold hover:bg-ink hover:text-paper disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {outOfStock ? "Sin stock" : added ? "¡Agregado!" : "Agregar al pedido"}
+          {outOfStock ? "Sin stock" : added ? "¡Agregado!" : "Agregar al carrito"}
         </button>
         {!outOfStock && (
           <button
