@@ -28,8 +28,8 @@
   --color-accent-ink: var(--accent-ink);
   --color-accent-2: var(--accent-2);
   --color-danger: var(--danger);
-  --font-display: var(--font-big-shoulders);
-  --font-sans: var(--font-plex-sans);
+  --font-display: var(--font-barlow-condensed);
+  --font-sans: var(--font-barlow);
   --font-mono: var(--font-plex-mono);
 }
 
@@ -38,10 +38,7 @@ body {
   color: var(--ink);
 }
 
-/* Big Shoulders ships as one variable font now; push the optical-size axis
-   toward its condensed "Display" cut instead of the default text weight. */
 .font-display {
-  font-variation-settings: "opsz" 72;
   letter-spacing: 0.01em;
 }
 

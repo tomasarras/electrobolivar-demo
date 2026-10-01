@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { PlayCircle, CreditCard } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
 
 export default function AddToCartPanel({ product }) {
   const { addItem } = useCart();
   const router = useRouter();
+  const { status } = useSession();
   const [added, setAdded] = useState(false);
   const outOfStock = product.inStock === false;
 
@@ -16,6 +18,16 @@ export default function AddToCartPanel({ product }) {
     addItem(product);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
+  }
+
+  function handleBuyNow() {
+    if (outOfStock) return;
+    if (status !== "authenticated") {
+      router.push(`/login?callbackUrl=${encodeURIComponent(`/producto/${product.id}`)}`);
+      return;
+    }
+    handleAdd();
+    router.push("/carrito");
   }
 
   return (
@@ -44,10 +56,7 @@ export default function AddToCartPanel({ product }) {
         {!outOfStock && (
           <button
             type="button"
-            onClick={() => {
-              handleAdd();
-              router.push("/carrito");
-            }}
+            onClick={handleBuyNow}
             className="rounded-md bg-accent px-6 py-3 text-sm font-semibold text-accent-ink hover:brightness-105"
           >
             Comprar ahora

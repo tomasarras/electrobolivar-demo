@@ -1,17 +1,17 @@
-import { Big_Shoulders, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Barlow_Condensed, Barlow, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { AdminProvider } from "@/components/AdminProvider";
 import { CartProvider } from "@/components/CartProvider";
 import { AuthProvider } from "@/components/AuthProvider";
 
-const bigShoulders = Big_Shoulders({
-  variable: "--font-big-shoulders",
+const barlowCondensed = Barlow_Condensed({
+  variable: "--font-barlow-condensed",
   weight: ["600", "700", "800"],
   subsets: ["latin"],
 });
 
-const plexSans = IBM_Plex_Sans({
-  variable: "--font-plex-sans",
+const barlow = Barlow({
+  variable: "--font-barlow",
   weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
 });
@@ -30,7 +30,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es" className={`${bigShoulders.variable} ${plexSans.variable} ${plexMono.variable}`}>
+    <html lang="es" className={`${barlowCondensed.variable} ${barlow.variable} ${plexMono.variable}`}>
       <body className="min-h-screen font-sans antialiased">
         <AuthProvider>
           <AdminProvider>

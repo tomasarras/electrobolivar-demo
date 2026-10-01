@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, getProviders } from "next-auth/react";
 import { Loader2 } from "lucide-react";
 import StoreHeader from "@/components/StoreHeader";
@@ -18,7 +18,18 @@ function GoogleIcon() {
 }
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const explicitCallbackUrl = searchParams.get("callbackUrl");
+  const callbackUrl = explicitCallbackUrl || "/tienda";
   const [mode, setMode] = useState("login"); // login | register
   const [googleEnabled, setGoogleEnabled] = useState(false);
   const [name, setName] = useState("");
@@ -49,7 +60,7 @@ export default function LoginPage() {
       }
       const result = await signIn("credentials", { email, password, redirect: false });
       if (result?.error) throw new Error("Email o contraseña incorrectos");
-      router.push("/tienda");
+      router.push(callbackUrl);
       router.refresh();
     } catch (err) {
       setError(err.message);
@@ -64,14 +75,18 @@ export default function LoginPage() {
       <main className="mx-auto flex min-h-[70vh] max-w-sm flex-col justify-center px-4 py-10 sm:px-6">
         <h1 className="font-display text-2xl font-bold">{mode === "login" ? "Iniciar sesión" : "Crear cuenta"}</h1>
         <p className="mt-1 text-sm text-ink-soft">
-          {mode === "login" ? "Entrá para ver tu cuenta y tus pedidos." : "Creá tu cuenta para comprar más rápido la próxima vez."}
+          {explicitCallbackUrl
+            ? "Iniciá sesión o creá una cuenta para continuar con tu compra."
+            : mode === "login"
+              ? "Entrá para ver tu cuenta y tus pedidos."
+              : "Creá tu cuenta para comprar más rápido la próxima vez."}
         </p>
 
         {googleEnabled && (
           <>
             <button
               type="button"
-              onClick={() => signIn("google", { callbackUrl: "/tienda" })}
+              onClick={() => signIn("google", { callbackUrl })}
               className="mt-6 flex w-full items-center justify-center gap-2 rounded-md border border-line bg-panel py-2.5 text-sm font-semibold hover:border-steel"
             >
               <GoogleIcon /> Continuar con Google
