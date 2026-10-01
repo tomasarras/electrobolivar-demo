@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, User, LogOut } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
 import { useCart } from "@/components/CartProvider";
 
 export default function StoreHeader() {
   const { itemCount } = useCart() || { itemCount: 0 };
+  const { data: session, status } = useSession();
 
   return (
     <header className="sticky top-0 z-20 border-b border-line bg-paper/90 backdrop-blur">
@@ -19,6 +21,29 @@ export default function StoreHeader() {
           <Link href="/tienda" className="hidden hover:text-accent sm:inline">
             Catálogo
           </Link>
+
+          {status === "authenticated" ? (
+            <div className="flex items-center gap-3">
+              <span className="hidden items-center gap-1.5 text-ink-soft sm:flex">
+                <User size={16} />
+                {session.user?.name || session.user?.email}
+              </span>
+              <button
+                type="button"
+                onClick={() => signOut({ callbackUrl: "/tienda" })}
+                className="flex items-center gap-1 text-ink-soft hover:text-accent"
+              >
+                <LogOut size={16} />
+                <span className="hidden sm:inline">Salir</span>
+              </button>
+            </div>
+          ) : (
+            <Link href="/login" className="flex items-center gap-1.5 hover:text-accent">
+              <User size={18} />
+              <span className="hidden sm:inline">Iniciar sesión</span>
+            </Link>
+          )}
+
           <Link href="/carrito" className="relative flex items-center gap-1 hover:text-accent">
             <ShoppingBag size={20} />
             {itemCount > 0 && (

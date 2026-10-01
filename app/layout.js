@@ -2,6 +2,7 @@ import { Big_Shoulders, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { AdminProvider } from "@/components/AdminProvider";
 import { CartProvider } from "@/components/CartProvider";
+import { AuthProvider } from "@/components/AuthProvider";
 
 const bigShoulders = Big_Shoulders({
   variable: "--font-big-shoulders",
@@ -31,9 +32,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es" className={`${bigShoulders.variable} ${plexSans.variable} ${plexMono.variable}`}>
       <body className="min-h-screen font-sans antialiased">
-        <AdminProvider>
-          <CartProvider>{children}</CartProvider>
-        </AdminProvider>
+        <AuthProvider>
+          <AdminProvider>
+            <CartProvider>{children}</CartProvider>
+          </AdminProvider>
+        </AuthProvider>
       </body>
     </html>
   );
