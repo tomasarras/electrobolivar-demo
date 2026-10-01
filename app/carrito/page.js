@@ -78,7 +78,7 @@ export default function CarritoPage() {
           <p className="mt-2 text-sm text-steel">
             Simulación de pago con {confirmedMethod} — es una demo de portfolio, no se realizó ningún cobro real.
           </p>
-          <Link href="/tienda" className="mt-6 inline-block rounded-md bg-ink px-6 py-3 text-sm font-semibold text-paper">
+          <Link href="/tienda" className="mt-6 inline-block rounded-md bg-ink px-6 py-3 text-sm font-semibold text-paper hover:brightness-110">
             Volver al catálogo
           </Link>
         </main>
@@ -92,7 +92,7 @@ export default function CarritoPage() {
         <StoreHeader />
         <main className="mx-auto max-w-lg px-4 py-20 text-center sm:px-6">
           <h1 className="font-display text-2xl font-bold">Tu pedido está vacío</h1>
-          <Link href="/tienda" className="mt-6 inline-block rounded-md bg-ink px-6 py-3 text-sm font-semibold text-paper">
+          <Link href="/tienda" className="mt-6 inline-block rounded-md bg-ink px-6 py-3 text-sm font-semibold text-paper hover:brightness-110">
             Ir al catálogo
           </Link>
         </main>
@@ -130,11 +130,19 @@ export default function CarritoPage() {
                 <p className="truncate font-medium">{item.name}</p>
                 <p className="font-mono text-sm text-ink-soft">{formatCurrency(item.price)}</p>
                 <div className="mt-1 flex w-fit items-center rounded-full border border-line font-mono text-sm">
-                  <button type="button" onClick={() => updateQty(item.productId, item.qty - 1)} className="px-2.5 py-0.5">
+                  <button
+                    type="button"
+                    onClick={() => updateQty(item.productId, item.qty - 1)}
+                    className="px-2.5 py-0.5 hover:bg-panel-2"
+                  >
                     −
                   </button>
                   <span className="w-6 text-center">{item.qty}</span>
-                  <button type="button" onClick={() => updateQty(item.productId, item.qty + 1)} className="px-2.5 py-0.5">
+                  <button
+                    type="button"
+                    onClick={() => updateQty(item.productId, item.qty + 1)}
+                    className="px-2.5 py-0.5 hover:bg-panel-2"
+                  >
                     +
                   </button>
                 </div>
@@ -268,7 +276,7 @@ export default function CarritoPage() {
                 type="button"
                 onClick={() => handlePayNow("Transferencia bancaria")}
                 disabled={status === "processing"}
-                className="flex w-full items-center justify-center gap-2 rounded-md bg-ink py-3 text-sm font-semibold text-paper disabled:opacity-70"
+                className="flex w-full items-center justify-center gap-2 rounded-md bg-ink py-3 text-sm font-semibold text-paper hover:brightness-110 disabled:opacity-70"
               >
                 {status === "processing" ? <Loader2 size={16} className="animate-spin" /> : null}
                 Ya hice la transferencia
@@ -284,7 +292,7 @@ export default function CarritoPage() {
                 type="button"
                 onClick={() => handlePayNow("Rapipago / Pago Fácil")}
                 disabled={status === "processing"}
-                className="flex w-full items-center justify-center gap-2 rounded-md bg-ink py-3 text-sm font-semibold text-paper disabled:opacity-70"
+                className="flex w-full items-center justify-center gap-2 rounded-md bg-ink py-3 text-sm font-semibold text-paper hover:brightness-110 disabled:opacity-70"
               >
                 {status === "processing" ? <Loader2 size={16} className="animate-spin" /> : null}
                 Ya pagué el cupón
@@ -301,7 +309,7 @@ export default function CarritoPage() {
                 type="button"
                 onClick={() => handlePayNow("Efectivo en Bolívar")}
                 disabled={status === "processing"}
-                className="flex w-full items-center justify-center gap-2 rounded-md bg-ink py-3 text-sm font-semibold text-paper disabled:opacity-70"
+                className="flex w-full items-center justify-center gap-2 rounded-md bg-ink py-3 text-sm font-semibold text-paper hover:brightness-110 disabled:opacity-70"
               >
                 {status === "processing" ? <Loader2 size={16} className="animate-spin" /> : null}
                 Confirmar pedido en efectivo

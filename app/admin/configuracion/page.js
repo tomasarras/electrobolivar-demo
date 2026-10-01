@@ -129,7 +129,7 @@ export default function ConfiguracionPage() {
           <button
             type="submit"
             disabled={saving}
-            className="flex items-center gap-2 rounded-md bg-ink px-5 py-2.5 text-sm font-semibold text-paper disabled:opacity-60"
+            className="flex items-center gap-2 rounded-md bg-ink px-5 py-2.5 text-sm font-semibold text-paper hover:brightness-110 disabled:opacity-60"
           >
             {saving && <Loader2 size={14} className="animate-spin" />}
             Guardar contacto
@@ -163,7 +163,7 @@ export default function ConfiguracionPage() {
                   <button
                     type="button"
                     onClick={() => handleDeletePromo(p.id)}
-                    className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-danger text-white"
+                    className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-danger text-white hover:brightness-95"
                   >
                     <X size={14} />
                   </button>
@@ -230,7 +230,7 @@ export default function ConfiguracionPage() {
           <button
             type="submit"
             disabled={addingPromo || uploadingMobile || uploadingDesktop}
-            className="flex items-center gap-2 rounded-md bg-ink px-5 py-2.5 text-sm font-semibold text-paper disabled:opacity-60"
+            className="flex items-center gap-2 rounded-md bg-ink px-5 py-2.5 text-sm font-semibold text-paper hover:brightness-110 disabled:opacity-60"
           >
             {addingPromo && <Loader2 size={14} className="animate-spin" />}
             Agregar publicidad

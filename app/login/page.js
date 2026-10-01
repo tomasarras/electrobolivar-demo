@@ -131,7 +131,7 @@ function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="flex w-full items-center justify-center gap-2 rounded-md bg-ink py-3 text-sm font-semibold text-paper disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-2 rounded-md bg-ink py-3 text-sm font-semibold text-paper hover:brightness-110 disabled:opacity-60"
           >
             {loading && <Loader2 size={14} className="animate-spin" />}
             {mode === "login" ? "Iniciar sesión" : "Crear cuenta"}

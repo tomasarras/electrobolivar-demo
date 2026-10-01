@@ -174,7 +174,7 @@ export default function ProductForm({ product }) {
                 <button
                   type="button"
                   onClick={() => removeImage(url)}
-                  className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-danger text-white"
+                  className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-danger text-white hover:brightness-95"
                 >
                   <X size={12} />
                 </button>
@@ -218,7 +218,7 @@ export default function ProductForm({ product }) {
         <button
           type="submit"
           disabled={saving || uploading}
-          className="flex items-center gap-2 rounded-md bg-ink px-5 py-2.5 text-sm font-semibold text-paper disabled:opacity-60"
+          className="flex items-center gap-2 rounded-md bg-ink px-5 py-2.5 text-sm font-semibold text-paper hover:brightness-110 disabled:opacity-60"
         >
           {saving && <Loader2 size={14} className="animate-spin" />}
           {isEdit ? "Guardar cambios" : "Agregar producto"}

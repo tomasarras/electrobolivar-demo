@@ -26,7 +26,7 @@ export default function ProductGallery({ images, alt, category }) {
               type="button"
               onClick={() => setActive(i)}
               className={`relative h-14 w-14 overflow-hidden rounded border ${
-                i === active ? "border-accent ring-1 ring-accent" : "border-line"
+                i === active ? "border-accent ring-1 ring-accent" : "border-line hover:border-steel"
               }`}
             >
               <Image src={img.url} alt="" fill className="object-cover" />
