@@ -24,10 +24,10 @@ export default function StoreHeader() {
 
           {status === "authenticated" ? (
             <div className="flex items-center gap-3">
-              <span className="hidden items-center gap-1.5 text-ink-soft sm:flex">
+              <Link href="/perfil" className="flex items-center gap-1.5 text-ink-soft hover:text-accent">
                 <User size={16} />
-                {session.user?.name || session.user?.email}
-              </span>
+                <span className="hidden sm:inline">{session.user?.name || session.user?.email}</span>
+              </Link>
               <button
                 type="button"
                 onClick={() => signOut({ callbackUrl: "/tienda" })}
