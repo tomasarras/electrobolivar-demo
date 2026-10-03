@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { serializeProduct, validateProductInput, ProductError } from "@/lib/products";
 
-const PRODUCT_INCLUDE = { images: true };
+const PRODUCT_INCLUDE = { images: true, specs: true };
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -26,10 +26,12 @@ export async function POST(request) {
         category: input.category,
         price: input.price,
         installments: input.installments,
+        condition: input.condition,
         inStock: input.inStock,
         description: input.description,
         videoUrl: input.videoUrl,
         images: { create: input.images.map((url, order) => ({ url, order })) },
+        specs: { create: input.specs.map((s, order) => ({ label: s.label, value: s.value, order })) },
       },
       include: PRODUCT_INCLUDE,
     });

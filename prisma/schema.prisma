@@ -1,4 +1,4 @@
-// ElectroBolívar — fictional home-appliance store demo (portfolio project).
+// MercadoBolívar — fictional home-appliance store demo (portfolio project).
 // Prices are stored as whole-peso Int (ARS has no meaningful cents in
 // casual display), matching the other -demo projects in this portfolio.
 
@@ -18,12 +18,33 @@ model Product {
   category     String
   price        Int
   installments String?
+  // "nuevo" | "usado" — plain string rather than an enum so it matches the
+  // rest of the schema's style (category is a plain string too).
+  condition    String         @default("nuevo")
   inStock      Boolean        @default(true)
   description  String?
   videoUrl     String?
   images       ProductImage[]
+  specs        ProductSpec[]
+  // Null seller = house product, sold by the store itself (as before sellers existed).
+  sellerId     String?
+  seller       Seller?        @relation(fields: [sellerId], references: [id], onDelete: SetNull)
+  orderItems   OrderItem[]
+  reviews      Review[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
+}
+
+// Free-form spec sheet rows (e.g. "Potencia" → "650W"), ordered as entered.
+// A separate table rather than a Json column so it matches the ProductImage
+// pattern already used for other repeatable per-product data.
+model ProductSpec {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  label     String
+  value     String
+  order     Int     @default(0)
 }
 
 model ProductImage {
@@ -35,10 +56,12 @@ model ProductImage {
 }
 
 // Singleton row (id is always "singleton") holding store-wide settings —
-// just the WhatsApp number today, easy to extend later.
+// WhatsApp number, plus the commission percentage charged to marketplace
+// sellers on every sale.
 model StoreSettings {
-  id       String  @id @default("singleton")
-  whatsapp String?
+  id            String  @id @default("singleton")
+  whatsapp      String?
+  commissionPct Int     @default(10)
 }
 
 // Rotating ad banners (e.g. the sponsor's promo), managed from the admin
@@ -70,7 +93,80 @@ model User {
   address       String?
   accounts      Account[]
   sessions      Session[]
+  seller        Seller?
+  orders        Order[]
+  reviews       Review[]
   createdAt     DateTime  @default(now())
+}
+
+// A buyer who opted to also sell on the marketplace. Self-service, no
+// approval step: creating this row is what makes someone a seller.
+model Seller {
+  id         String      @id @default(cuid())
+  userId     String      @unique
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  storeName  String
+  whatsapp   String?
+  products   Product[]
+  orderItems OrderItem[]
+  createdAt  DateTime    @default(now())
+}
+
+// A completed checkout, persisted so sales can be attributed to a seller
+// and commission tracked. Created from the cart at confirmation time —
+// there's no separate payment-gateway webhook, since only Mercado Pago is
+// wired up for real (and only in sandbox mode); every other method here is
+// already a simulated "instant confirm".
+model Order {
+  id             String      @id @default(cuid())
+  code           String      @unique
+  buyerId        String?
+  buyer          User?       @relation(fields: [buyerId], references: [id], onDelete: SetNull)
+  paymentMethod  String
+  deliveryMethod String
+  address        String?
+  contactPhone   String?
+  // Free-text note from the buyer for whoever fulfills the order (e.g. "after
+  // 2pm I'll be home"), shown alongside the order wherever it's fulfilled.
+  deliveryNote   String?
+  total          Int
+  items          OrderItem[]
+  createdAt      DateTime    @default(now())
+}
+
+// Line item snapshot: price, seller and commission are captured at sale
+// time so later catalog/price/commission changes don't rewrite history.
+model OrderItem {
+  id            String   @id @default(cuid())
+  orderId       String
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId     String?
+  product       Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName   String
+  unitPrice     Int
+  qty           Int
+  sellerId      String?
+  seller        Seller?  @relation(fields: [sellerId], references: [id], onDelete: SetNull)
+  commissionPct Int
+  commissionAmt Int
+  review        Review?
+}
+
+// A buyer's rating/comment for one purchased line item. Tied to the
+// OrderItem (not just the product) so only an actual purchase can be
+// reviewed, and at most once per line.
+model Review {
+  id          String    @id @default(cuid())
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItemId String    @unique
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  buyerId     String?
+  buyer       User?     @relation(fields: [buyerId], references: [id], onDelete: SetNull)
+  buyerName   String?
+  rating      Int
+  comment     String?
+  createdAt   DateTime  @default(now())
 }
 
 model Account {

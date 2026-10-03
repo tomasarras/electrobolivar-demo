@@ -39,7 +39,7 @@ export default function RoleSelectorPage() {
         <Zap size={26} />
       </span>
       <h1 className="font-display text-3xl font-extrabold tracking-tight">
-        ELECTRO<span className="text-accent">BOLÍVAR</span>
+        MERCADO<span className="text-accent">BOLÍVAR</span>
       </h1>
       <p className="max-w-sm text-sm text-ink-soft">Demo de portfolio · elegí cómo querés entrar.</p>
 

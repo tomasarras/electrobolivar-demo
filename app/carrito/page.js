@@ -1,18 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { X, CreditCard, Landmark, Banknote, MessageCircle, Loader2, CheckCircle2, Copy, Check, Store, Truck } from "lucide-react";
 import StoreHeader from "@/components/StoreHeader";
 import ProductImagePlaceholder from "@/components/ProductImagePlaceholder";
+import StarRating from "@/components/StarRating";
 import { formatCurrency } from "@/lib/format";
 import { useCart } from "@/components/CartProvider";
 
-// Simulated only — no real processor is wired up. Each method just walks
-// through a fake "processing" state and lands on the same confirmation
-// screen, so the demo can showcase the payment options a real Argentine
-// store would offer without handling actual money.
+// Mercado Pago is wired up for real (Checkout Pro, sandbox/test credentials —
+// see MP_ACCESS_TOKEN in .env.example). MODO and "Otra tarjeta" don't have a
+// real gateway behind them, so they stay simulated: a fake "processing" state
+// that lands on the same confirmation screen.
 const PAY_NOW_METHODS = {
   mercadopago: { label: "Mercado Pago", description: "Tarjeta, transferencia o efectivo", icon: CreditCard, color: "#00b1ea" },
   modo: { label: "MODO", description: "Pagás directo desde tu cuenta bancaria", icon: Landmark, color: "#5b3df5" },
@@ -20,18 +22,32 @@ const PAY_NOW_METHODS = {
 };
 
 const CVU = "0000003100094567892312";
-const ALIAS = "electrobolivar.mp";
+const ALIAS = "mercadobolivar.mp";
+const MP_ORDER_KEY = (code) => `eb_mp_order_${code}`;
 
 export default function CarritoPage() {
+  return (
+    <Suspense fallback={null}>
+      <CarritoContent />
+    </Suspense>
+  );
+}
+
+function CarritoContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { items, loaded, updateQty, removeItem, clearCart, total } = useCart();
   const [whatsapp, setWhatsapp] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState("retiro");
   const [address, setAddress] = useState("");
   const [contactPhone, setContactPhone] = useState("");
+  const [deliveryNote, setDeliveryNote] = useState("");
   const [method, setMethod] = useState("mercadopago");
   const [status, setStatus] = useState("idle"); // idle | processing | confirmed
-  const [confirmedMethod, setConfirmedMethod] = useState("");
+  const [paymentNote, setPaymentNote] = useState("");
+  const [paymentError, setPaymentError] = useState("");
   const [orderCode, setOrderCode] = useState("");
+  const [orderItems, setOrderItems] = useState([]);
   const [copied, setCopied] = useState("");
   const [cashCode] = useState(() => `${Math.floor(1000 + Math.random() * 9000)} ${Math.floor(1000 + Math.random() * 9000)}`);
 
@@ -42,9 +58,74 @@ export default function CarritoPage() {
       .catch(() => setWhatsapp(""));
   }, []);
 
-  function confirmOrder(methodLabel) {
-    setConfirmedMethod(methodLabel);
-    setOrderCode(`EB-${Date.now().toString().slice(-6)}`);
+  // Best-effort order record — used to attribute sales/commission to sellers.
+  // Never blocks checkout: a failed write here shouldn't break the demo.
+  async function persistOrder({ code, items: cartItems, deliveryMethod: dMethod, address: addr, contactPhone: phone, paymentMethod, deliveryNote: note }) {
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, items: cartItems, deliveryMethod: dMethod, address: addr, contactPhone: phone, paymentMethod, deliveryNote: note }),
+      });
+      if (!res.ok) return null;
+      return await res.json();
+    } catch {
+      // ignore — order tracking is secondary to the (simulated) purchase itself
+      return null;
+    }
+  }
+
+  // Handles the redirect back from Mercado Pago's checkout (success/failure/pending).
+  /* eslint-disable react-hooks/set-state-in-effect -- syncs confirmation state from the MP redirect's query params, runs once per return */
+  useEffect(() => {
+    const mpStatus = searchParams.get("mp_status");
+    const mpOrder = searchParams.get("mp_order");
+    if (!mpStatus || !mpOrder) return;
+
+    const raw = window.localStorage.getItem(MP_ORDER_KEY(mpOrder));
+    const snapshot = raw ? JSON.parse(raw) : null;
+
+    if (mpStatus === "failure") {
+      setPaymentError("El pago con Mercado Pago no se completó. Podés intentar de nuevo o elegir otro método.");
+    } else {
+      if (snapshot) {
+        setDeliveryMethod(snapshot.deliveryMethod);
+        setAddress(snapshot.address || "");
+        setContactPhone(snapshot.contactPhone || "");
+        setDeliveryNote(snapshot.deliveryNote || "");
+        if (snapshot.items?.length) {
+          persistOrder({
+            code: mpOrder,
+            items: snapshot.items,
+            deliveryMethod: snapshot.deliveryMethod,
+            address: snapshot.address,
+            contactPhone: snapshot.contactPhone,
+            paymentMethod: "mercadopago",
+            deliveryNote: snapshot.deliveryNote,
+          }).then((order) => setOrderItems(order?.items || []));
+        }
+      }
+      setPaymentNote(
+        mpStatus === "pending"
+          ? "Mercado Pago marcó este pago como pendiente — es el entorno de pruebas (sandbox), no se realizó ningún cobro real."
+          : "Pago aprobado por Mercado Pago en modo sandbox/test — no se realizó ningún cobro real."
+      );
+      setOrderCode(mpOrder);
+      setStatus("confirmed");
+      clearCart();
+    }
+    window.localStorage.removeItem(MP_ORDER_KEY(mpOrder));
+    router.replace("/carrito");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  async function confirmOrder(methodLabel) {
+    const code = `EB-${Date.now().toString().slice(-6)}`;
+    const order = await persistOrder({ code, items, deliveryMethod, address, contactPhone, paymentMethod: method, deliveryNote });
+    setOrderItems(order?.items || []);
+    setPaymentNote(`Simulación de pago con ${methodLabel} — es una demo de portfolio, no se realizó ningún cobro real.`);
+    setOrderCode(code);
     setStatus("confirmed");
     clearCart();
   }
@@ -52,6 +133,27 @@ export default function CarritoPage() {
   function handlePayNow(methodLabel) {
     setStatus("processing");
     setTimeout(() => confirmOrder(methodLabel), 1400);
+  }
+
+  async function handleMercadoPagoCheckout() {
+    setPaymentError("");
+    setStatus("processing");
+    const code = `EB-${Date.now().toString().slice(-6)}`;
+    window.localStorage.setItem(MP_ORDER_KEY(code), JSON.stringify({ items, deliveryMethod, address, contactPhone, deliveryNote }));
+    try {
+      const res = await fetch("/api/mercadopago/preference", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items, orderCode: code, deliveryMethod, address, contactPhone }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "No se pudo iniciar el pago con Mercado Pago");
+      window.location.href = data.checkoutUrl;
+    } catch (err) {
+      window.localStorage.removeItem(MP_ORDER_KEY(code));
+      setPaymentError(err.message);
+      setStatus("idle");
+    }
   }
 
   function handleCopy(text, key) {
@@ -75,9 +177,17 @@ export default function CarritoPage() {
             {deliveryMethod === "envio" ? `Envío a domicilio${address ? ` — ${address}` : ""}` : "Retiro en el local"}
           </p>
           {contactPhone && <p className="mt-1 text-sm text-ink-soft">Contacto: {contactPhone}</p>}
-          <p className="mt-2 text-sm text-steel">
-            Simulación de pago con {confirmedMethod} — es una demo de portfolio, no se realizó ningún cobro real.
-          </p>
+          <p className="mt-2 text-sm text-steel">{paymentNote}</p>
+
+          {orderItems.length > 0 && (
+            <div className="mt-8 space-y-3 text-left">
+              <p className="text-center font-mono text-[11px] uppercase tracking-wide text-steel">¿Qué te pareció tu compra?</p>
+              {orderItems.map((item) => (
+                <ReviewForm key={item.id} item={item} />
+              ))}
+            </div>
+          )}
+
           <Link href="/tienda" className="mt-6 inline-block rounded-md bg-ink px-6 py-3 text-sm font-semibold text-paper hover:brightness-110">
             Volver al catálogo
           </Link>
@@ -102,11 +212,12 @@ export default function CarritoPage() {
 
   const deliveryLine = deliveryMethod === "envio" ? `Envío a domicilio${address ? ` - ${address}` : ""}` : "Retiro en el local";
   const message =
-    "Hola! Quiero consultar por este pedido de ElectroBolívar:\n" +
+    "Hola! Quiero consultar por este pedido de MercadoBolívar:\n" +
     items.map((i) => `${i.qty}x ${i.name} - ${formatCurrency(i.price * i.qty)}`).join("\n") +
     `\n\nTotal estimado: ${formatCurrency(total)}` +
     `\nEntrega: ${deliveryLine}` +
-    (contactPhone ? `\nContacto: ${contactPhone}` : "");
+    (contactPhone ? `\nContacto: ${contactPhone}` : "") +
+    (deliveryNote ? `\nNota: ${deliveryNote}` : "");
   const whatsappHref = whatsapp ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}` : null;
   const payNow = PAY_NOW_METHODS[method];
 
@@ -198,6 +309,19 @@ export default function CarritoPage() {
               className="w-full rounded-md border border-line bg-paper px-3 py-2 text-sm"
             />
           </div>
+
+          <div className="mt-3">
+            <label className="mb-1 block font-mono text-[11px] uppercase tracking-wide text-steel">
+              Nota para el envío (opcional)
+            </label>
+            <textarea
+              value={deliveryNote}
+              onChange={(e) => setDeliveryNote(e.target.value)}
+              rows={2}
+              placeholder="Ej: después de las 14hs voy a estar en mi casa"
+              className="w-full resize-y rounded-md border border-line bg-paper px-3 py-2 text-sm"
+            />
+          </div>
         </div>
 
         <div className="mt-6 rounded-md border border-line bg-panel p-5">
@@ -249,14 +373,14 @@ export default function CarritoPage() {
             <>
               <button
                 type="button"
-                onClick={() => handlePayNow(payNow.label)}
+                onClick={() => (method === "mercadopago" ? handleMercadoPagoCheckout() : handlePayNow(payNow.label))}
                 disabled={status === "processing"}
                 style={{ backgroundColor: payNow.color }}
                 className="mt-5 flex w-full items-center justify-center gap-2 rounded-md py-3 text-sm font-semibold text-white hover:brightness-105 disabled:opacity-70"
               >
                 {status === "processing" ? (
                   <>
-                    <Loader2 size={16} className="animate-spin" /> Procesando…
+                    <Loader2 size={16} className="animate-spin" /> {method === "mercadopago" ? "Redirigiendo…" : "Procesando…"}
                   </>
                 ) : (
                   <>
@@ -264,8 +388,11 @@ export default function CarritoPage() {
                   </>
                 )}
               </button>
+              {paymentError && <p className="mt-2 text-center text-sm text-danger">{paymentError}</p>}
               <p className="mt-2 text-center text-xs text-steel">
-                Demo de portfolio: la pasarela es una simulación, no se procesa ningún pago real.
+                {method === "mercadopago"
+                  ? "Te redirige a Mercado Pago en modo sandbox/test: usá una tarjeta de prueba, no se procesa ningún cobro real."
+                  : "Demo de portfolio: la pasarela es una simulación, no se procesa ningún pago real."}
               </p>
             </>
           ) : method === "transferencia" ? (
@@ -351,6 +478,62 @@ function MethodCard({ active, onClick, icon: Icon, color, label, description }) 
         <span className="block truncate text-xs text-ink-soft">{description}</span>
       </span>
     </button>
+  );
+}
+
+function ReviewForm({ item }) {
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  async function handleSubmit() {
+    if (!rating) return;
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderItemId: item.id, rating, comment }),
+      });
+      if (res.ok) setSubmitted(true);
+    } catch {
+      // best effort — a failed review shouldn't block the confirmation screen
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (submitted) {
+    return (
+      <div className="rounded-md border border-line bg-panel p-4 text-center text-sm text-ink-soft">
+        ¡Gracias por tu reseña de {item.productName}!
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-md border border-line bg-panel p-4">
+      <p className="text-sm font-medium">{item.productName}</p>
+      <div className="mt-2">
+        <StarRating value={rating} onChange={setRating} />
+      </div>
+      <textarea
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        rows={2}
+        placeholder="Contanos tu experiencia (opcional)"
+        className="mt-2 w-full resize-y rounded-md border border-line bg-paper px-3 py-2 text-sm"
+      />
+      <button
+        type="button"
+        onClick={handleSubmit}
+        disabled={!rating || submitting}
+        className="mt-2 rounded-md bg-ink px-4 py-2 text-sm font-semibold text-paper hover:brightness-110 disabled:opacity-50"
+      >
+        {submitting ? "Enviando…" : "Enviar reseña"}
+      </button>
+    </div>
   );
 }
 

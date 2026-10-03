@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { serializeProduct, validateProductInput, ProductError } from "@/lib/products";
 
-const PRODUCT_INCLUDE = { images: true };
+const PRODUCT_INCLUDE = { images: true, specs: true };
 
 export async function GET(request, { params }) {
   const { id } = await params;
@@ -17,6 +17,7 @@ export async function PATCH(request, { params }) {
   try {
     const input = validateProductInput(data);
     await prisma.productImage.deleteMany({ where: { productId: id } });
+    await prisma.productSpec.deleteMany({ where: { productId: id } });
     const product = await prisma.product.update({
       where: { id },
       data: {
@@ -24,10 +25,12 @@ export async function PATCH(request, { params }) {
         category: input.category,
         price: input.price,
         installments: input.installments,
+        condition: input.condition,
         inStock: input.inStock,
         description: input.description,
         videoUrl: input.videoUrl,
         images: { create: input.images.map((url, order) => ({ url, order })) },
+        specs: { create: input.specs.map((s, order) => ({ label: s.label, value: s.value, order })) },
       },
       include: PRODUCT_INCLUDE,
     });

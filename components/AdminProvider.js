@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 
-const STORAGE_KEY = "electrobolivar_admin";
+const STORAGE_KEY = "mercadobolivar_admin";
 
 const AdminContext = createContext({
   isAdmin: false,

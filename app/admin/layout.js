@@ -30,7 +30,7 @@ export default function AdminLayout({ children }) {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
           <Link href="/admin" className="flex items-center gap-1.5 font-display text-lg font-bold">
             <LayoutGrid size={18} />
-            ElectroBolívar <span className="font-sans text-sm font-normal text-steel">admin</span>
+            MercadoBolívar <span className="font-sans text-sm font-normal text-steel">admin</span>
           </Link>
           <nav className="flex items-center gap-1 text-sm font-medium">
             {NAV.map(({ href, label, icon: Icon }) => (

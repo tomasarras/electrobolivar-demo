@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 
-const STORAGE_KEY = "electrobolivar_cart";
+const STORAGE_KEY = "mercadobolivar_cart";
 
 const CartContext = createContext(null);
 

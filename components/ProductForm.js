@@ -4,13 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { upload } from "@vercel/blob/client";
-import { Loader2, X, Film } from "lucide-react";
+import { Loader2, X, Film, Plus } from "lucide-react";
 import { CATEGORIES } from "@/lib/categories";
 
 const MAX_IMAGES = 4;
 const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
 
-export default function ProductForm({ product }) {
+export default function ProductForm({ product, basePath = "/api/products", redirectTo = "/admin/productos" }) {
   const router = useRouter();
   const isEdit = Boolean(product);
 
@@ -18,9 +18,13 @@ export default function ProductForm({ product }) {
   const [category, setCategory] = useState(product?.category || CATEGORIES[0].slug);
   const [price, setPrice] = useState(product?.price || "");
   const [installments, setInstallments] = useState(product?.installments || "");
+  const [condition, setCondition] = useState(product?.condition || "nuevo");
   const [inStock, setInStock] = useState(product?.inStock !== false);
   const [videoUrl, setVideoUrl] = useState(product?.videoUrl || "");
   const [description, setDescription] = useState(product?.description || "");
+  const [specs, setSpecs] = useState(
+    product?.specs?.length ? product.specs.map((s) => ({ label: s.label, value: s.value })) : [{ label: "", value: "" }]
+  );
   const [images, setImages] = useState((product?.images || []).map((img) => img.url));
   const [uploading, setUploading] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
@@ -81,6 +85,18 @@ export default function ProductForm({ product }) {
     setVideoUrl("");
   }
 
+  function updateSpec(index, field, value) {
+    setSpecs((prev) => prev.map((s, i) => (i === index ? { ...s, [field]: value } : s)));
+  }
+
+  function addSpecRow() {
+    setSpecs((prev) => [...prev, { label: "", value: "" }]);
+  }
+
+  function removeSpecRow(index) {
+    setSpecs((prev) => prev.filter((_, i) => i !== index));
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
@@ -95,19 +111,21 @@ export default function ProductForm({ product }) {
         category,
         price: Number(price),
         installments: installments.trim(),
+        condition,
         inStock,
         videoUrl: videoUrl.trim(),
         description: description.trim(),
         images,
+        specs: specs.map((s) => ({ label: s.label.trim(), value: s.value.trim() })).filter((s) => s.label && s.value),
       };
-      const res = await fetch(isEdit ? `/api/products/${product.id}` : "/api/products", {
+      const res = await fetch(isEdit ? `${basePath}/${product.id}` : basePath, {
         method: isEdit ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "No se pudo guardar el producto");
-      router.push("/admin/productos");
+      router.push(redirectTo);
       router.refresh();
     } catch (err) {
       setError(err.message);
@@ -142,14 +160,21 @@ export default function ProductForm({ product }) {
         </Field>
       </div>
 
+      <Field label="Cuotas (opcional)">
+        <input
+          value={installments}
+          onChange={(e) => setInstallments(e.target.value)}
+          placeholder="12 cuotas sin interés"
+          className="input"
+        />
+      </Field>
+
       <div className="grid grid-cols-2 gap-4">
-        <Field label="Cuotas (opcional)">
-          <input
-            value={installments}
-            onChange={(e) => setInstallments(e.target.value)}
-            placeholder="12 cuotas sin interés"
-            className="input"
-          />
+        <Field label="Estado">
+          <select value={condition} onChange={(e) => setCondition(e.target.value)} className="input">
+            <option value="nuevo">Nuevo</option>
+            <option value="usado">Usado</option>
+          </select>
         </Field>
         <Field label="Disponibilidad">
           <select value={inStock ? "true" : "false"} onChange={(e) => setInStock(e.target.value === "true")} className="input">
@@ -212,6 +237,46 @@ export default function ProductForm({ product }) {
         />
       </Field>
 
+      <Field label="Características (opcional)">
+        <div className="space-y-2">
+          {specs.map((spec, i) => (
+            <div key={i} className="flex gap-2">
+              <div className="w-2/5">
+                <input
+                  value={spec.label}
+                  onChange={(e) => updateSpec(i, "label", e.target.value)}
+                  placeholder="Potencia"
+                  className="input"
+                />
+              </div>
+              <div className="flex-1">
+                <input
+                  value={spec.value}
+                  onChange={(e) => updateSpec(i, "value", e.target.value)}
+                  placeholder="650W"
+                  className="input"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => removeSpecRow(i)}
+                className="shrink-0 rounded-md border border-line px-2 text-ink-soft hover:border-steel hover:text-danger"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={addSpecRow}
+          className="mt-2 flex items-center gap-1 text-sm font-medium text-ink-soft hover:text-ink"
+        >
+          <Plus size={14} />
+          Agregar característica
+        </button>
+      </Field>
+
       {error && <p className="text-sm text-danger">{error}</p>}
 
       <div className="flex gap-3 pt-2">
@@ -225,7 +290,7 @@ export default function ProductForm({ product }) {
         </button>
         <button
           type="button"
-          onClick={() => router.push("/admin/productos")}
+          onClick={() => router.push(redirectTo)}
           className="rounded-md border border-line px-5 py-2.5 text-sm font-semibold text-ink-soft hover:border-steel"
         >
           Cancelar

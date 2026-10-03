@@ -1,11 +1,13 @@
-import { CookingPot, Refrigerator, WashingMachine, AirVent, Blender } from "lucide-react";
+import { CookingPot, WashingMachine, AirVent, Blender, Shirt, Car, Gamepad2 } from "lucide-react";
 
 const ICONS = {
   cocina: CookingPot,
-  frio: Refrigerator,
   lavado: WashingMachine,
   climatizacion: AirVent,
   pequenos: Blender,
+  ropa: Shirt,
+  vehiculos: Car,
+  juegos: Gamepad2,
 };
 
 export default function ProductImagePlaceholder({ category, className = "" }) {

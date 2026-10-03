@@ -6,6 +6,7 @@ import { Loader2, X } from "lucide-react";
 
 export default function ConfiguracionPage() {
   const [whatsapp, setWhatsapp] = useState("");
+  const [commissionPct, setCommissionPct] = useState(10);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -24,7 +25,10 @@ export default function ConfiguracionPage() {
   useEffect(() => {
     fetch("/api/settings")
       .then((res) => res.json())
-      .then((data) => setWhatsapp(data.whatsapp || ""))
+      .then((data) => {
+        setWhatsapp(data.whatsapp || "");
+        setCommissionPct(data.commissionPct ?? 10);
+      })
       .finally(() => setLoading(false));
     loadPromos();
   }, []);
@@ -46,7 +50,7 @@ export default function ConfiguracionPage() {
       const res = await fetch("/api/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ whatsapp }),
+        body: JSON.stringify({ whatsapp, commissionPct: Number(commissionPct) }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "No se pudo guardar");
@@ -126,13 +130,29 @@ export default function ConfiguracionPage() {
             inputMode="numeric"
             className="input"
           />
+
+          <label className="block font-mono text-[11px] uppercase tracking-wide text-steel">
+            Comisión de vendedores (%)
+          </label>
+          <input
+            type="number"
+            min="0"
+            max="100"
+            value={commissionPct}
+            onChange={(e) => setCommissionPct(e.target.value)}
+            className="input"
+          />
+          <p className="text-xs text-ink-soft">
+            Porcentaje que se descuenta de cada venta hecha por un vendedor del marketplace.
+          </p>
+
           <button
             type="submit"
             disabled={saving}
             className="flex items-center gap-2 rounded-md bg-ink px-5 py-2.5 text-sm font-semibold text-paper hover:brightness-110 disabled:opacity-60"
           >
             {saving && <Loader2 size={14} className="animate-spin" />}
-            Guardar contacto
+            Guardar
           </button>
           {message && <p className="text-sm text-accent-2">{message}</p>}
           {error && <p className="text-sm text-danger">{error}</p>}

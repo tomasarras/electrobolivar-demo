@@ -9,12 +9,31 @@ import { serializePromo } from "@/lib/promos";
 export const dynamic = "force-dynamic";
 
 export default async function TiendaPage({ searchParams }) {
-  const { categoria } = await searchParams;
+  const { categoria, q } = await searchParams;
+  const query = (q || "").trim();
+  const words = query.split(/\s+/).filter(Boolean).slice(0, 6);
+
+  const where = {
+    ...(categoria ? { category: categoria } : {}),
+    ...(words.length
+      ? {
+          OR: words.flatMap((w) => [
+            { name: { contains: w, mode: "insensitive" } },
+            { description: { contains: w, mode: "insensitive" } },
+          ]),
+        }
+      : {}),
+  };
 
   const [products, promoImages] = await Promise.all([
     prisma.product.findMany({
-      where: categoria ? { category: categoria } : undefined,
-      include: { images: { orderBy: { order: "asc" } } },
+      where: Object.keys(where).length ? where : undefined,
+      include: {
+        images: { orderBy: { order: "asc" } },
+        seller: { select: { storeName: true } },
+        reviews: { select: { rating: true } },
+        orderItems: { select: { qty: true } },
+      },
       orderBy: { createdAt: "desc" },
     }),
     prisma.promoImage.findMany({ orderBy: { order: "asc" } }),
@@ -26,6 +45,14 @@ export default async function TiendaPage({ searchParams }) {
       <StoreHeader />
       <main className="mx-auto max-w-6xl px-4 pb-28 pt-10 sm:px-6 xl:pb-10">
         <h1 className="font-display text-2xl font-bold">Catálogo</h1>
+        {query && (
+          <p className="mt-1 text-sm text-ink-soft">
+            Resultados para <span className="font-semibold">&quot;{query}&quot;</span> ·{" "}
+            <Link href={categoria ? `/tienda?categoria=${categoria}` : "/tienda"} className="underline hover:text-ink">
+              Quitar búsqueda
+            </Link>
+          </p>
+        )}
 
         <div className="mt-4 flex flex-wrap gap-2">
           <Link
@@ -50,7 +77,9 @@ export default async function TiendaPage({ searchParams }) {
         </div>
 
         {products.length === 0 ? (
-          <p className="mt-10 text-sm text-steel">No hay productos en esta categoría todavía.</p>
+          <p className="mt-10 text-sm text-steel">
+            {query ? "No se encontraron productos para tu búsqueda." : "No hay productos en esta categoría todavía."}
+          </p>
         ) : (
           <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {products.map((p) => (
