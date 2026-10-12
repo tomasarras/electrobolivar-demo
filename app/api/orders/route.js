@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { commissionAmount } from "@/lib/commission";
+import { formatCurrency } from "@/lib/format";
 
 export async function POST(request) {
   const { code, items, deliveryMethod, address, contactPhone, paymentMethod, deliveryNote } = await request.json();
@@ -50,9 +51,27 @@ export async function POST(request) {
     select: {
       id: true,
       code: true,
-      items: { select: { id: true, productId: true, productName: true } },
+      items: { select: { id: true, productId: true, productName: true, qty: true, unitPrice: true, sellerId: true } },
     },
   });
+
+  const itemsBySeller = new Map();
+  for (const item of order.items) {
+    if (!item.sellerId) continue;
+    if (!itemsBySeller.has(item.sellerId)) itemsBySeller.set(item.sellerId, []);
+    itemsBySeller.get(item.sellerId).push(item);
+  }
+  if (itemsBySeller.size) {
+    await prisma.notification.createMany({
+      data: Array.from(itemsBySeller.entries()).map(([sellerId, sellerItems]) => ({
+        sellerId,
+        message:
+          sellerItems.length === 1
+            ? `Vendiste ${sellerItems[0].qty}x "${sellerItems[0].productName}" (${formatCurrency(sellerItems[0].unitPrice * sellerItems[0].qty)}) · Pedido #${order.code}`
+            : `Nueva venta: ${sellerItems.length} productos del pedido #${order.code}`,
+      })),
+    });
+  }
 
   return NextResponse.json(order, { status: 201 });
 }

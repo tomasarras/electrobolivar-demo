@@ -1,4 +1,4 @@
-# MercadoBolívar (demo)
+# BolivarMarket (demo)
 
 Fictional home-appliance store — portfolio project. Next.js + Prisma/Postgres + Vercel Blob.
 

@@ -27,7 +27,7 @@ export async function POST(request) {
         })),
         payer: contactPhone ? { phone: { number: contactPhone } } : undefined,
         external_reference: orderCode,
-        statement_descriptor: "MERCADOBOLIVAR",
+        statement_descriptor: "BOLIVARMARKET",
         metadata: { deliveryLine },
         back_urls: {
           success: `${origin}/carrito?mp_status=success&mp_order=${orderCode}`,

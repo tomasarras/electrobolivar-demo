@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { ShoppingBag, Heart, User, LogOut, Store, Search, Camera, Loader2 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { useCart } from "@/components/CartProvider";
@@ -50,7 +51,7 @@ export default function StoreHeader() {
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:gap-4 sm:px-6">
         <Link href="/tienda" className="flex items-baseline gap-2">
           <span className="font-display text-2xl font-extrabold tracking-tight">
-            MERCADO<span className="text-accent">BOLÍVAR</span>
+            BOLIVAR<span className="text-accent">MARKET</span>
           </span>
         </Link>
 
@@ -90,12 +91,18 @@ export default function StoreHeader() {
 
           {status === "authenticated" ? (
             <div className="flex items-center gap-3">
-              <Link href="/vendedor" className="flex items-center gap-1.5 text-ink-soft hover:text-accent">
+              <Link href="/vendedor" className="flex items-center gap-1.5 font-semibold text-accent hover:brightness-90">
                 <Store size={16} />
                 <span className="hidden sm:inline">Vender</span>
               </Link>
               <Link href="/perfil" className="flex items-center gap-1.5 text-ink-soft hover:text-accent">
-                <User size={16} />
+                {session.user?.image ? (
+                  <span className="relative h-5 w-5 shrink-0 overflow-hidden rounded-full">
+                    <Image src={session.user.image} alt="" fill className="object-cover" sizes="20px" />
+                  </span>
+                ) : (
+                  <User size={16} />
+                )}
                 <span className="hidden sm:inline">{session.user?.name || session.user?.email}</span>
               </Link>
               <button
@@ -108,10 +115,19 @@ export default function StoreHeader() {
               </button>
             </div>
           ) : (
-            <Link href="/login" className="flex items-center gap-1.5 hover:text-accent">
-              <User size={18} />
-              <span className="hidden sm:inline">Iniciar sesión</span>
-            </Link>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/login?callbackUrl=%2Fvendedor"
+                className="flex items-center gap-1.5 font-semibold text-accent hover:brightness-90"
+              >
+                <Store size={16} />
+                <span className="hidden sm:inline">Vender</span>
+              </Link>
+              <Link href="/login" className="flex items-center gap-1.5 hover:text-accent">
+                <User size={18} />
+                <span className="hidden sm:inline">Iniciar sesión</span>
+              </Link>
+            </div>
           )}
 
           <Link href="/favoritos" className="relative flex items-center gap-1 hover:text-accent">

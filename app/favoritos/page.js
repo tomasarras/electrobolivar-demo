@@ -11,10 +11,12 @@ function toProduct(favorite) {
     id: favorite.productId,
     name: favorite.name,
     price: favorite.price,
+    currency: favorite.currency,
     installments: favorite.installments,
-    inStock: favorite.inStock,
+    stock: favorite.stock,
     category: favorite.category,
     images: favorite.imageUrl ? [{ url: favorite.imageUrl }] : [],
+    favoriteCount: favorite.favoriteCount ?? 0,
   };
 }
 

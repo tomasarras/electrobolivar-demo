@@ -4,12 +4,12 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { Store, Package, Receipt } from "lucide-react";
+import { Store, Package } from "lucide-react";
+import SellerNotificationBell from "@/components/SellerNotificationBell";
 
 const NAV = [
   { href: "/vendedor", label: "Resumen", icon: Store },
   { href: "/vendedor/productos", label: "Mis productos", icon: Package },
-  { href: "/vendedor/ventas", label: "Ventas", icon: Receipt },
 ];
 
 export default function VendedorLayout({ children }) {
@@ -31,7 +31,7 @@ export default function VendedorLayout({ children }) {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
           <Link href="/vendedor" className="flex items-center gap-1.5 font-display text-lg font-bold">
             <Store size={18} />
-            MercadoBolívar <span className="font-sans text-sm font-normal text-steel">vendedor</span>
+            BolivarMarket <span className="font-sans text-sm font-normal text-steel">vendedor</span>
           </Link>
           <nav className="flex items-center gap-1 text-sm font-medium">
             {NAV.map(({ href, label, icon: Icon }) => {
@@ -49,6 +49,7 @@ export default function VendedorLayout({ children }) {
               </Link>
               );
             })}
+            <SellerNotificationBell />
             <Link href="/tienda" className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-ink-soft hover:bg-panel-2">
               Volver a la tienda
             </Link>

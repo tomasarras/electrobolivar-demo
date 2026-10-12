@@ -9,6 +9,8 @@ import { CATEGORIES } from "@/lib/categories";
 
 const MAX_IMAGES = 4;
 const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
+const NO_SHIPPING_CATEGORIES = ["vehiculos", "inmobiliaria"];
+const NO_STOCK_CATEGORIES = ["vehiculos", "inmobiliaria"];
 
 export default function ProductForm({ product, basePath = "/api/products", redirectTo = "/admin/productos" }) {
   const router = useRouter();
@@ -17,14 +19,63 @@ export default function ProductForm({ product, basePath = "/api/products", redir
   const [name, setName] = useState(product?.name || "");
   const [category, setCategory] = useState(product?.category || CATEGORIES[0].slug);
   const [price, setPrice] = useState(product?.price || "");
+  const [currency, setCurrency] = useState(product?.currency || "ARS");
   const [installments, setInstallments] = useState(product?.installments || "");
   const [condition, setCondition] = useState(product?.condition || "nuevo");
-  const [inStock, setInStock] = useState(product?.inStock !== false);
+  const [stock, setStock] = useState(product?.stock ?? 0);
+  const [shipping, setShipping] = useState(product?.shipping !== false);
+  const [freeShippingMode, setFreeShippingMode] = useState(
+    product?.freeShippingMinAmount === 0 ? "always" : product?.freeShippingMinAmount > 0 ? "threshold" : "none"
+  );
+  const [freeShippingAmount, setFreeShippingAmount] = useState(
+    product?.freeShippingMinAmount > 0 ? product.freeShippingMinAmount : ""
+  );
+  const [scheduleDays, setScheduleDays] = useState(product?.scheduleDays || "");
+  const [scheduleHours, setScheduleHours] = useState(product?.scheduleHours || "");
+  const [scheduleHours2, setScheduleHours2] = useState(product?.scheduleHours2 || "");
+  const [showSecondSchedule, setShowSecondSchedule] = useState(Boolean(product?.scheduleHours2));
+  const [vehicleYear, setVehicleYear] = useState(product?.vehicleYear || "");
+  const [vehicleKm, setVehicleKm] = useState(product?.vehicleKm ?? "");
+  const [vehicleBrand, setVehicleBrand] = useState(product?.vehicleBrand || "");
+  const [vehicleModel, setVehicleModel] = useState(product?.vehicleModel || "");
+  const [vehicleColor, setVehicleColor] = useState(product?.vehicleColor || "");
+  const [propertyOperation, setPropertyOperation] = useState(product?.propertyOperation || "venta");
+  const [propertyCoveredArea, setPropertyCoveredArea] = useState(product?.propertyCoveredArea ?? "");
+  const [propertyTotalArea, setPropertyTotalArea] = useState(product?.propertyTotalArea ?? "");
+  const [propertyBedrooms, setPropertyBedrooms] = useState(product?.propertyBedrooms ?? "");
+  const [propertyRooms, setPropertyRooms] = useState(product?.propertyRooms ?? "");
+  const [propertyBathrooms, setPropertyBathrooms] = useState(product?.propertyBathrooms ?? "");
+  const [propertyTotalUnits, setPropertyTotalUnits] = useState(product?.propertyTotalUnits ?? "");
+  const [propertyLocation, setPropertyLocation] = useState(product?.propertyLocation || "");
+  const [phoneBrand, setPhoneBrand] = useState(product?.phoneBrand || "");
+  const [phoneModel, setPhoneModel] = useState(product?.phoneModel || "");
+  const [phoneStorage, setPhoneStorage] = useState(product?.phoneStorage || "");
+  const [phoneRam, setPhoneRam] = useState(product?.phoneRam || "");
+  const [phoneNetwork, setPhoneNetwork] = useState(product?.phoneNetwork || "");
+  const [phoneColor, setPhoneColor] = useState(product?.phoneColor || "");
+  const [phoneCamera, setPhoneCamera] = useState(product?.phoneCamera || "");
+  const [clothingAccessories, setClothingAccessories] = useState(product?.clothingAccessories || "");
+  const [clothingGender, setClothingGender] = useState(product?.clothingGender || "");
+  const [clothingSize, setClothingSize] = useState(product?.clothingSize || "");
+  const [clothingBrand, setClothingBrand] = useState(product?.clothingBrand || "");
+  const [clothingColor, setClothingColor] = useState(product?.clothingColor || "");
+  const [clothingFit, setClothingFit] = useState(product?.clothingFit || "");
+  const [clothingAge, setClothingAge] = useState(product?.clothingAge || "");
+  const [clothingMaterial, setClothingMaterial] = useState(product?.clothingMaterial || "");
+  const [clothingSleeve, setClothingSleeve] = useState(product?.clothingSleeve || "");
+  const [clothingNeckline, setClothingNeckline] = useState(product?.clothingNeckline || "");
+  const [beautyCategory, setBeautyCategory] = useState(product?.beautyCategory || "");
+  const [beautyBrand, setBeautyBrand] = useState(product?.beautyBrand || "");
+  const [homeColor, setHomeColor] = useState(product?.homeColor || "");
+  const [homeBrand, setHomeBrand] = useState(product?.homeBrand || "");
+  const [homeSaleFormat, setHomeSaleFormat] = useState(product?.homeSaleFormat || "");
+  const [laundryBrand, setLaundryBrand] = useState(product?.laundryBrand || "");
+  const [laundryColor, setLaundryColor] = useState(product?.laundryColor || "");
+  const [techCategory, setTechCategory] = useState(product?.techCategory || "");
+  const [techBrand, setTechBrand] = useState(product?.techBrand || "");
+  const [techColor, setTechColor] = useState(product?.techColor || "");
   const [videoUrl, setVideoUrl] = useState(product?.videoUrl || "");
   const [description, setDescription] = useState(product?.description || "");
-  const [specs, setSpecs] = useState(
-    product?.specs?.length ? product.specs.map((s) => ({ label: s.label, value: s.value })) : [{ label: "", value: "" }]
-  );
   const [images, setImages] = useState((product?.images || []).map((img) => img.url));
   const [uploading, setUploading] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
@@ -85,18 +136,6 @@ export default function ProductForm({ product, basePath = "/api/products", redir
     setVideoUrl("");
   }
 
-  function updateSpec(index, field, value) {
-    setSpecs((prev) => prev.map((s, i) => (i === index ? { ...s, [field]: value } : s)));
-  }
-
-  function addSpecRow() {
-    setSpecs((prev) => [...prev, { label: "", value: "" }]);
-  }
-
-  function removeSpecRow(index) {
-    setSpecs((prev) => prev.filter((_, i) => i !== index));
-  }
-
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
@@ -106,17 +145,69 @@ export default function ProductForm({ product, basePath = "/api/products", redir
     }
     setSaving(true);
     try {
+      const noShippingCategory = NO_SHIPPING_CATEGORIES.includes(category);
+      const effectiveShipping = noShippingCategory ? false : shipping;
       const payload = {
         name: name.trim(),
         category,
         price: Number(price),
+        currency,
         installments: installments.trim(),
         condition,
-        inStock,
+        stock: NO_STOCK_CATEGORIES.includes(category) ? 1 : Number(stock),
+        shipping: effectiveShipping,
+        freeShippingMinAmount:
+          effectiveShipping && freeShippingMode === "always"
+            ? 0
+            : effectiveShipping && freeShippingMode === "threshold"
+              ? Number(freeShippingAmount)
+              : null,
+        scheduleDays: scheduleDays.trim(),
+        scheduleHours: scheduleHours.trim(),
+        scheduleHours2: showSecondSchedule ? scheduleHours2.trim() : "",
+        vehicleYear: category === "vehiculos" && vehicleYear !== "" ? Number(vehicleYear) : null,
+        vehicleKm: category === "vehiculos" && vehicleKm !== "" ? Number(vehicleKm) : null,
+        vehicleBrand: category === "vehiculos" ? vehicleBrand.trim() : "",
+        vehicleModel: category === "vehiculos" ? vehicleModel.trim() : "",
+        vehicleColor: category === "vehiculos" ? vehicleColor.trim() : "",
+        propertyOperation: category === "inmobiliaria" ? propertyOperation : null,
+        propertyCoveredArea: category === "inmobiliaria" && propertyCoveredArea !== "" ? Number(propertyCoveredArea) : null,
+        propertyTotalArea: category === "inmobiliaria" && propertyTotalArea !== "" ? Number(propertyTotalArea) : null,
+        propertyBedrooms: category === "inmobiliaria" && propertyBedrooms !== "" ? Number(propertyBedrooms) : null,
+        propertyRooms: category === "inmobiliaria" && propertyRooms !== "" ? Number(propertyRooms) : null,
+        propertyBathrooms: category === "inmobiliaria" && propertyBathrooms !== "" ? Number(propertyBathrooms) : null,
+        propertyTotalUnits: category === "inmobiliaria" && propertyTotalUnits !== "" ? Number(propertyTotalUnits) : null,
+        propertyLocation: category === "inmobiliaria" ? propertyLocation.trim() : "",
+        phoneBrand: category === "juegos" ? phoneBrand.trim() : "",
+        phoneModel: category === "juegos" ? phoneModel.trim() : "",
+        phoneStorage: category === "juegos" ? phoneStorage.trim() : "",
+        phoneRam: category === "juegos" ? phoneRam.trim() : "",
+        phoneNetwork: category === "juegos" ? phoneNetwork.trim() : "",
+        phoneColor: category === "juegos" ? phoneColor.trim() : "",
+        phoneCamera: category === "juegos" ? phoneCamera.trim() : "",
+        clothingAccessories: category === "ropa" ? clothingAccessories.trim() : "",
+        clothingGender: category === "ropa" ? clothingGender : "",
+        clothingSize: category === "ropa" ? clothingSize.trim() : "",
+        clothingBrand: category === "ropa" ? clothingBrand.trim() : "",
+        clothingColor: category === "ropa" ? clothingColor.trim() : "",
+        clothingFit: category === "ropa" ? clothingFit : "",
+        clothingAge: category === "ropa" ? clothingAge.trim() : "",
+        clothingMaterial: category === "ropa" ? clothingMaterial.trim() : "",
+        clothingSleeve: category === "ropa" ? clothingSleeve : "",
+        clothingNeckline: category === "ropa" ? clothingNeckline : "",
+        beautyCategory: category === "pequenos" ? beautyCategory : "",
+        beautyBrand: category === "pequenos" ? beautyBrand.trim() : "",
+        homeColor: category === "climatizacion" ? homeColor.trim() : "",
+        homeBrand: category === "climatizacion" ? homeBrand.trim() : "",
+        homeSaleFormat: category === "climatizacion" ? homeSaleFormat : "",
+        laundryBrand: category === "lavado" ? laundryBrand.trim() : "",
+        laundryColor: category === "lavado" ? laundryColor.trim() : "",
+        techCategory: category === "cocina" ? techCategory : "",
+        techBrand: category === "cocina" ? techBrand.trim() : "",
+        techColor: category === "cocina" ? techColor.trim() : "",
         videoUrl: videoUrl.trim(),
         description: description.trim(),
         images,
-        specs: specs.map((s) => ({ label: s.label.trim(), value: s.value.trim() })).filter((s) => s.label && s.value),
       };
       const res = await fetch(isEdit ? `${basePath}/${product.id}` : basePath, {
         method: isEdit ? "PATCH" : "POST",
@@ -155,8 +246,25 @@ export default function ProductForm({ product, basePath = "/api/products", redir
             ))}
           </select>
         </Field>
-        <Field label="Precio (ARS)">
-          <input type="number" min="0" value={price} onChange={(e) => setPrice(e.target.value)} className="input" required />
+        <Field label="Precio">
+          <div className="grid grid-cols-[1fr_5.5rem] gap-2">
+            <input
+              type="number"
+              min="0"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              className="input"
+              required
+            />
+            <select
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+              className="input"
+            >
+              <option value="ARS">ARS</option>
+              <option value="USD">USD</option>
+            </select>
+          </div>
         </Field>
       </div>
 
@@ -169,20 +277,524 @@ export default function ProductForm({ product, basePath = "/api/products", redir
         />
       </Field>
 
-      <div className="grid grid-cols-2 gap-4">
+      {category === "cocina" && (
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Categoría (opcional)">
+            <select value={techCategory} onChange={(e) => setTechCategory(e.target.value)} className="input">
+              <option value="">Sin especificar</option>
+              <option value="Auriculares">Auriculares</option>
+              <option value="Smartwatches">Smartwatches</option>
+              <option value="Notebooks">Notebooks</option>
+              <option value="Computadoras">Computadoras</option>
+              <option value="Consolas y videojuegos">Consolas y videojuegos</option>
+              <option value="Monitores">Monitores</option>
+              <option value="Mouses y teclados">Mouses y teclados</option>
+              <option value="Componentes PC">Componentes PC</option>
+              <option value="Cámaras">Cámaras</option>
+              <option value="Drones">Drones</option>
+              <option value="Parlantes">Parlantes</option>
+              <option value="Impresoras">Impresoras</option>
+              <option value="Accesorios para celular">Accesorios para celular</option>
+              <option value="Tablets">Tablets</option>
+              <option value="Conectividad">Conectividad</option>
+              <option value="Proyectores">Proyectores</option>
+            </select>
+          </Field>
+          <Field label="Marca (opcional)">
+            <input
+              value={techBrand}
+              onChange={(e) => setTechBrand(e.target.value)}
+              placeholder="Logitech"
+              className="input"
+            />
+          </Field>
+          <Field label="Color (opcional)">
+            <input
+              value={techColor}
+              onChange={(e) => setTechColor(e.target.value)}
+              placeholder="Negro"
+              className="input"
+            />
+          </Field>
+        </div>
+      )}
+
+      {category === "vehiculos" && (
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Marca (opcional)">
+            <input
+              value={vehicleBrand}
+              onChange={(e) => setVehicleBrand(e.target.value)}
+              placeholder="Toyota"
+              className="input"
+            />
+          </Field>
+          <Field label="Modelo (opcional)">
+            <input
+              value={vehicleModel}
+              onChange={(e) => setVehicleModel(e.target.value)}
+              placeholder="Corolla"
+              className="input"
+            />
+          </Field>
+          <Field label="Año (opcional)">
+            <input
+              type="number"
+              min="0"
+              value={vehicleYear}
+              onChange={(e) => setVehicleYear(e.target.value)}
+              placeholder="2020"
+              className="input"
+            />
+          </Field>
+          <Field label="Kilómetros (opcional)">
+            <input
+              type="number"
+              min="0"
+              value={vehicleKm}
+              onChange={(e) => setVehicleKm(e.target.value)}
+              placeholder="45000"
+              className="input"
+            />
+          </Field>
+          <Field label="Color (opcional)">
+            <input
+              value={vehicleColor}
+              onChange={(e) => setVehicleColor(e.target.value)}
+              placeholder="Gris"
+              className="input"
+            />
+          </Field>
+        </div>
+      )}
+
+      {category === "inmobiliaria" && (
+        <>
+          <Field label="Ubicación (opcional)">
+            <input
+              value={propertyLocation}
+              onChange={(e) => setPropertyLocation(e.target.value)}
+              placeholder="Av. San Martín 450, Bolívar"
+              className="input"
+            />
+          </Field>
+
+          <div className="grid grid-cols-2 gap-4">
+          <Field label="¿Alquiler o venta?">
+            <select value={propertyOperation} onChange={(e) => setPropertyOperation(e.target.value)} className="input">
+              <option value="venta">Venta</option>
+              <option value="alquiler">Alquiler</option>
+            </select>
+          </Field>
+          <Field label="Ambientes (opcional)">
+            <input
+              type="number"
+              min="0"
+              value={propertyRooms}
+              onChange={(e) => setPropertyRooms(e.target.value)}
+              placeholder="3"
+              className="input"
+            />
+          </Field>
+          <Field label="Dormitorios (opcional)">
+            <input
+              type="number"
+              min="0"
+              value={propertyBedrooms}
+              onChange={(e) => setPropertyBedrooms(e.target.value)}
+              placeholder="2"
+              className="input"
+            />
+          </Field>
+          <Field label="Baños (opcional)">
+            <input
+              type="number"
+              min="0"
+              value={propertyBathrooms}
+              onChange={(e) => setPropertyBathrooms(e.target.value)}
+              placeholder="1"
+              className="input"
+            />
+          </Field>
+          <Field label="Superficie cubierta en m² (opcional)">
+            <input
+              type="number"
+              min="0"
+              value={propertyCoveredArea}
+              onChange={(e) => setPropertyCoveredArea(e.target.value)}
+              placeholder="80"
+              className="input"
+            />
+          </Field>
+          <Field label="Superficie total en m² (opcional)">
+            <input
+              type="number"
+              min="0"
+              value={propertyTotalArea}
+              onChange={(e) => setPropertyTotalArea(e.target.value)}
+              placeholder="120"
+              className="input"
+            />
+          </Field>
+          <Field label="Unidades totales (opcional)">
+            <input
+              type="number"
+              min="0"
+              value={propertyTotalUnits}
+              onChange={(e) => setPropertyTotalUnits(e.target.value)}
+              placeholder="1"
+              className="input"
+            />
+          </Field>
+          </div>
+        </>
+      )}
+
+      {category === "juegos" && (
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Marca (opcional)">
+            <input
+              value={phoneBrand}
+              onChange={(e) => setPhoneBrand(e.target.value)}
+              placeholder="Samsung"
+              className="input"
+            />
+          </Field>
+          <Field label="Modelo (opcional)">
+            <input
+              value={phoneModel}
+              onChange={(e) => setPhoneModel(e.target.value)}
+              placeholder="Galaxy S23"
+              className="input"
+            />
+          </Field>
+          <Field label="Memoria interna (opcional)">
+            <input
+              value={phoneStorage}
+              onChange={(e) => setPhoneStorage(e.target.value)}
+              placeholder="128GB"
+              className="input"
+            />
+          </Field>
+          <Field label="Memoria RAM (opcional)">
+            <input
+              value={phoneRam}
+              onChange={(e) => setPhoneRam(e.target.value)}
+              placeholder="8GB"
+              className="input"
+            />
+          </Field>
+          <Field label="Red móvil (opcional)">
+            <select value={phoneNetwork} onChange={(e) => setPhoneNetwork(e.target.value)} className="input">
+              <option value="">Sin especificar</option>
+              <option value="4G">4G</option>
+              <option value="5G">5G</option>
+              <option value="Solo WiFi">Solo WiFi</option>
+            </select>
+          </Field>
+          <Field label="Color (opcional)">
+            <input
+              value={phoneColor}
+              onChange={(e) => setPhoneColor(e.target.value)}
+              placeholder="Negro"
+              className="input"
+            />
+          </Field>
+          <Field label="Cámara (opcional)">
+            <input
+              value={phoneCamera}
+              onChange={(e) => setPhoneCamera(e.target.value)}
+              placeholder="50MP + 12MP"
+              className="input"
+            />
+          </Field>
+        </div>
+      )}
+
+      {category === "ropa" && (
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Accesorios (opcional)">
+            <input
+              value={clothingAccessories}
+              onChange={(e) => setClothingAccessories(e.target.value)}
+              placeholder="Cinturón, gorra"
+              className="input"
+            />
+          </Field>
+          <Field label="Género (opcional)">
+            <select value={clothingGender} onChange={(e) => setClothingGender(e.target.value)} className="input">
+              <option value="">Sin especificar</option>
+              <option value="Hombre">Hombre</option>
+              <option value="Mujer">Mujer</option>
+              <option value="Unisex">Unisex</option>
+              <option value="Niños">Niños</option>
+              <option value="Bebés">Bebés</option>
+            </select>
+          </Field>
+          <Field label="Talle (opcional)">
+            <input
+              value={clothingSize}
+              onChange={(e) => setClothingSize(e.target.value)}
+              placeholder="M"
+              className="input"
+            />
+          </Field>
+          <Field label="Marca (opcional)">
+            <input
+              value={clothingBrand}
+              onChange={(e) => setClothingBrand(e.target.value)}
+              placeholder="Nike"
+              className="input"
+            />
+          </Field>
+          <Field label="Color (opcional)">
+            <input
+              value={clothingColor}
+              onChange={(e) => setClothingColor(e.target.value)}
+              placeholder="Negro"
+              className="input"
+            />
+          </Field>
+          <Field label="Forma del calce (opcional)">
+            <select value={clothingFit} onChange={(e) => setClothingFit(e.target.value)} className="input">
+              <option value="">Sin especificar</option>
+              <option value="Ajustado">Ajustado</option>
+              <option value="Regular">Regular</option>
+              <option value="Holgado">Holgado</option>
+              <option value="Oversize">Oversize</option>
+            </select>
+          </Field>
+          <Field label="Edad (opcional)">
+            <input
+              value={clothingAge}
+              onChange={(e) => setClothingAge(e.target.value)}
+              placeholder="Adulto"
+              className="input"
+            />
+          </Field>
+          <Field label="Material principal (opcional)">
+            <input
+              value={clothingMaterial}
+              onChange={(e) => setClothingMaterial(e.target.value)}
+              placeholder="Algodón"
+              className="input"
+            />
+          </Field>
+          <Field label="Tipo de manga (opcional)">
+            <select value={clothingSleeve} onChange={(e) => setClothingSleeve(e.target.value)} className="input">
+              <option value="">Sin especificar</option>
+              <option value="Manga larga">Manga larga</option>
+              <option value="Manga corta">Manga corta</option>
+              <option value="3/4">3/4</option>
+              <option value="Sin manga">Sin manga</option>
+            </select>
+          </Field>
+          <Field label="Tipo de cuello (opcional)">
+            <select value={clothingNeckline} onChange={(e) => setClothingNeckline(e.target.value)} className="input">
+              <option value="">Sin especificar</option>
+              <option value="Redondo">Redondo</option>
+              <option value="V">V</option>
+              <option value="Camisero">Camisero</option>
+              <option value="Polo">Polo</option>
+              <option value="Tortuga">Tortuga</option>
+              <option value="Sin cuello">Sin cuello</option>
+            </select>
+          </Field>
+        </div>
+      )}
+
+      {category === "pequenos" && (
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Categoría (opcional)">
+            <select value={beautyCategory} onChange={(e) => setBeautyCategory(e.target.value)} className="input">
+              <option value="">Sin especificar</option>
+              <option value="Artefactos para el cabello">Artefactos para el cabello</option>
+              <option value="Barbería">Barbería</option>
+              <option value="Higiene personal">Higiene personal</option>
+              <option value="Artículos de peluquería">Artículos de peluquería</option>
+              <option value="Maquillaje">Maquillaje</option>
+            </select>
+          </Field>
+          <Field label="Marca (opcional)">
+            <input
+              value={beautyBrand}
+              onChange={(e) => setBeautyBrand(e.target.value)}
+              placeholder="Philips"
+              className="input"
+            />
+          </Field>
+        </div>
+      )}
+
+      {category === "climatizacion" && (
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Color (opcional)">
+            <input
+              value={homeColor}
+              onChange={(e) => setHomeColor(e.target.value)}
+              placeholder="Blanco"
+              className="input"
+            />
+          </Field>
+          <Field label="Marca (opcional)">
+            <input
+              value={homeBrand}
+              onChange={(e) => setHomeBrand(e.target.value)}
+              placeholder="Surrey"
+              className="input"
+            />
+          </Field>
+          <Field label="Formato de venta (opcional)">
+            <select value={homeSaleFormat} onChange={(e) => setHomeSaleFormat(e.target.value)} className="input">
+              <option value="">Sin especificar</option>
+              <option value="Unidad">Unidad</option>
+              <option value="Pack">Pack</option>
+            </select>
+          </Field>
+        </div>
+      )}
+
+      {category === "lavado" && (
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Marca (opcional)">
+            <input
+              value={laundryBrand}
+              onChange={(e) => setLaundryBrand(e.target.value)}
+              placeholder="Whirlpool"
+              className="input"
+            />
+          </Field>
+          <Field label="Color (opcional)">
+            <input
+              value={laundryColor}
+              onChange={(e) => setLaundryColor(e.target.value)}
+              placeholder="Blanco"
+              className="input"
+            />
+          </Field>
+        </div>
+      )}
+
+      <div className={`grid gap-4 ${NO_STOCK_CATEGORIES.includes(category) ? "grid-cols-1" : "grid-cols-2"}`}>
         <Field label="Estado">
           <select value={condition} onChange={(e) => setCondition(e.target.value)} className="input">
             <option value="nuevo">Nuevo</option>
             <option value="usado">Usado</option>
           </select>
         </Field>
-        <Field label="Disponibilidad">
-          <select value={inStock ? "true" : "false"} onChange={(e) => setInStock(e.target.value === "true")} className="input">
-            <option value="true">En stock</option>
-            <option value="false">Sin stock</option>
-          </select>
+        {!NO_STOCK_CATEGORIES.includes(category) && (
+          <Field label="Stock disponible">
+            <input
+              type="number"
+              min="0"
+              step="1"
+              value={stock}
+              onChange={(e) => setStock(e.target.value)}
+              placeholder="10"
+              className="input"
+              required
+            />
+          </Field>
+        )}
+      </div>
+
+      {!NO_SHIPPING_CATEGORIES.includes(category) && (
+        <>
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="¿Hace envíos?">
+              <select value={shipping ? "true" : "false"} onChange={(e) => setShipping(e.target.value === "true")} className="input">
+                <option value="true">Sí, hace envíos</option>
+                <option value="false">No, solo retiro en el local</option>
+              </select>
+            </Field>
+            {shipping && (
+              <Field label="Envío gratis">
+                <select
+                  value={freeShippingMode}
+                  onChange={(e) => setFreeShippingMode(e.target.value)}
+                  className="input"
+                >
+                  <option value="none">No ofrece envío gratis</option>
+                  <option value="always">Siempre gratis</option>
+                  <option value="threshold">Gratis a partir de un monto</option>
+                </select>
+              </Field>
+            )}
+          </div>
+
+          {shipping && freeShippingMode === "threshold" && (
+            <Field label="Envío gratis en compras desde (ARS)">
+              <input
+                type="number"
+                min="0"
+                value={freeShippingAmount}
+                onChange={(e) => setFreeShippingAmount(e.target.value)}
+                placeholder="10000"
+                className="input"
+                required
+              />
+            </Field>
+          )}
+
+          {shipping && freeShippingMode !== "none" && (
+            <p className="text-xs text-steel">
+              Aclaración: el envío gratis aplica dentro de un radio de 4&nbsp;km. Si el pedido es para otra ciudad, el envío
+              puede tener un costo adicional a coordinar con el comprador.
+            </p>
+          )}
+        </>
+      )}
+
+      <div className="grid grid-cols-2 gap-4">
+        <Field label="Días de atención (opcional)">
+          <input
+            value={scheduleDays}
+            onChange={(e) => setScheduleDays(e.target.value)}
+            placeholder="Lunes a viernes"
+            className="input"
+          />
+        </Field>
+        <Field label={showSecondSchedule ? "Horario mañana (opcional)" : "Horario (opcional)"}>
+          <input
+            value={scheduleHours}
+            onChange={(e) => setScheduleHours(e.target.value)}
+            placeholder="9 a 13hs"
+            className="input"
+          />
         </Field>
       </div>
+
+      {showSecondSchedule ? (
+        <Field label="Horario tarde (opcional)">
+          <div className="flex gap-2">
+            <input
+              value={scheduleHours2}
+              onChange={(e) => setScheduleHours2(e.target.value)}
+              placeholder="16 a 20hs"
+              className="input"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setShowSecondSchedule(false);
+                setScheduleHours2("");
+              }}
+              className="shrink-0 rounded-md border border-line px-2 text-ink-soft hover:border-steel hover:text-danger"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        </Field>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setShowSecondSchedule(true)}
+          className="flex items-center gap-1 text-sm font-medium text-ink-soft hover:text-ink"
+        >
+          <Plus size={14} />
+          Agregar otro horario (ej. mañana y tarde)
+        </button>
+      )}
 
       <Field label={`Fotos (hasta ${MAX_IMAGES})`}>
         <input type="file" accept="image/*" multiple onChange={handleFiles} disabled={uploading || images.length >= MAX_IMAGES} />
@@ -235,46 +847,6 @@ export default function ProductForm({ product, basePath = "/api/products", redir
           className="input resize-y"
           placeholder="Motivo por el que un cliente lo elegiría"
         />
-      </Field>
-
-      <Field label="Características (opcional)">
-        <div className="space-y-2">
-          {specs.map((spec, i) => (
-            <div key={i} className="flex gap-2">
-              <div className="w-2/5">
-                <input
-                  value={spec.label}
-                  onChange={(e) => updateSpec(i, "label", e.target.value)}
-                  placeholder="Potencia"
-                  className="input"
-                />
-              </div>
-              <div className="flex-1">
-                <input
-                  value={spec.value}
-                  onChange={(e) => updateSpec(i, "value", e.target.value)}
-                  placeholder="650W"
-                  className="input"
-                />
-              </div>
-              <button
-                type="button"
-                onClick={() => removeSpecRow(i)}
-                className="shrink-0 rounded-md border border-line px-2 text-ink-soft hover:border-steel hover:text-danger"
-              >
-                <X size={14} />
-              </button>
-            </div>
-          ))}
-        </div>
-        <button
-          type="button"
-          onClick={addSpecRow}
-          className="mt-2 flex items-center gap-1 text-sm font-medium text-ink-soft hover:text-ink"
-        >
-          <Plus size={14} />
-          Agregar característica
-        </button>
       </Field>
 
       {error && <p className="text-sm text-danger">{error}</p>}

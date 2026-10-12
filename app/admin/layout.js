@@ -3,11 +3,13 @@
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { LayoutGrid, Package, Settings, LogOut } from "lucide-react";
+import { LayoutGrid, Package, Settings, LogOut, BarChart3, Store } from "lucide-react";
 import { useAdmin } from "@/components/AdminProvider";
 
 const NAV = [
+  { href: "/admin/dashboard", label: "Dashboard", icon: BarChart3 },
   { href: "/admin/productos", label: "Productos", icon: Package },
+  { href: "/admin/vendedores", label: "Vendedores", icon: Store },
   { href: "/admin/configuracion", label: "Configuración", icon: Settings },
 ];
 
@@ -30,7 +32,7 @@ export default function AdminLayout({ children }) {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
           <Link href="/admin" className="flex items-center gap-1.5 font-display text-lg font-bold">
             <LayoutGrid size={18} />
-            MercadoBolívar <span className="font-sans text-sm font-normal text-steel">admin</span>
+            BolivarMarket <span className="font-sans text-sm font-normal text-steel">admin</span>
           </Link>
           <nav className="flex items-center gap-1 text-sm font-medium">
             {NAV.map(({ href, label, icon: Icon }) => (

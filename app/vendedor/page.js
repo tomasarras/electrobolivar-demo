@@ -2,13 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Loader2, Package, TrendingUp, Percent, Wallet } from "lucide-react";
-import { formatCurrency } from "@/lib/format";
+import { Loader2, Package } from "lucide-react";
 
 export default function VendedorResumenPage() {
   const [seller, setSeller] = useState(undefined); // undefined = loading, null = not yet a seller
   const [productCount, setProductCount] = useState(0);
-  const [summary, setSummary] = useState({ gross: 0, commission: 0, net: 0 });
   const [storeName, setStoreName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [saving, setSaving] = useState(false);
@@ -30,9 +28,6 @@ export default function VendedorResumenPage() {
     fetch("/api/seller/products")
       .then((res) => res.json())
       .then((products) => setProductCount(products.length));
-    fetch("/api/seller/orders")
-      .then((res) => res.json())
-      .then((data) => setSummary(data.summary || { gross: 0, commission: 0, net: 0 }));
   }, [seller]);
 
   async function handleSubmit(e) {
@@ -64,7 +59,7 @@ export default function VendedorResumenPage() {
   if (seller === null) {
     return (
       <div className="max-w-md">
-        <h1 className="font-display text-2xl font-bold">Vendé en MercadoBolívar</h1>
+        <h1 className="font-display text-2xl font-bold">Vendé en BolivarMarket</h1>
         <p className="mt-1 text-sm text-ink-soft">
           Creá tu tienda para empezar a publicar productos. La plataforma cobra una comisión sobre cada venta.
         </p>
@@ -107,9 +102,6 @@ export default function VendedorResumenPage() {
 
       <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <Stat icon={Package} label="Productos" value={productCount} />
-        <Stat icon={TrendingUp} label="Ventas brutas" value={formatCurrency(summary.gross)} />
-        <Stat icon={Percent} label="Comisión" value={formatCurrency(summary.commission)} />
-        <Stat icon={Wallet} label="Neto a cobrar" value={formatCurrency(summary.net)} />
       </div>
 
       <div className="mt-8 flex gap-3">
@@ -120,10 +112,10 @@ export default function VendedorResumenPage() {
           Cargar producto
         </Link>
         <Link
-          href="/vendedor/ventas"
+          href="/vendedor/productos"
           className="rounded-md border border-line px-5 py-2.5 text-sm font-semibold hover:border-steel"
         >
-          Ver ventas
+          Ver mis productos
         </Link>
       </div>
     </div>

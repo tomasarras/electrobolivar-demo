@@ -22,7 +22,7 @@ const PAY_NOW_METHODS = {
 };
 
 const CVU = "0000003100094567892312";
-const ALIAS = "mercadobolivar.mp";
+const ALIAS = "bolivarmarket.mp";
 const MP_ORDER_KEY = (code) => `eb_mp_order_${code}`;
 
 export default function CarritoPage() {
@@ -212,7 +212,7 @@ function CarritoContent() {
 
   const deliveryLine = deliveryMethod === "envio" ? `Envío a domicilio${address ? ` - ${address}` : ""}` : "Retiro en el local";
   const message =
-    "Hola! Quiero consultar por este pedido de MercadoBolívar:\n" +
+    "Hola! Quiero consultar por este pedido de BolivarMarket:\n" +
     items.map((i) => `${i.qty}x ${i.name} - ${formatCurrency(i.price * i.qty)}`).join("\n") +
     `\n\nTotal estimado: ${formatCurrency(total)}` +
     `\nEntrega: ${deliveryLine}` +

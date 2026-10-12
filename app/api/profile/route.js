@@ -9,7 +9,7 @@ export async function GET() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { name: true, email: true, province: true, locality: true, address: true },
+    select: { name: true, email: true, image: true, province: true, locality: true, address: true, phone: true },
   });
   return NextResponse.json(user);
 }
@@ -25,8 +25,10 @@ export async function PUT(request) {
       province: (data.province || "").trim() || null,
       locality: (data.locality || "").trim() || null,
       address: (data.address || "").trim() || null,
+      phone: (data.phone || "").trim() || null,
+      ...(data.image !== undefined ? { image: (data.image || "").trim() || null } : {}),
     },
-    select: { name: true, email: true, province: true, locality: true, address: true },
+    select: { name: true, email: true, image: true, province: true, locality: true, address: true, phone: true },
   });
   return NextResponse.json(user);
 }

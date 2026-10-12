@@ -17,11 +17,71 @@ model Product {
   name         String
   category     String
   price        Int
+  // "ARS" | "USD" — plain string rather than an enum, matching condition/category.
+  currency     String         @default("ARS")
   installments String?
   // "nuevo" | "usado" — plain string rather than an enum so it matches the
   // rest of the schema's style (category is a plain string too).
   condition    String         @default("nuevo")
-  inStock      Boolean        @default(true)
+  stock        Int            @default(0)
+  shipping     Boolean        @default(true)
+  // null = no free-shipping offer, 0 = always free, N = free above $N.
+  freeShippingMinAmount Int?
+  scheduleDays   String?
+  scheduleHours  String?
+  scheduleHours2 String?
+  // Only used for category "vehiculos".
+  vehicleYear  Int?
+  vehicleKm    Int?
+  vehicleBrand String?
+  vehicleModel String?
+  vehicleColor String?
+  // Only used for category "inmobiliaria". "alquiler" | "venta".
+  propertyOperation   String?
+  propertyCoveredArea Int?
+  propertyTotalArea   Int?
+  propertyBedrooms    Int?
+  propertyRooms       Int?
+  propertyBathrooms   Int?
+  propertyTotalUnits  Int?
+  propertyLocation    String?
+  // Only used for category "juegos" (Celulares).
+  phoneBrand   String?
+  phoneModel   String?
+  phoneStorage String?
+  phoneRam     String?
+  phoneNetwork String?
+  phoneColor   String?
+  phoneCamera  String?
+  // Only used for category "ropa".
+  clothingAccessories String?
+  clothingGender      String?
+  clothingSize        String?
+  clothingBrand       String?
+  clothingColor       String?
+  clothingFit         String?
+  clothingAge         String?
+  clothingMaterial    String?
+  clothingSleeve      String?
+  clothingNeckline    String?
+  // Only used for category "pequenos" (Belleza).
+  beautyCategory String?
+  beautyBrand    String?
+  // Only used for category "cocina" (Tecnología).
+  techCategory String?
+  techBrand    String?
+  techColor    String?
+  // Only used for category "climatizacion" (Hogar). homeSaleFormat: "Unidad" | "Pack".
+  homeColor      String?
+  homeBrand      String?
+  homeSaleFormat String?
+  // Only used for category "lavado" (Electro).
+  laundryBrand String?
+  laundryColor String?
+  // Global favorite count across all visitors. Favorites aren't tied to user
+  // accounts (tracked client-side in localStorage), so this is a simple
+  // incremented/decremented counter rather than a per-user join table.
+  favoriteCount Int @default(0)
   description  String?
   videoUrl     String?
   images       ProductImage[]
@@ -91,6 +151,7 @@ model User {
   province      String?
   locality      String?
   address       String?
+  phone         String?
   accounts      Account[]
   sessions      Session[]
   seller        Seller?
@@ -102,14 +163,26 @@ model User {
 // A buyer who opted to also sell on the marketplace. Self-service, no
 // approval step: creating this row is what makes someone a seller.
 model Seller {
-  id         String      @id @default(cuid())
-  userId     String      @unique
-  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  storeName  String
-  whatsapp   String?
-  products   Product[]
-  orderItems OrderItem[]
-  createdAt  DateTime    @default(now())
+  id            String         @id @default(cuid())
+  userId        String         @unique
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  storeName     String
+  whatsapp      String?
+  products      Product[]
+  orderItems    OrderItem[]
+  notifications Notification[]
+  createdAt     DateTime       @default(now())
+}
+
+// "You made a sale" alerts for the seller panel — created alongside the
+// OrderItem at checkout, read/unread so the panel can show a badge count.
+model Notification {
+  id        String   @id @default(cuid())
+  sellerId  String
+  seller    Seller   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
 
 // A completed checkout, persisted so sales can be attributed to a seller
@@ -201,4 +274,12 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+// One row per browser session (deduped client-side via sessionStorage) —
+// just enough to show the admin a mobile-vs-desktop split, not full analytics.
+model Visit {
+  id        String   @id @default(cuid())
+  device    String
+  createdAt DateTime @default(now())
 }

@@ -85,14 +85,14 @@ export default function VendedorProductosPage() {
                     </div>
                   </td>
                   <td className="p-3">{categoryLabel(p.category)}</td>
-                  <td className="p-3 font-mono">{formatCurrency(p.price)}</td>
+                  <td className="p-3 font-mono">{formatCurrency(p.price, p.currency)}</td>
                   <td className="p-3">
                     <span
                       className={`rounded border px-1.5 py-0.5 font-mono text-[10px] uppercase ${
-                        p.inStock === false ? "border-danger text-danger" : "border-accent-2 text-accent-2"
+                        (p.stock ?? 0) <= 0 ? "border-danger text-danger" : "border-accent-2 text-accent-2"
                       }`}
                     >
-                      {p.inStock === false ? "Sin stock" : "En stock"}
+                      {(p.stock ?? 0) <= 0 ? "Sin stock" : `${p.stock} en stock`}
                     </span>
                   </td>
                   <td className="p-3">

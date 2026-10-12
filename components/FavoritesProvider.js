@@ -45,10 +45,12 @@ export function FavoritesProvider({ children }) {
           productId: product.id,
           name: product.name,
           price: product.price,
+          currency: product.currency || "ARS",
           installments: product.installments || null,
-          inStock: product.inStock !== false,
+          stock: product.stock ?? 0,
           category: product.category,
           imageUrl: product.images?.[0]?.url || null,
+          favoriteCount: product.favoriteCount ?? 0,
         },
       ];
     });

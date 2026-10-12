@@ -10,9 +10,12 @@ import { totalSold } from "@/lib/sales";
 
 export default function ProductCard({ product }) {
   const image = product.images?.[0];
-  const outOfStock = product.inStock === false;
+  const outOfStock = (product.stock ?? 0) <= 0;
   const avgRating = averageRating(product.reviews);
   const salesCount = totalSold(product.orderItems);
+  const freeShipping =
+    product.shipping !== false &&
+    (product.freeShippingMinAmount === 0 || (product.freeShippingMinAmount > 0 && product.price >= product.freeShippingMinAmount));
 
   return (
     <Link
@@ -32,7 +35,7 @@ export default function ProductCard({ product }) {
             Usado
           </span>
         )}
-        <FavoriteButton product={product} className="absolute right-2 top-2 z-10 h-8 w-8 backdrop-blur" />
+        <FavoriteButton product={product} className="absolute right-2 top-2 z-10 backdrop-blur" size={32} />
         {image ? (
           <Image src={image.url} alt={product.name} fill sizes="(max-width: 640px) 50vw, 25vw" className="object-cover" />
         ) : (
@@ -52,9 +55,10 @@ export default function ProductCard({ product }) {
           </span>
         )}
         <div className="mt-auto flex items-baseline justify-between gap-2 pt-2">
-          <span className="font-mono font-semibold">{formatCurrency(product.price)}</span>
+          <span className="font-mono font-semibold">{formatCurrency(product.price, product.currency)}</span>
           {product.installments && <span className="font-mono text-xs text-accent-2">{product.installments}</span>}
         </div>
+        {freeShipping && <span className="text-xs font-semibold text-accent-2">Envío gratis</span>}
       </div>
     </Link>
   );

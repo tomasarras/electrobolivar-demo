@@ -34,7 +34,7 @@ export async function POST(request) {
       model: "claude-opus-5",
       max_tokens: 50,
       system:
-        "Sos el buscador por foto de MercadoBolívar, una tienda online argentina. " +
+        "Sos el buscador por foto de BolivarMarket, una tienda online argentina. " +
         `Las categorías del catálogo son: ${categoryLabels}. ` +
         "Te mandan una foto de un producto. Respondé ÚNICAMENTE con 2 a 5 palabras clave en español " +
         "(sin puntuación, sin explicación) que describan qué es el producto, para buscarlo en el catálogo.",

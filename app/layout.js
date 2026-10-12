@@ -4,6 +4,7 @@ import { AdminProvider } from "@/components/AdminProvider";
 import { CartProvider } from "@/components/CartProvider";
 import { FavoritesProvider } from "@/components/FavoritesProvider";
 import { AuthProvider } from "@/components/AuthProvider";
+import VisitTracker from "@/components/VisitTracker";
 
 const barlowCondensed = Barlow_Condensed({
   variable: "--font-barlow-condensed",
@@ -24,7 +25,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata = {
-  title: "MercadoBolívar — Demo de tienda de electrodomésticos",
+  title: "BolivarMarket — Demo de tienda de electrodomésticos",
   description:
     "Proyecto de portfolio: tienda de electrodomésticos ficticia con catálogo, pedido por WhatsApp, y un panel de administración para cargar productos.",
 };
@@ -33,6 +34,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es" className={`${barlowCondensed.variable} ${barlow.variable} ${plexMono.variable}`}>
       <body className="min-h-screen font-sans antialiased">
+        <VisitTracker />
         <AuthProvider>
           <AdminProvider>
             <CartProvider>

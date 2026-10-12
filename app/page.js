@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Zap, ShieldCheck, RotateCcw, Loader2 } from "lucide-react";
+import { Zap, ShieldCheck, Store, RotateCcw, Loader2 } from "lucide-react";
 import { useAdmin } from "@/components/AdminProvider";
 
 export default function RoleSelectorPage() {
@@ -39,11 +39,11 @@ export default function RoleSelectorPage() {
         <Zap size={26} />
       </span>
       <h1 className="font-display text-3xl font-extrabold tracking-tight">
-        MERCADO<span className="text-accent">BOLÍVAR</span>
+        BOLIVAR<span className="text-accent">MARKET</span>
       </h1>
       <p className="max-w-sm text-sm text-ink-soft">Demo de portfolio · elegí cómo querés entrar.</p>
 
-      <div className="mt-4 grid w-full max-w-md grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="mt-4 grid w-full max-w-2xl grid-cols-1 gap-4 sm:grid-cols-3">
         <button
           type="button"
           onClick={() => router.push("/tienda")}
@@ -54,6 +54,18 @@ export default function RoleSelectorPage() {
           </span>
           <span className="block text-base font-semibold">Cliente</span>
           <span className="block text-sm text-ink-soft">Comprar electrodomésticos</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => router.push("/login?callbackUrl=%2Fvendedor")}
+          className="flex flex-col items-start gap-3 rounded-md border border-line bg-panel p-5 text-left transition hover:-translate-y-0.5 hover:border-steel"
+        >
+          <span className="flex h-11 w-11 items-center justify-center rounded-md bg-accent text-accent-ink">
+            <Store size={20} />
+          </span>
+          <span className="block text-base font-semibold">Vendedor</span>
+          <span className="block text-sm text-ink-soft">Publicar y vender tus productos</span>
         </button>
 
         <button
