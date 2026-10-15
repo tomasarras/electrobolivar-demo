@@ -1,0 +1,1 @@
+ALTER TABLE "Message" ADD COLUMN "about" TEXT NOT NULL DEFAULT 'producto';

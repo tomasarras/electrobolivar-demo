@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { Store, Star } from "lucide-react";
+import { Store, Star, TriangleAlert } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import StoreHeader from "@/components/StoreHeader";
 import ProductCard from "@/components/ProductCard";
@@ -12,7 +12,7 @@ export default async function VendedorPublicoPage({ params }) {
 
   const seller = await prisma.seller.findUnique({
     where: { id },
-    select: { id: true, storeName: true, createdAt: true },
+    select: { id: true, storeName: true, createdAt: true, flaggedFraud: true },
   });
 
   if (!seller) notFound();
@@ -45,6 +45,12 @@ export default async function VendedorPublicoPage({ params }) {
           </span>
           <div>
             <h1 className="font-display text-xl font-bold">{seller.storeName}</h1>
+            {seller.flaggedFraud && (
+              <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-danger">
+                <TriangleAlert size={14} />
+                Posible fraude — recibió quejas de otros compradores
+              </p>
+            )}
             <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-steel">
               {avgRating && (
                 <span className="flex items-center gap-1">

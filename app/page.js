@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Zap, ShieldCheck, Store, RotateCcw, Loader2 } from "lucide-react";
+import { Zap, ShieldCheck, Store, RotateCcw, Loader2, ShoppingCart } from "lucide-react";
 import { useAdmin } from "@/components/AdminProvider";
 
 export default function RoleSelectorPage() {
@@ -50,7 +50,7 @@ export default function RoleSelectorPage() {
           className="flex flex-col items-start gap-3 rounded-md border border-line bg-panel p-5 text-left transition hover:-translate-y-0.5 hover:border-steel"
         >
           <span className="flex h-11 w-11 items-center justify-center rounded-md bg-accent text-accent-ink">
-            <Zap size={20} />
+            <ShoppingCart size={20} />
           </span>
           <span className="block text-base font-semibold">Cliente</span>
           <span className="block text-sm text-ink-soft">Comprar electrodomésticos</span>

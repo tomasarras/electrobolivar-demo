@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Store, ChevronRight } from "lucide-react";
+import { Store, ChevronRight, TriangleAlert } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
 import { categoryLabel } from "@/lib/categories";
@@ -10,6 +10,7 @@ import AddToCartPanel from "@/components/AddToCartPanel";
 import FavoriteButton from "@/components/FavoriteButton";
 import StarRating from "@/components/StarRating";
 import ProductCard from "@/components/ProductCard";
+import ProductComplaintForm from "@/components/ProductComplaintForm";
 import { averageRating } from "@/lib/reviews";
 import { totalSold } from "@/lib/sales";
 
@@ -22,7 +23,7 @@ export default async function ProductoPage({ params }) {
     include: {
       images: { orderBy: { order: "asc" } },
       specs: { orderBy: { order: "asc" } },
-      seller: { select: { id: true, storeName: true } },
+      seller: { select: { id: true, storeName: true, flaggedFraud: true } },
       reviews: { orderBy: { createdAt: "desc" } },
       orderItems: { select: { qty: true } },
     },
@@ -145,7 +146,10 @@ export default async function ProductoPage({ params }) {
                 </div>
                 <h1 className="mt-1 font-display text-2xl font-bold">{product.name}</h1>
               </div>
-              <FavoriteButton product={product} className="shrink-0" size={40} />
+              <div className="flex shrink-0 items-center gap-2">
+                <FavoriteButton product={product} size={40} />
+                <ProductComplaintForm productId={product.id} hasSeller={Boolean(product.seller)} size={40} />
+              </div>
             </div>
             <div className="mt-2 flex items-baseline gap-3">
               <p className="font-mono text-xl font-semibold">{formatCurrency(product.price, product.currency)}</p>
@@ -160,7 +164,12 @@ export default async function ProductoPage({ params }) {
                   <Store size={18} />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">{product.seller.storeName}</p>
+                  <p className="flex items-center gap-1.5 truncate text-sm font-semibold">
+                    {product.seller.storeName}
+                    {product.seller.flaggedFraud && (
+                      <TriangleAlert size={13} className="shrink-0 text-danger" />
+                    )}
+                  </p>
                   <div className="flex items-center gap-2 text-xs text-steel">
                     {sellerStats?.avgRating && (
                       <span className="flex items-center gap-1">

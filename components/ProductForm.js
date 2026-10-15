@@ -178,13 +178,13 @@ export default function ProductForm({ product, basePath = "/api/products", redir
         propertyBathrooms: category === "inmobiliaria" && propertyBathrooms !== "" ? Number(propertyBathrooms) : null,
         propertyTotalUnits: category === "inmobiliaria" && propertyTotalUnits !== "" ? Number(propertyTotalUnits) : null,
         propertyLocation: category === "inmobiliaria" ? propertyLocation.trim() : "",
-        phoneBrand: category === "juegos" ? phoneBrand.trim() : "",
-        phoneModel: category === "juegos" ? phoneModel.trim() : "",
-        phoneStorage: category === "juegos" ? phoneStorage.trim() : "",
-        phoneRam: category === "juegos" ? phoneRam.trim() : "",
-        phoneNetwork: category === "juegos" ? phoneNetwork.trim() : "",
-        phoneColor: category === "juegos" ? phoneColor.trim() : "",
-        phoneCamera: category === "juegos" ? phoneCamera.trim() : "",
+        phoneBrand: category === "cocina" && techCategory === "Celulares" ? phoneBrand.trim() : "",
+        phoneModel: category === "cocina" && techCategory === "Celulares" ? phoneModel.trim() : "",
+        phoneStorage: category === "cocina" && techCategory === "Celulares" ? phoneStorage.trim() : "",
+        phoneRam: category === "cocina" && techCategory === "Celulares" ? phoneRam.trim() : "",
+        phoneNetwork: category === "cocina" && techCategory === "Celulares" ? phoneNetwork.trim() : "",
+        phoneColor: category === "cocina" && techCategory === "Celulares" ? phoneColor.trim() : "",
+        phoneCamera: category === "cocina" && techCategory === "Celulares" ? phoneCamera.trim() : "",
         clothingAccessories: category === "ropa" ? clothingAccessories.trim() : "",
         clothingGender: category === "ropa" ? clothingGender : "",
         clothingSize: category === "ropa" ? clothingSize.trim() : "",
@@ -203,8 +203,8 @@ export default function ProductForm({ product, basePath = "/api/products", redir
         laundryBrand: category === "lavado" ? laundryBrand.trim() : "",
         laundryColor: category === "lavado" ? laundryColor.trim() : "",
         techCategory: category === "cocina" ? techCategory : "",
-        techBrand: category === "cocina" ? techBrand.trim() : "",
-        techColor: category === "cocina" ? techColor.trim() : "",
+        techBrand: category === "cocina" && techCategory !== "Celulares" ? techBrand.trim() : "",
+        techColor: category === "cocina" && techCategory !== "Celulares" ? techColor.trim() : "",
         videoUrl: videoUrl.trim(),
         description: description.trim(),
         images,
@@ -282,6 +282,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
           <Field label="Categoría (opcional)">
             <select value={techCategory} onChange={(e) => setTechCategory(e.target.value)} className="input">
               <option value="">Sin especificar</option>
+              <option value="Celulares">Celulares</option>
               <option value="Auriculares">Auriculares</option>
               <option value="Smartwatches">Smartwatches</option>
               <option value="Notebooks">Notebooks</option>
@@ -300,22 +301,85 @@ export default function ProductForm({ product, basePath = "/api/products", redir
               <option value="Proyectores">Proyectores</option>
             </select>
           </Field>
-          <Field label="Marca (opcional)">
-            <input
-              value={techBrand}
-              onChange={(e) => setTechBrand(e.target.value)}
-              placeholder="Logitech"
-              className="input"
-            />
-          </Field>
-          <Field label="Color (opcional)">
-            <input
-              value={techColor}
-              onChange={(e) => setTechColor(e.target.value)}
-              placeholder="Negro"
-              className="input"
-            />
-          </Field>
+          {techCategory === "Celulares" ? (
+            <>
+              <Field label="Marca (opcional)">
+                <input
+                  value={phoneBrand}
+                  onChange={(e) => setPhoneBrand(e.target.value)}
+                  placeholder="Samsung"
+                  className="input"
+                />
+              </Field>
+              <Field label="Modelo (opcional)">
+                <input
+                  value={phoneModel}
+                  onChange={(e) => setPhoneModel(e.target.value)}
+                  placeholder="Galaxy S23"
+                  className="input"
+                />
+              </Field>
+              <Field label="Memoria interna (opcional)">
+                <input
+                  value={phoneStorage}
+                  onChange={(e) => setPhoneStorage(e.target.value)}
+                  placeholder="128GB"
+                  className="input"
+                />
+              </Field>
+              <Field label="Memoria RAM (opcional)">
+                <input
+                  value={phoneRam}
+                  onChange={(e) => setPhoneRam(e.target.value)}
+                  placeholder="8GB"
+                  className="input"
+                />
+              </Field>
+              <Field label="Red móvil (opcional)">
+                <select value={phoneNetwork} onChange={(e) => setPhoneNetwork(e.target.value)} className="input">
+                  <option value="">Sin especificar</option>
+                  <option value="4G">4G</option>
+                  <option value="5G">5G</option>
+                  <option value="Solo WiFi">Solo WiFi</option>
+                </select>
+              </Field>
+              <Field label="Color (opcional)">
+                <input
+                  value={phoneColor}
+                  onChange={(e) => setPhoneColor(e.target.value)}
+                  placeholder="Negro"
+                  className="input"
+                />
+              </Field>
+              <Field label="Cámara (opcional)">
+                <input
+                  value={phoneCamera}
+                  onChange={(e) => setPhoneCamera(e.target.value)}
+                  placeholder="50MP + 12MP"
+                  className="input"
+                />
+              </Field>
+            </>
+          ) : (
+            <>
+              <Field label="Marca (opcional)">
+                <input
+                  value={techBrand}
+                  onChange={(e) => setTechBrand(e.target.value)}
+                  placeholder="Logitech"
+                  className="input"
+                />
+              </Field>
+              <Field label="Color (opcional)">
+                <input
+                  value={techColor}
+                  onChange={(e) => setTechColor(e.target.value)}
+                  placeholder="Negro"
+                  className="input"
+                />
+              </Field>
+            </>
+          )}
         </div>
       )}
 
@@ -450,67 +514,6 @@ export default function ProductForm({ product, basePath = "/api/products", redir
         </>
       )}
 
-      {category === "juegos" && (
-        <div className="grid grid-cols-2 gap-4">
-          <Field label="Marca (opcional)">
-            <input
-              value={phoneBrand}
-              onChange={(e) => setPhoneBrand(e.target.value)}
-              placeholder="Samsung"
-              className="input"
-            />
-          </Field>
-          <Field label="Modelo (opcional)">
-            <input
-              value={phoneModel}
-              onChange={(e) => setPhoneModel(e.target.value)}
-              placeholder="Galaxy S23"
-              className="input"
-            />
-          </Field>
-          <Field label="Memoria interna (opcional)">
-            <input
-              value={phoneStorage}
-              onChange={(e) => setPhoneStorage(e.target.value)}
-              placeholder="128GB"
-              className="input"
-            />
-          </Field>
-          <Field label="Memoria RAM (opcional)">
-            <input
-              value={phoneRam}
-              onChange={(e) => setPhoneRam(e.target.value)}
-              placeholder="8GB"
-              className="input"
-            />
-          </Field>
-          <Field label="Red móvil (opcional)">
-            <select value={phoneNetwork} onChange={(e) => setPhoneNetwork(e.target.value)} className="input">
-              <option value="">Sin especificar</option>
-              <option value="4G">4G</option>
-              <option value="5G">5G</option>
-              <option value="Solo WiFi">Solo WiFi</option>
-            </select>
-          </Field>
-          <Field label="Color (opcional)">
-            <input
-              value={phoneColor}
-              onChange={(e) => setPhoneColor(e.target.value)}
-              placeholder="Negro"
-              className="input"
-            />
-          </Field>
-          <Field label="Cámara (opcional)">
-            <input
-              value={phoneCamera}
-              onChange={(e) => setPhoneCamera(e.target.value)}
-              placeholder="50MP + 12MP"
-              className="input"
-            />
-          </Field>
-        </div>
-      )}
-
       {category === "ropa" && (
         <div className="grid grid-cols-2 gap-4">
           <Field label="Accesorios (opcional)">
@@ -613,6 +616,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
               <option value="Higiene personal">Higiene personal</option>
               <option value="Artículos de peluquería">Artículos de peluquería</option>
               <option value="Maquillaje">Maquillaje</option>
+              <option value="Perfumería">Perfumería</option>
             </select>
           </Field>
           <Field label="Marca (opcional)">

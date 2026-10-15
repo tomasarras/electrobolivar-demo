@@ -45,7 +45,7 @@ model Product {
   propertyBathrooms   Int?
   propertyTotalUnits  Int?
   propertyLocation    String?
-  // Only used for category "juegos" (Celulares).
+  // Only used for category "cocina" (Tecnología) when techCategory is "Celulares".
   phoneBrand   String?
   phoneModel   String?
   phoneStorage String?
@@ -91,6 +91,7 @@ model Product {
   seller       Seller?        @relation(fields: [sellerId], references: [id], onDelete: SetNull)
   orderItems   OrderItem[]
   reviews      Review[]
+  messages     Message[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 }
@@ -168,6 +169,10 @@ model Seller {
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   storeName     String
   whatsapp      String?
+  // Manual admin flag — not automatic — for sellers worth a closer look,
+  // typically after receiving a complaint. Shown as a warning on their
+  // public profile.
+  flaggedFraud  Boolean        @default(false)
   products      Product[]
   orderItems    OrderItem[]
   notifications Notification[]
@@ -217,6 +222,9 @@ model OrderItem {
   product       Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
   productName   String
   unitPrice     Int
+  // Snapshot of the product's currency at sale time ("ARS" | "USD") — needed
+  // to total commission income per currency in the admin wallet.
+  currency      String   @default("ARS")
   qty           Int
   sellerId      String?
   seller        Seller?  @relation(fields: [sellerId], references: [id], onDelete: SetNull)
@@ -282,4 +290,21 @@ model Visit {
   id        String   @id @default(cuid())
   device    String
   createdAt DateTime @default(now())
+}
+
+// A complaint or question a shopper leaves about a product, surfaced to the
+// admin in the "Mensajes" panel. Not tied to a purchase or account — anyone
+// on the product page can leave one, so productName is a snapshot in case
+// the product is later deleted.
+model Message {
+  id          String   @id @default(cuid())
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName String?
+  // "producto" | "vendedor" — what the complaint/question is about.
+  about       String   @default("producto")
+  name        String?
+  body        String
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
 }

@@ -17,9 +17,10 @@ export async function POST(request) {
 
   const products = await prisma.product.findMany({
     where: { id: { in: items.map((i) => i.productId) } },
-    select: { id: true, sellerId: true },
+    select: { id: true, sellerId: true, currency: true },
   });
   const sellerByProduct = new Map(products.map((p) => [p.id, p.sellerId]));
+  const currencyByProduct = new Map(products.map((p) => [p.id, p.currency || "ARS"]));
 
   const total = items.reduce((sum, i) => sum + i.price * i.qty, 0);
 
@@ -40,6 +41,7 @@ export async function POST(request) {
             productId: item.productId,
             productName: item.name,
             unitPrice: item.price,
+            currency: currencyByProduct.get(item.productId) || "ARS",
             qty: item.qty,
             sellerId,
             commissionPct: sellerId ? commissionPct : 0,

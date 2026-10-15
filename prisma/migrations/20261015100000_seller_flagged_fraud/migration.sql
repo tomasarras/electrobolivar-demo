@@ -1,0 +1,1 @@
+ALTER TABLE "Seller" ADD COLUMN "flaggedFraud" BOOLEAN NOT NULL DEFAULT false;

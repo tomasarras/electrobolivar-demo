@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Package, Settings, BarChart3, Store } from "lucide-react";
+import { Package, Settings, BarChart3, Store, MessageSquare, Wallet } from "lucide-react";
 
 const CARDS = [
   { href: "/admin/dashboard", label: "Dashboard", description: "Porcentaje de ventas por producto y totales de la tienda", icon: BarChart3 },
   { href: "/admin/productos", label: "Productos", description: "Cargar electrodomésticos, precios, fotos y video", icon: Package },
   { href: "/admin/vendedores", label: "Vendedores", description: "Ventas, comisión y neto de cada vendedor del marketplace", icon: Store },
+  { href: "/admin/billetera", label: "Billetera", description: "Ingresos por comisión de los productos vendidos, en $ y US$", icon: Wallet },
+  { href: "/admin/mensajes", label: "Mensajes", description: "Consultas y mensajes que lleguen a la tienda", icon: MessageSquare },
   { href: "/admin/configuracion", label: "Configuración", description: "Número de WhatsApp para recibir pedidos", icon: Settings },
 ];
 

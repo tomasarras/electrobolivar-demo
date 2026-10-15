@@ -1,26 +1,44 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { LayoutGrid, Package, Settings, LogOut, BarChart3, Store } from "lucide-react";
+import { LayoutGrid, Package, Settings, LogOut, BarChart3, Store, MessageSquare, Wallet } from "lucide-react";
 import { useAdmin } from "@/components/AdminProvider";
 
 const NAV = [
   { href: "/admin/dashboard", label: "Dashboard", icon: BarChart3 },
   { href: "/admin/productos", label: "Productos", icon: Package },
   { href: "/admin/vendedores", label: "Vendedores", icon: Store },
+  { href: "/admin/billetera", label: "Billetera", icon: Wallet },
+  { href: "/admin/mensajes", label: "Mensajes", icon: MessageSquare },
   { href: "/admin/configuracion", label: "Configuración", icon: Settings },
 ];
+
+const UNREAD_POLL_MS = 20000;
 
 export default function AdminLayout({ children }) {
   const { isAdmin, loaded, exitAdmin } = useAdmin();
   const pathname = usePathname();
   const router = useRouter();
+  const [unreadMessages, setUnreadMessages] = useState(0);
 
   useEffect(() => {
     if (loaded && !isAdmin) router.replace("/");
   }, [loaded, isAdmin, router]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    function load() {
+      fetch("/api/admin/messages")
+        .then((res) => res.json())
+        .then((data) => setUnreadMessages(data.unreadCount || 0))
+        .catch(() => {});
+    }
+    load();
+    const interval = setInterval(load, UNREAD_POLL_MS);
+    return () => clearInterval(interval);
+  }, [isAdmin]);
 
   if (!loaded || !isAdmin) {
     return <div className="flex min-h-screen items-center justify-center bg-paper text-sm text-steel">Cargando…</div>;
@@ -39,12 +57,17 @@ export default function AdminLayout({ children }) {
               <Link
                 key={href}
                 href={href}
-                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 ${
+                className={`relative flex items-center gap-1.5 rounded-full px-3 py-1.5 ${
                   pathname.startsWith(href) ? "bg-ink text-paper" : "hover:bg-panel-2"
                 }`}
               >
                 <Icon size={16} />
                 {label}
+                {href === "/admin/mensajes" && unreadMessages > 0 && (
+                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-semibold text-accent-ink">
+                    {unreadMessages > 9 ? "9+" : unreadMessages}
+                  </span>
+                )}
               </Link>
             ))}
             <button

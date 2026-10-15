@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Store, TrendingUp, Percent, Wallet } from "lucide-react";
+import { Store, TrendingUp, Percent, Wallet, TriangleAlert } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
 
 export default function AdminVendedoresPage() {
@@ -12,6 +12,15 @@ export default function AdminVendedoresPage() {
       .then((res) => res.json())
       .then(setSellers);
   }, []);
+
+  async function toggleFlag(id, next) {
+    setSellers((prev) => prev.map((s) => (s.id === id ? { ...s, flaggedFraud: next } : s)));
+    await fetch(`/api/admin/sellers/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ flaggedFraud: next }),
+    }).catch(() => {});
+  }
 
   if (!sellers) return <p className="text-sm text-steel">Cargando…</p>;
 
@@ -50,22 +59,46 @@ export default function AdminVendedoresPage() {
               <tr className="border-b border-line font-mono text-[11px] uppercase tracking-wide text-steel">
                 <th className="p-3 text-left">Vendedor</th>
                 <th className="p-3 text-left">Productos</th>
+                <th className="p-3 text-left">Quejas</th>
                 <th className="p-3 text-left">Bruto</th>
                 <th className="p-3 text-left">Comisión</th>
                 <th className="p-3 text-left">Neto</th>
+                <th className="p-3 text-left">Posible fraude</th>
               </tr>
             </thead>
             <tbody>
               {sellers.map((s) => (
-                <tr key={s.id} className="border-b border-line/60 last:border-0">
+                <tr key={s.id} className={`border-b border-line/60 last:border-0 ${s.flaggedFraud ? "bg-danger/5" : ""}`}>
                   <td className="p-3">
-                    <span className="font-medium">{s.storeName}</span>
+                    <span className="flex items-center gap-1.5 font-medium">
+                      {s.flaggedFraud && <TriangleAlert size={14} className="text-danger" />}
+                      {s.storeName}
+                    </span>
                     {s.whatsapp && <p className="text-xs text-steel">{s.whatsapp}</p>}
                   </td>
                   <td className="p-3">{s.productCount}</td>
+                  <td className="p-3">
+                    {s.complaintCount > 0 ? (
+                      <span className="rounded-full bg-danger/10 px-2 py-0.5 text-xs font-semibold text-danger">
+                        {s.complaintCount}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-steel">0</span>
+                    )}
+                  </td>
                   <td className="p-3 font-mono">{formatCurrency(s.gross)}</td>
                   <td className="p-3 font-mono text-danger">-{formatCurrency(s.commission)}</td>
                   <td className="p-3 font-mono font-semibold">{formatCurrency(s.net)}</td>
+                  <td className="p-3">
+                    <label className="flex items-center gap-1.5 text-xs text-ink-soft">
+                      <input
+                        type="checkbox"
+                        checked={s.flaggedFraud}
+                        onChange={(e) => toggleFlag(s.id, e.target.checked)}
+                      />
+                      Marcar
+                    </label>
+                  </td>
                 </tr>
               ))}
             </tbody>
