@@ -33,7 +33,9 @@ export default function AdminMensajesPage() {
   return (
     <div>
       <h1 className="font-display text-2xl font-bold">Mensajes</h1>
-      <p className="mt-1 text-sm text-ink-soft">Quejas y consultas que dejaron los clientes sobre algún producto.</p>
+      <p className="mt-1 text-sm text-ink-soft">
+        Quejas y consultas de clientes sobre algún producto, y mensajes de vendedores.
+      </p>
 
       {messages.length === 0 ? (
         <div className="mt-8 flex flex-col items-center gap-3 rounded-md border border-dashed border-line p-12 text-center text-sm text-steel">
@@ -53,10 +55,14 @@ export default function AdminMensajesPage() {
                     <p className="text-sm font-semibold">{m.name || "Anónimo"}</p>
                     <span
                       className={`rounded-full px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide ${
-                        m.about === "vendedor" ? "bg-danger/10 text-danger" : "bg-panel-2 text-steel"
+                        m.about === "vendedor"
+                          ? "bg-danger/10 text-danger"
+                          : m.about === "soporte"
+                            ? "bg-accent/10 text-accent-2"
+                            : "bg-panel-2 text-steel"
                       }`}
                     >
-                      {m.about === "vendedor" ? "Vendedor" : "Producto"}
+                      {m.about === "vendedor" ? "Vendedor" : m.about === "soporte" ? "Consulta de vendedor" : "Producto"}
                     </span>
                   </div>
                   {m.productId ? (

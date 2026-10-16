@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { LayoutGrid, Package, Settings, LogOut, BarChart3, Store, MessageSquare, Wallet } from "lucide-react";
+import { LayoutGrid, Package, Settings, LogOut, BarChart3, Store, MessageSquare, Wallet, Check } from "lucide-react";
 import { useAdmin } from "@/components/AdminProvider";
 
 const NAV = [
@@ -64,8 +64,8 @@ export default function AdminLayout({ children }) {
                 <Icon size={16} />
                 {label}
                 {href === "/admin/mensajes" && unreadMessages > 0 && (
-                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-semibold text-accent-ink">
-                    {unreadMessages > 9 ? "9+" : unreadMessages}
+                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-accent-ink">
+                    <Check size={11} strokeWidth={3} />
                   </span>
                 )}
               </Link>

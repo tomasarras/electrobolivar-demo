@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { upload } from "@vercel/blob/client";
-import { Loader2, X, Film, Plus } from "lucide-react";
+import { Loader2, X, Film, Plus, Trash2 } from "lucide-react";
 import { CATEGORIES } from "@/lib/categories";
 
 const MAX_IMAGES = 4;
@@ -34,6 +34,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
   const [scheduleHours, setScheduleHours] = useState(product?.scheduleHours || "");
   const [scheduleHours2, setScheduleHours2] = useState(product?.scheduleHours2 || "");
   const [showSecondSchedule, setShowSecondSchedule] = useState(Boolean(product?.scheduleHours2));
+  const [vehicleCategory, setVehicleCategory] = useState(product?.vehicleCategory || "");
   const [vehicleYear, setVehicleYear] = useState(product?.vehicleYear || "");
   const [vehicleKm, setVehicleKm] = useState(product?.vehicleKm ?? "");
   const [vehicleBrand, setVehicleBrand] = useState(product?.vehicleBrand || "");
@@ -80,6 +81,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
   const [uploading, setUploading] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
 
   async function handleFiles(e) {
@@ -165,6 +167,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
         scheduleDays: scheduleDays.trim(),
         scheduleHours: scheduleHours.trim(),
         scheduleHours2: showSecondSchedule ? scheduleHours2.trim() : "",
+        vehicleCategory: category === "vehiculos" ? vehicleCategory : "",
         vehicleYear: category === "vehiculos" && vehicleYear !== "" ? Number(vehicleYear) : null,
         vehicleKm: category === "vehiculos" && vehicleKm !== "" ? Number(vehicleKm) : null,
         vehicleBrand: category === "vehiculos" ? vehicleBrand.trim() : "",
@@ -221,6 +224,21 @@ export default function ProductForm({ product, basePath = "/api/products", redir
     } catch (err) {
       setError(err.message);
       setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!window.confirm("¿Borrar este producto? Esta acción no se puede deshacer.")) return;
+    setDeleting(true);
+    setError("");
+    try {
+      const res = await fetch(`${basePath}/${product.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("No se pudo borrar el producto");
+      router.push(redirectTo);
+      router.refresh();
+    } catch (err) {
+      setError(err.message);
+      setDeleting(false);
     }
   }
 
@@ -385,6 +403,17 @@ export default function ProductForm({ product, basePath = "/api/products", redir
 
       {category === "vehiculos" && (
         <div className="grid grid-cols-2 gap-4">
+          <Field label="Categoría (opcional)">
+            <select value={vehicleCategory} onChange={(e) => setVehicleCategory(e.target.value)} className="input">
+              <option value="">Sin especificar</option>
+              <option value="Auto">Auto</option>
+              <option value="Moto">Moto</option>
+              <option value="Avión">Avión</option>
+              <option value="Helicóptero">Helicóptero</option>
+              <option value="Lancha">Lancha</option>
+              <option value="Otros">Otros</option>
+            </select>
+          </Field>
           <Field label="Marca (opcional)">
             <input
               value={vehicleBrand}
@@ -871,6 +900,17 @@ export default function ProductForm({ product, basePath = "/api/products", redir
         >
           Cancelar
         </button>
+        {isEdit && (
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={deleting}
+            className="ml-auto flex items-center gap-2 rounded-md border border-line px-5 py-2.5 text-sm font-semibold text-danger hover:border-danger disabled:opacity-60"
+          >
+            {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+            Borrar producto
+          </button>
+        )}
       </div>
 
       <style jsx>{`

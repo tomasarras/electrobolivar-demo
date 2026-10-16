@@ -4,12 +4,13 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { Store, Package } from "lucide-react";
+import { Store, Package, MessageSquare } from "lucide-react";
 import SellerNotificationBell from "@/components/SellerNotificationBell";
 
 const NAV = [
   { href: "/vendedor", label: "Resumen", icon: Store },
   { href: "/vendedor/productos", label: "Mis productos", icon: Package },
+  { href: "/vendedor/mensajes", label: "Mensaje al admin", icon: MessageSquare },
 ];
 
 export default function VendedorLayout({ children }) {

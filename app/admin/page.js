@@ -1,7 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Package, Settings, BarChart3, Store, MessageSquare, Wallet } from "lucide-react";
+import { Package, Settings, BarChart3, Store, MessageSquare, Wallet, Check } from "lucide-react";
 
 const CARDS = [
   { href: "/admin/dashboard", label: "Dashboard", description: "Porcentaje de ventas por producto y totales de la tienda", icon: BarChart3 },
@@ -13,6 +14,15 @@ const CARDS = [
 ];
 
 export default function AdminPanelPage() {
+  const [unreadMessages, setUnreadMessages] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/admin/messages")
+      .then((res) => res.json())
+      .then((data) => setUnreadMessages(data.unreadCount || 0))
+      .catch(() => {});
+  }, []);
+
   return (
     <div>
       <h1 className="font-display text-2xl font-bold">Panel</h1>
@@ -23,8 +33,16 @@ export default function AdminPanelPage() {
           <Link
             key={href}
             href={href}
-            className="flex flex-col gap-3 rounded-md border border-line bg-panel p-5 transition hover:-translate-y-0.5 hover:border-steel"
+            className="relative flex flex-col gap-3 rounded-md border border-line bg-panel p-5 transition hover:-translate-y-0.5 hover:border-steel"
           >
+            {href === "/admin/mensajes" && unreadMessages > 0 && (
+              <span
+                title="Tenés mensajes nuevos sin leer"
+                className="absolute right-4 top-4 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-accent-ink"
+              >
+                <Check size={13} strokeWidth={3} />
+              </span>
+            )}
             <span className="flex h-10 w-10 items-center justify-center rounded-md bg-panel-2">
               <Icon size={20} />
             </span>

@@ -35,6 +35,7 @@ export default async function ProductoPage({ params }) {
   const salesCount = totalSold(product.orderItems);
 
   const vehicleSpecs = [
+    product.vehicleCategory && { label: "Categoría", value: product.vehicleCategory },
     product.vehicleBrand && { label: "Marca", value: product.vehicleBrand },
     product.vehicleModel && { label: "Modelo", value: product.vehicleModel },
     product.vehicleYear && { label: "Año", value: String(product.vehicleYear) },
