@@ -148,6 +148,10 @@ export default function ProductForm({ product, basePath = "/api/products", redir
       setError("El nombre es obligatorio.");
       return;
     }
+    if (!location.trim()) {
+      setError("La ciudad o zona es obligatoria.");
+      return;
+    }
     setSaving(true);
     try {
       const noShippingCategory = NO_SHIPPING_CATEGORIES.includes(category);
@@ -301,11 +305,12 @@ export default function ProductForm({ product, basePath = "/api/products", redir
         />
       </Field>
 
-      <Field label="Ciudad o zona (opcional)">
+      <Field label="Ciudad o zona">
         <input
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           placeholder="Bolívar"
+          required
           className="input"
         />
       </Field>
