@@ -9,10 +9,13 @@ import { serializePromo } from "@/lib/promos";
 export const dynamic = "force-dynamic";
 
 export default async function TiendaPage({ searchParams }) {
-  const { categoria, q, marca, modelo, anioMin, anioMax, kmMax, estado } = await searchParams;
+  const { categoria, q, marca, modelo, anioMin, anioMax, kmMax, estado, subcategoria } = await searchParams;
   const query = (q || "").trim();
   const words = query.split(/\s+/).filter(Boolean).slice(0, 6);
   const isVehicles = categoria === "vehiculos";
+  const isElectro = categoria === "lavado";
+  const isHogar = categoria === "climatizacion";
+  const isBelleza = categoria === "pequenos";
 
   const where = {
     ...(categoria ? { category: categoria } : {}),
@@ -36,9 +39,13 @@ export default async function TiendaPage({ searchParams }) {
       : {}),
     ...(isVehicles && kmMax ? { vehicleKm: { lte: Number(kmMax) } } : {}),
     ...(isVehicles && (estado === "nuevo" || estado === "usado") ? { condition: estado } : {}),
+    ...(isElectro && subcategoria ? { laundryCategory: subcategoria } : {}),
+    ...(isHogar && subcategoria ? { homeCategory: subcategoria } : {}),
+    ...(isBelleza && subcategoria ? { beautyCategory: subcategoria } : {}),
   };
 
-  const [products, promoImages, vehicleBrands, vehicleModels] = await Promise.all([
+  const [products, promoImages, vehicleBrands, vehicleModels, electroCategories, hogarCategories, bellezaCategories] =
+    await Promise.all([
     prisma.product.findMany({
       where: Object.keys(where).length ? where : undefined,
       include: {
@@ -66,11 +73,38 @@ export default async function TiendaPage({ searchParams }) {
           orderBy: { vehicleModel: "asc" },
         })
       : [],
+    isElectro
+      ? prisma.product.findMany({
+          where: { category: "lavado", laundryCategory: { not: null } },
+          select: { laundryCategory: true },
+          distinct: ["laundryCategory"],
+          orderBy: { laundryCategory: "asc" },
+        })
+      : [],
+    isHogar
+      ? prisma.product.findMany({
+          where: { category: "climatizacion", homeCategory: { not: null } },
+          select: { homeCategory: true },
+          distinct: ["homeCategory"],
+          orderBy: { homeCategory: "asc" },
+        })
+      : [],
+    isBelleza
+      ? prisma.product.findMany({
+          where: { category: "pequenos", beautyCategory: { not: null } },
+          select: { beautyCategory: true },
+          distinct: ["beautyCategory"],
+          orderBy: { beautyCategory: "asc" },
+        })
+      : [],
   ]);
   const promos = promoImages.map(serializePromo);
 
   const hiddenFilters = { q: query || undefined, categoria };
   const hasVehicleFilters = Boolean(marca || modelo || anioMin || anioMax || kmMax || estado);
+  const hasElectroFilters = Boolean(subcategoria);
+  const hasHogarFilters = Boolean(subcategoria);
+  const hasBellezaFilters = Boolean(subcategoria);
 
   return (
     <>
@@ -108,7 +142,163 @@ export default async function TiendaPage({ searchParams }) {
           ))}
         </div>
 
-        <div className={`mt-8 ${isVehicles ? "flex items-start gap-4 sm:gap-6" : ""}`}>
+        <div className={`mt-8 ${isVehicles || isElectro || isHogar || isBelleza ? "flex items-start gap-4 sm:gap-6" : ""}`}>
+          {isBelleza && (
+            <aside className="sticky top-24 w-36 shrink-0 self-start rounded-md border border-line bg-panel p-3 sm:w-56 sm:p-4">
+              <h2 className="font-mono text-[11px] uppercase tracking-wide text-steel">Buscar categoría</h2>
+              <form method="get" className="mt-3 space-y-3" key={subcategoria || ""}>
+                {Object.entries(hiddenFilters).map(
+                  ([key, value]) => value && <input key={key} type="hidden" name={key} value={value} />
+                )}
+
+                <VehicleField label="Categoría">
+                  <input
+                    list="belleza-categorias"
+                    name="subcategoria"
+                    defaultValue={subcategoria || ""}
+                    placeholder="Buscar..."
+                    className="filter-input"
+                  />
+                  <datalist id="belleza-categorias">
+                    {bellezaCategories.map(({ beautyCategory }) => (
+                      <option key={beautyCategory} value={beautyCategory} />
+                    ))}
+                  </datalist>
+                </VehicleField>
+
+                <button
+                  type="submit"
+                  className="w-full rounded-md bg-ink py-2 text-sm font-semibold text-paper hover:brightness-110"
+                >
+                  Filtrar
+                </button>
+                {hasBellezaFilters && (
+                  <Link
+                    href={{ pathname: "/tienda", query: { categoria: "pequenos", ...(query ? { q: query } : {}) } }}
+                    className="block text-center text-xs text-ink-soft underline-offset-2 hover:text-accent hover:underline"
+                  >
+                    Limpiar filtros
+                  </Link>
+                )}
+              </form>
+
+              <style>{`
+                .filter-input {
+                  width: 100%;
+                  border-radius: 0.375rem;
+                  border: 1px solid var(--line);
+                  background: var(--paper);
+                  color: var(--ink);
+                  padding: 0.45rem 0.55rem;
+                  font-size: 0.85rem;
+                }
+              `}</style>
+            </aside>
+          )}
+          {isHogar && (
+            <aside className="sticky top-24 w-36 shrink-0 self-start rounded-md border border-line bg-panel p-3 sm:w-56 sm:p-4">
+              <h2 className="font-mono text-[11px] uppercase tracking-wide text-steel">Buscar categoría</h2>
+              <form method="get" className="mt-3 space-y-3" key={subcategoria || ""}>
+                {Object.entries(hiddenFilters).map(
+                  ([key, value]) => value && <input key={key} type="hidden" name={key} value={value} />
+                )}
+
+                <VehicleField label="Categoría">
+                  <input
+                    list="hogar-categorias"
+                    name="subcategoria"
+                    defaultValue={subcategoria || ""}
+                    placeholder="Buscar..."
+                    className="filter-input"
+                  />
+                  <datalist id="hogar-categorias">
+                    {hogarCategories.map(({ homeCategory }) => (
+                      <option key={homeCategory} value={homeCategory} />
+                    ))}
+                  </datalist>
+                </VehicleField>
+
+                <button
+                  type="submit"
+                  className="w-full rounded-md bg-ink py-2 text-sm font-semibold text-paper hover:brightness-110"
+                >
+                  Filtrar
+                </button>
+                {hasHogarFilters && (
+                  <Link
+                    href={{ pathname: "/tienda", query: { categoria: "climatizacion", ...(query ? { q: query } : {}) } }}
+                    className="block text-center text-xs text-ink-soft underline-offset-2 hover:text-accent hover:underline"
+                  >
+                    Limpiar filtros
+                  </Link>
+                )}
+              </form>
+
+              <style>{`
+                .filter-input {
+                  width: 100%;
+                  border-radius: 0.375rem;
+                  border: 1px solid var(--line);
+                  background: var(--paper);
+                  color: var(--ink);
+                  padding: 0.45rem 0.55rem;
+                  font-size: 0.85rem;
+                }
+              `}</style>
+            </aside>
+          )}
+          {isElectro && (
+            <aside className="sticky top-24 w-36 shrink-0 self-start rounded-md border border-line bg-panel p-3 sm:w-56 sm:p-4">
+              <h2 className="font-mono text-[11px] uppercase tracking-wide text-steel">Buscar categoría</h2>
+              <form method="get" className="mt-3 space-y-3" key={subcategoria || ""}>
+                {Object.entries(hiddenFilters).map(
+                  ([key, value]) => value && <input key={key} type="hidden" name={key} value={value} />
+                )}
+
+                <VehicleField label="Categoría">
+                  <input
+                    list="electro-categorias"
+                    name="subcategoria"
+                    defaultValue={subcategoria || ""}
+                    placeholder="Buscar..."
+                    className="filter-input"
+                  />
+                  <datalist id="electro-categorias">
+                    {electroCategories.map(({ laundryCategory }) => (
+                      <option key={laundryCategory} value={laundryCategory} />
+                    ))}
+                  </datalist>
+                </VehicleField>
+
+                <button
+                  type="submit"
+                  className="w-full rounded-md bg-ink py-2 text-sm font-semibold text-paper hover:brightness-110"
+                >
+                  Filtrar
+                </button>
+                {hasElectroFilters && (
+                  <Link
+                    href={{ pathname: "/tienda", query: { categoria: "lavado", ...(query ? { q: query } : {}) } }}
+                    className="block text-center text-xs text-ink-soft underline-offset-2 hover:text-accent hover:underline"
+                  >
+                    Limpiar filtros
+                  </Link>
+                )}
+              </form>
+
+              <style>{`
+                .filter-input {
+                  width: 100%;
+                  border-radius: 0.375rem;
+                  border: 1px solid var(--line);
+                  background: var(--paper);
+                  color: var(--ink);
+                  padding: 0.45rem 0.55rem;
+                  font-size: 0.85rem;
+                }
+              `}</style>
+            </aside>
+          )}
           {isVehicles && (
             <aside className="sticky top-24 w-36 shrink-0 self-start rounded-md border border-line bg-panel p-3 sm:w-56 sm:p-4">
               <h2 className="font-mono text-[11px] uppercase tracking-wide text-steel">Filtrar vehículos</h2>
