@@ -109,20 +109,25 @@ export default function VendedorResumenPage() {
         <div className="flex items-start gap-3">
           <Megaphone size={18} className="mt-0.5 shrink-0 text-accent" />
           <div className="text-sm text-ink-soft">
-            <p>
-              Por cada venta de tus productos a través de la página, cobramos una comisión del{" "}
-              <strong className="text-ink">{commissionPct}%</strong>. Los negocios que cierres por fuera de la
-              página no podemos cobrarlos, pero a medida que vendas acá tu reputación va a ir creciendo, y eso va a
-              ser cada vez mejor para tus ventas futuras.
+            <p className="font-semibold text-ink">📢 Información para vendedores</p>
+            <p className="mt-2">
+              Por cada venta concretada a través de BolivarMarket, cobramos una comisión del{" "}
+              <strong className="text-ink">{commissionPct}%</strong> del valor de la venta.
             </p>
             <p className="mt-2">
-              Ante cualquier consulta,{" "}
+              Las operaciones que se concreten por fuera de la página no generan comisión. Sin embargo, al vender a
+              través de BolivarMarket, podrás construir tu reputación como vendedor, ganar la confianza de los
+              compradores y mejorar tus oportunidades de venta.
+            </p>
+            <p className="mt-2">
+              ¿Tenés alguna consulta?{" "}
               <Link href="/vendedor/mensajes" className="inline-flex items-center gap-1 font-semibold text-ink underline-offset-2 hover:underline">
                 <MessageSquare size={13} />
-                mandanos un mensaje al administrador
+                Mandanos un mensaje al administrador
               </Link>
-              . ¡Gracias!
+              .
             </p>
+            <p className="mt-2">¡Gracias por confiar en BolivarMarket!</p>
           </div>
         </div>
       </div>
