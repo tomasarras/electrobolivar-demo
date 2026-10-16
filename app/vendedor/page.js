@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Loader2, Package } from "lucide-react";
+import { Loader2, Package, Megaphone, MessageSquare } from "lucide-react";
 
 export default function VendedorResumenPage() {
   const [seller, setSeller] = useState(undefined); // undefined = loading, null = not yet a seller
@@ -11,6 +11,7 @@ export default function VendedorResumenPage() {
   const [whatsapp, setWhatsapp] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [commissionPct, setCommissionPct] = useState(10);
 
   function load() {
     fetch("/api/seller")
@@ -21,6 +22,10 @@ export default function VendedorResumenPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => setCommissionPct(data.commissionPct ?? 10))
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -99,6 +104,28 @@ export default function VendedorResumenPage() {
     <div>
       <h1 className="font-display text-2xl font-bold">{seller.storeName}</h1>
       <p className="mt-1 text-sm text-ink-soft">Resumen de tu actividad como vendedor.</p>
+
+      <div className="mt-6 rounded-md border border-line bg-panel p-4">
+        <div className="flex items-start gap-3">
+          <Megaphone size={18} className="mt-0.5 shrink-0 text-accent" />
+          <div className="text-sm text-ink-soft">
+            <p>
+              Por cada venta de tus productos a través de la página, cobramos una comisión del{" "}
+              <strong className="text-ink">{commissionPct}%</strong>. Los negocios que cierres por fuera de la
+              página no podemos cobrarlos, pero a medida que vendas acá tu reputación va a ir creciendo, y eso va a
+              ser cada vez mejor para tus ventas futuras.
+            </p>
+            <p className="mt-2">
+              Ante cualquier consulta,{" "}
+              <Link href="/vendedor/mensajes" className="inline-flex items-center gap-1 font-semibold text-ink underline-offset-2 hover:underline">
+                <MessageSquare size={13} />
+                mandanos un mensaje al administrador
+              </Link>
+              . ¡Gracias!
+            </p>
+          </div>
+        </div>
+      </div>
 
       <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <Stat icon={Package} label="Productos" value={productCount} />
