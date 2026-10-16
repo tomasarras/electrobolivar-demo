@@ -77,6 +77,7 @@ export async function PATCH(request, { params }) {
         phoneNetwork: input.phoneNetwork,
         phoneColor: input.phoneColor,
         phoneCamera: input.phoneCamera,
+        clothingCategory: input.clothingCategory,
         clothingAccessories: input.clothingAccessories,
         clothingGender: input.clothingGender,
         clothingSize: input.clothingSize,

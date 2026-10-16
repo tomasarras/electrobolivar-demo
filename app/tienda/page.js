@@ -16,6 +16,8 @@ export default async function TiendaPage({ searchParams }) {
   const isElectro = categoria === "lavado";
   const isHogar = categoria === "climatizacion";
   const isBelleza = categoria === "pequenos";
+  const isRopa = categoria === "ropa";
+  const isTecnologia = categoria === "cocina";
 
   const where = {
     ...(categoria ? { category: categoria } : {}),
@@ -42,10 +44,21 @@ export default async function TiendaPage({ searchParams }) {
     ...(isElectro && subcategoria ? { laundryCategory: subcategoria } : {}),
     ...(isHogar && subcategoria ? { homeCategory: subcategoria } : {}),
     ...(isBelleza && subcategoria ? { beautyCategory: subcategoria } : {}),
+    ...(isRopa && subcategoria ? { clothingCategory: subcategoria } : {}),
+    ...(isTecnologia && subcategoria ? { techCategory: subcategoria } : {}),
   };
 
-  const [products, promoImages, vehicleBrands, vehicleModels, electroCategories, hogarCategories, bellezaCategories] =
-    await Promise.all([
+  const [
+    products,
+    promoImages,
+    vehicleBrands,
+    vehicleModels,
+    electroCategories,
+    hogarCategories,
+    bellezaCategories,
+    ropaCategories,
+    tecnologiaCategories,
+  ] = await Promise.all([
     prisma.product.findMany({
       where: Object.keys(where).length ? where : undefined,
       include: {
@@ -97,6 +110,22 @@ export default async function TiendaPage({ searchParams }) {
           orderBy: { beautyCategory: "asc" },
         })
       : [],
+    isRopa
+      ? prisma.product.findMany({
+          where: { category: "ropa", clothingCategory: { not: null } },
+          select: { clothingCategory: true },
+          distinct: ["clothingCategory"],
+          orderBy: { clothingCategory: "asc" },
+        })
+      : [],
+    isTecnologia
+      ? prisma.product.findMany({
+          where: { category: "cocina", techCategory: { not: null } },
+          select: { techCategory: true },
+          distinct: ["techCategory"],
+          orderBy: { techCategory: "asc" },
+        })
+      : [],
   ]);
   const promos = promoImages.map(serializePromo);
 
@@ -105,6 +134,8 @@ export default async function TiendaPage({ searchParams }) {
   const hasElectroFilters = Boolean(subcategoria);
   const hasHogarFilters = Boolean(subcategoria);
   const hasBellezaFilters = Boolean(subcategoria);
+  const hasRopaFilters = Boolean(subcategoria);
+  const hasTecnologiaFilters = Boolean(subcategoria);
 
   return (
     <>
@@ -142,7 +173,117 @@ export default async function TiendaPage({ searchParams }) {
           ))}
         </div>
 
-        <div className={`mt-8 ${isVehicles || isElectro || isHogar || isBelleza ? "flex items-start gap-4 sm:gap-6" : ""}`}>
+        <div
+          className={`mt-8 ${
+            isVehicles || isElectro || isHogar || isBelleza || isRopa || isTecnologia
+              ? "flex items-start gap-4 sm:gap-6"
+              : ""
+          }`}
+        >
+          {isTecnologia && (
+            <aside className="sticky top-24 w-36 shrink-0 self-start rounded-md border border-line bg-panel p-3 sm:w-56 sm:p-4">
+              <h2 className="font-mono text-[11px] uppercase tracking-wide text-steel">Buscar categoría</h2>
+              <form method="get" className="mt-3 space-y-3" key={subcategoria || ""}>
+                {Object.entries(hiddenFilters).map(
+                  ([key, value]) => value && <input key={key} type="hidden" name={key} value={value} />
+                )}
+
+                <VehicleField label="Categoría">
+                  <input
+                    list="tecnologia-categorias"
+                    name="subcategoria"
+                    defaultValue={subcategoria || ""}
+                    placeholder="Buscar..."
+                    className="filter-input"
+                  />
+                  <datalist id="tecnologia-categorias">
+                    {tecnologiaCategories.map(({ techCategory }) => (
+                      <option key={techCategory} value={techCategory} />
+                    ))}
+                  </datalist>
+                </VehicleField>
+
+                <button
+                  type="submit"
+                  className="w-full rounded-md bg-ink py-2 text-sm font-semibold text-paper hover:brightness-110"
+                >
+                  Filtrar
+                </button>
+                {hasTecnologiaFilters && (
+                  <Link
+                    href={{ pathname: "/tienda", query: { categoria: "cocina", ...(query ? { q: query } : {}) } }}
+                    className="block text-center text-xs text-ink-soft underline-offset-2 hover:text-accent hover:underline"
+                  >
+                    Limpiar filtros
+                  </Link>
+                )}
+              </form>
+
+              <style>{`
+                .filter-input {
+                  width: 100%;
+                  border-radius: 0.375rem;
+                  border: 1px solid var(--line);
+                  background: var(--paper);
+                  color: var(--ink);
+                  padding: 0.45rem 0.55rem;
+                  font-size: 0.85rem;
+                }
+              `}</style>
+            </aside>
+          )}
+          {isRopa && (
+            <aside className="sticky top-24 w-36 shrink-0 self-start rounded-md border border-line bg-panel p-3 sm:w-56 sm:p-4">
+              <h2 className="font-mono text-[11px] uppercase tracking-wide text-steel">Buscar categoría</h2>
+              <form method="get" className="mt-3 space-y-3" key={subcategoria || ""}>
+                {Object.entries(hiddenFilters).map(
+                  ([key, value]) => value && <input key={key} type="hidden" name={key} value={value} />
+                )}
+
+                <VehicleField label="Categoría">
+                  <input
+                    list="ropa-categorias"
+                    name="subcategoria"
+                    defaultValue={subcategoria || ""}
+                    placeholder="Buscar..."
+                    className="filter-input"
+                  />
+                  <datalist id="ropa-categorias">
+                    {ropaCategories.map(({ clothingCategory }) => (
+                      <option key={clothingCategory} value={clothingCategory} />
+                    ))}
+                  </datalist>
+                </VehicleField>
+
+                <button
+                  type="submit"
+                  className="w-full rounded-md bg-ink py-2 text-sm font-semibold text-paper hover:brightness-110"
+                >
+                  Filtrar
+                </button>
+                {hasRopaFilters && (
+                  <Link
+                    href={{ pathname: "/tienda", query: { categoria: "ropa", ...(query ? { q: query } : {}) } }}
+                    className="block text-center text-xs text-ink-soft underline-offset-2 hover:text-accent hover:underline"
+                  >
+                    Limpiar filtros
+                  </Link>
+                )}
+              </form>
+
+              <style>{`
+                .filter-input {
+                  width: 100%;
+                  border-radius: 0.375rem;
+                  border: 1px solid var(--line);
+                  background: var(--paper);
+                  color: var(--ink);
+                  padding: 0.45rem 0.55rem;
+                  font-size: 0.85rem;
+                }
+              `}</style>
+            </aside>
+          )}
           {isBelleza && (
             <aside className="sticky top-24 w-36 shrink-0 self-start rounded-md border border-line bg-panel p-3 sm:w-56 sm:p-4">
               <h2 className="font-mono text-[11px] uppercase tracking-wide text-steel">Buscar categoría</h2>

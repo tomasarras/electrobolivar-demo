@@ -56,6 +56,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
   const [phoneNetwork, setPhoneNetwork] = useState(product?.phoneNetwork || "");
   const [phoneColor, setPhoneColor] = useState(product?.phoneColor || "");
   const [phoneCamera, setPhoneCamera] = useState(product?.phoneCamera || "");
+  const [clothingCategory, setClothingCategory] = useState(product?.clothingCategory || "");
   const [clothingAccessories, setClothingAccessories] = useState(product?.clothingAccessories || "");
   const [clothingGender, setClothingGender] = useState(product?.clothingGender || "");
   const [clothingSize, setClothingSize] = useState(product?.clothingSize || "");
@@ -196,6 +197,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
         phoneNetwork: category === "cocina" && techCategory === "Celulares" ? phoneNetwork.trim() : "",
         phoneColor: category === "cocina" && techCategory === "Celulares" ? phoneColor.trim() : "",
         phoneCamera: category === "cocina" && techCategory === "Celulares" ? phoneCamera.trim() : "",
+        clothingCategory: category === "ropa" ? clothingCategory : "",
         clothingAccessories: category === "ropa" ? clothingAccessories.trim() : "",
         clothingGender: category === "ropa" ? clothingGender : "",
         clothingSize: category === "ropa" ? clothingSize.trim() : "",
@@ -565,6 +567,29 @@ export default function ProductForm({ product, basePath = "/api/products", redir
 
       {category === "ropa" && (
         <div className="grid grid-cols-2 gap-4">
+          <Field label="Categoría (opcional)">
+            <select value={clothingCategory} onChange={(e) => setClothingCategory(e.target.value)} className="input">
+              <option value="">Sin especificar</option>
+              <option value="Remeras">Remeras</option>
+              <option value="Pantalones">Pantalones</option>
+              <option value="Camperas y abrigos">Camperas y abrigos</option>
+              <option value="Buzos y sweaters">Buzos y sweaters</option>
+              <option value="Camisas">Camisas</option>
+              <option value="Vestidos">Vestidos</option>
+              <option value="Polleras">Polleras</option>
+              <option value="Shorts y bermudas">Shorts y bermudas</option>
+              <option value="Ropa interior">Ropa interior</option>
+              <option value="Pijamas">Pijamas</option>
+              <option value="Trajes de baño">Trajes de baño</option>
+              <option value="Ropa deportiva">Ropa deportiva</option>
+              <option value="Calzado">Calzado</option>
+              <option value="Carteras y bolsos">Carteras y bolsos</option>
+              <option value="Cinturones">Cinturones</option>
+              <option value="Gorras y sombreros">Gorras y sombreros</option>
+              <option value="Medias">Medias</option>
+              <option value="Accesorios">Accesorios</option>
+            </select>
+          </Field>
           <Field label="Accesorios (opcional)">
             <input
               value={clothingAccessories}

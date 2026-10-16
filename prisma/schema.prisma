@@ -58,6 +58,7 @@ model Product {
   phoneColor   String?
   phoneCamera  String?
   // Only used for category "ropa".
+  clothingCategory    String?
   clothingAccessories String?
   clothingGender      String?
   clothingSize        String?
