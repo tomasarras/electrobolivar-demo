@@ -68,6 +68,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
   const [clothingNeckline, setClothingNeckline] = useState(product?.clothingNeckline || "");
   const [beautyCategory, setBeautyCategory] = useState(product?.beautyCategory || "");
   const [beautyBrand, setBeautyBrand] = useState(product?.beautyBrand || "");
+  const [homeCategory, setHomeCategory] = useState(product?.homeCategory || "");
   const [homeColor, setHomeColor] = useState(product?.homeColor || "");
   const [homeBrand, setHomeBrand] = useState(product?.homeBrand || "");
   const [homeSaleFormat, setHomeSaleFormat] = useState(product?.homeSaleFormat || "");
@@ -202,6 +203,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
         clothingNeckline: category === "ropa" ? clothingNeckline : "",
         beautyCategory: category === "pequenos" ? beautyCategory : "",
         beautyBrand: category === "pequenos" ? beautyBrand.trim() : "",
+        homeCategory: category === "climatizacion" ? homeCategory : "",
         homeColor: category === "climatizacion" ? homeColor.trim() : "",
         homeBrand: category === "climatizacion" ? homeBrand.trim() : "",
         homeSaleFormat: category === "climatizacion" ? homeSaleFormat : "",
@@ -672,6 +674,30 @@ export default function ProductForm({ product, basePath = "/api/products", redir
 
       {category === "climatizacion" && (
         <div className="grid grid-cols-2 gap-4">
+          <Field label="Categoría (opcional)">
+            <select value={homeCategory} onChange={(e) => setHomeCategory(e.target.value)} className="input">
+              <option value="">Sin especificar</option>
+              <option value="Living comedor">Living comedor</option>
+              <option value="Cocina y bazar">Cocina y bazar</option>
+              <option value="Vajilla">Vajilla</option>
+              <option value="Decoración">Decoración</option>
+              <option value="Dormitorio">Dormitorio</option>
+              <option value="Muebles guardado">Muebles guardado</option>
+              <option value="Colchones">Colchones</option>
+              <option value="Almohadas">Almohadas</option>
+              <option value="Iluminación">Iluminación</option>
+              <option value="Acolchados">Acolchados</option>
+              <option value="Arte">Arte</option>
+              <option value="Cajas y canastos">Cajas y canastos</option>
+              <option value="Espejos">Espejos</option>
+              <option value="Almohadones">Almohadones</option>
+              <option value="Alfombras">Alfombras</option>
+              <option value="Camas">Camas</option>
+              <option value="Muebles de jardín">Muebles de jardín</option>
+              <option value="Velas y difusores">Velas y difusores</option>
+              <option value="Jarrones y floreros">Jarrones y floreros</option>
+            </select>
+          </Field>
           <Field label="Color (opcional)">
             <input
               value={homeColor}

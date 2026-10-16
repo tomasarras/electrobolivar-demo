@@ -68,6 +68,7 @@ export async function POST(request) {
         clothingNeckline: input.clothingNeckline,
         beautyCategory: input.beautyCategory,
         beautyBrand: input.beautyBrand,
+        homeCategory: input.homeCategory,
         homeColor: input.homeColor,
         homeBrand: input.homeBrand,
         homeSaleFormat: input.homeSaleFormat,
