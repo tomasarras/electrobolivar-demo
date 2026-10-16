@@ -159,6 +159,7 @@ model User {
   seller        Seller?
   orders        Order[]
   reviews       Review[]
+  chatMessages  ChatMessage[]
   createdAt     DateTime  @default(now())
 }
 
@@ -184,7 +185,27 @@ model Seller {
   products      Product[]
   orderItems    OrderItem[]
   notifications Notification[]
+  chatMessages  ChatMessage[]
   createdAt     DateTime       @default(now())
+}
+
+// A direct message between a buyer and a seller — surfaced on the buyer's
+// "Mi perfil > Mensajes" and the seller's "Consultas" tab. Grouped into a
+// thread by the (buyerId, sellerId) pair rather than a separate
+// conversation table, since each buyer has at most one thread per seller.
+model ChatMessage {
+  id        String   @id @default(cuid())
+  buyerId   String
+  buyer     User     @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  sellerId  String
+  seller    Seller   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  // "buyer" | "seller" — who sent this message.
+  sender    String
+  body      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([buyerId, sellerId])
 }
 
 // "You made a sale" alerts for the seller panel — created alongside the

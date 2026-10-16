@@ -4,12 +4,13 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { MapPin, Package } from "lucide-react";
+import { MapPin, Package, MessageSquare } from "lucide-react";
 import StoreHeader from "@/components/StoreHeader";
 
 const NAV = [
   { href: "/perfil", label: "Mis datos", icon: MapPin },
   { href: "/perfil/compras", label: "Mis compras", icon: Package },
+  { href: "/perfil/mensajes", label: "Mensajes", icon: MessageSquare },
 ];
 
 export default function PerfilLayout({ children }) {
@@ -27,7 +28,7 @@ export default function PerfilLayout({ children }) {
     return (
       <>
         <StoreHeader />
-        <main className="mx-auto max-w-sm px-4 py-20 text-center sm:px-6">
+        <main className="mx-auto max-w-2xl px-4 py-20 text-center sm:px-6">
           <p className="text-sm text-steel">Cargando…</p>
         </main>
       </>
@@ -37,10 +38,10 @@ export default function PerfilLayout({ children }) {
   return (
     <>
       <StoreHeader />
-      <main className="mx-auto max-w-sm px-4 py-10 sm:px-6">
+      <main className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
         <nav className="flex gap-1 border-b border-line pb-3">
           {NAV.map(({ href, label, icon: Icon }) => {
-            const active = pathname === href;
+            const active = href === "/perfil" ? pathname === href : pathname.startsWith(href);
             return (
               <Link
                 key={href}

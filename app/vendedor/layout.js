@@ -4,13 +4,14 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { Store, Package, MessageSquare, Wallet } from "lucide-react";
+import { Store, Package, MessageSquare, Wallet, MessagesSquare } from "lucide-react";
 import SellerNotificationBell from "@/components/SellerNotificationBell";
 
 const NAV = [
   { href: "/vendedor", label: "Resumen", icon: Store },
   { href: "/vendedor/productos", label: "Mis productos", icon: Package },
   { href: "/vendedor/cobros", label: "Datos de cobro", icon: Wallet },
+  { href: "/vendedor/consultas", label: "Consultas", icon: MessagesSquare },
   { href: "/vendedor/mensajes", label: "Mensaje al admin", icon: MessageSquare },
 ];
 

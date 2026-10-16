@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request) {
@@ -11,12 +13,15 @@ export async function POST(request) {
     product = await prisma.product.findUnique({ where: { id: productId }, select: { id: true, name: true } });
   }
 
+  const session = await getServerSession(authOptions);
+  const senderName = session?.user?.name || session?.user?.email || (name || "").trim() || null;
+
   const message = await prisma.message.create({
     data: {
       productId: product?.id || null,
       productName: product?.name || null,
-      about: about === "vendedor" ? "vendedor" : "producto",
-      name: (name || "").trim() || null,
+      about: about === "vendedor" ? "vendedor" : about === "devolucion" ? "devolucion" : "producto",
+      name: senderName,
       body: text,
     },
   });

@@ -68,10 +68,18 @@ export default function AdminMensajesPage() {
                               ? "bg-danger/10 text-danger"
                               : m.about === "soporte"
                                 ? "bg-accent/10 text-accent-2"
-                                : "bg-panel-2 text-steel"
+                                : m.about === "devolucion"
+                                  ? "bg-accent/20 text-ink"
+                                  : "bg-panel-2 text-steel"
                           }`}
                         >
-                          {m.about === "vendedor" ? "Vendedor" : m.about === "soporte" ? "Consulta de vendedor" : "Producto"}
+                          {m.about === "vendedor"
+                            ? "Vendedor"
+                            : m.about === "soporte"
+                              ? "Consulta de vendedor"
+                              : m.about === "devolucion"
+                                ? "Devolución"
+                                : "Producto"}
                         </span>
                       </div>
                       {m.productName && (

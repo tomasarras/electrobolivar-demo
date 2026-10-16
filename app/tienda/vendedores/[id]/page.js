@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { Store, Star, TriangleAlert } from "lucide-react";
+import Link from "next/link";
+import { Store, Star, TriangleAlert, MessageSquare } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import StoreHeader from "@/components/StoreHeader";
 import ProductCard from "@/components/ProductCard";
@@ -43,7 +44,7 @@ export default async function VendedorPublicoPage({ params }) {
           <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-md bg-ink text-paper">
             <Store size={24} />
           </span>
-          <div>
+          <div className="min-w-0 flex-1">
             <h1 className="font-display text-xl font-bold">{seller.storeName}</h1>
             {seller.flaggedFraud && (
               <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-danger">
@@ -63,6 +64,13 @@ export default async function VendedorPublicoPage({ params }) {
               </span>
             </div>
           </div>
+          <Link
+            href={`/perfil/mensajes/${seller.id}`}
+            className="flex shrink-0 items-center gap-1.5 rounded-md border border-line px-3 py-2 text-sm font-semibold hover:border-steel"
+          >
+            <MessageSquare size={15} />
+            Enviar mensaje
+          </Link>
         </div>
 
         <h2 className="mt-8 font-display text-lg font-bold">Productos de {seller.storeName}</h2>
