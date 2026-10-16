@@ -11,7 +11,7 @@ export default function VendedorResumenPage() {
   const [whatsapp, setWhatsapp] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [commissionPct, setCommissionPct] = useState(10);
+  const [commissionPct, setCommissionPct] = useState(5);
 
   function load() {
     fetch("/api/seller")
@@ -24,7 +24,7 @@ export default function VendedorResumenPage() {
     load();
     fetch("/api/settings")
       .then((res) => res.json())
-      .then((data) => setCommissionPct(data.commissionPct ?? 10))
+      .then((data) => setCommissionPct(data.commissionPct ?? 5))
       .catch(() => {});
   }, []);
 

@@ -6,7 +6,7 @@ import { Loader2, X } from "lucide-react";
 
 export default function ConfiguracionPage() {
   const [whatsapp, setWhatsapp] = useState("");
-  const [commissionPct, setCommissionPct] = useState(10);
+  const [commissionPct, setCommissionPct] = useState(5);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -27,7 +27,7 @@ export default function ConfiguracionPage() {
       .then((res) => res.json())
       .then((data) => {
         setWhatsapp(data.whatsapp || "");
-        setCommissionPct(data.commissionPct ?? 10);
+        setCommissionPct(data.commissionPct ?? 5);
       })
       .finally(() => setLoading(false));
     loadPromos();

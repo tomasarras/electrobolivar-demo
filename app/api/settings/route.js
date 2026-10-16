@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   const settings = await prisma.storeSettings.findUnique({ where: { id: "singleton" } });
-  return NextResponse.json({ whatsapp: settings?.whatsapp || "", commissionPct: settings?.commissionPct ?? 10 });
+  return NextResponse.json({ whatsapp: settings?.whatsapp || "", commissionPct: settings?.commissionPct ?? 5 });
 }
 
 export async function PATCH(request) {
