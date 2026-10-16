@@ -72,6 +72,7 @@ export async function POST(request) {
         homeColor: input.homeColor,
         homeBrand: input.homeBrand,
         homeSaleFormat: input.homeSaleFormat,
+        laundryCategory: input.laundryCategory,
         laundryBrand: input.laundryBrand,
         laundryColor: input.laundryColor,
         techCategory: input.techCategory,

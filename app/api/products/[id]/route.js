@@ -71,6 +71,7 @@ export async function PATCH(request, { params }) {
         homeColor: input.homeColor,
         homeBrand: input.homeBrand,
         homeSaleFormat: input.homeSaleFormat,
+        laundryCategory: input.laundryCategory,
         laundryBrand: input.laundryBrand,
         laundryColor: input.laundryColor,
         techCategory: input.techCategory,

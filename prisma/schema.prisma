@@ -81,8 +81,9 @@ model Product {
   homeBrand      String?
   homeSaleFormat String?
   // Only used for category "lavado" (Electro).
-  laundryBrand String?
-  laundryColor String?
+  laundryCategory String?
+  laundryBrand    String?
+  laundryColor    String?
   // Global favorite count across all visitors. Favorites aren't tied to user
   // accounts (tracked client-side in localStorage), so this is a simple
   // incremented/decremented counter rather than a per-user join table.

@@ -72,6 +72,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
   const [homeColor, setHomeColor] = useState(product?.homeColor || "");
   const [homeBrand, setHomeBrand] = useState(product?.homeBrand || "");
   const [homeSaleFormat, setHomeSaleFormat] = useState(product?.homeSaleFormat || "");
+  const [laundryCategory, setLaundryCategory] = useState(product?.laundryCategory || "");
   const [laundryBrand, setLaundryBrand] = useState(product?.laundryBrand || "");
   const [laundryColor, setLaundryColor] = useState(product?.laundryColor || "");
   const [techCategory, setTechCategory] = useState(product?.techCategory || "");
@@ -207,6 +208,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
         homeColor: category === "climatizacion" ? homeColor.trim() : "",
         homeBrand: category === "climatizacion" ? homeBrand.trim() : "",
         homeSaleFormat: category === "climatizacion" ? homeSaleFormat : "",
+        laundryCategory: category === "lavado" ? laundryCategory : "",
         laundryBrand: category === "lavado" ? laundryBrand.trim() : "",
         laundryColor: category === "lavado" ? laundryColor.trim() : "",
         techCategory: category === "cocina" ? techCategory : "",
@@ -726,6 +728,28 @@ export default function ProductForm({ product, basePath = "/api/products", redir
 
       {category === "lavado" && (
         <div className="grid grid-cols-2 gap-4">
+          <Field label="Categoría (opcional)">
+            <select value={laundryCategory} onChange={(e) => setLaundryCategory(e.target.value)} className="input">
+              <option value="">Sin especificar</option>
+              <option value="Heladeras y freezers">Heladeras y freezers</option>
+              <option value="Televisores">Televisores</option>
+              <option value="Peq. electros cocina">Peq. electros cocina</option>
+              <option value="Peq. electros hogar">Peq. electros hogar</option>
+              <option value="Cocinas">Cocinas</option>
+              <option value="Lavarropas">Lavarropas</option>
+              <option value="Aire acondicionado">Aire acondicionado</option>
+              <option value="Termotanques y calefones">Termotanques y calefones</option>
+              <option value="Reproductores portátiles">Reproductores portátiles</option>
+              <option value="Hornos, anafes y campanas">Hornos, anafes y campanas</option>
+              <option value="Purificadores">Purificadores</option>
+              <option value="Microondas">Microondas</option>
+              <option value="Freidoras de aire">Freidoras de aire</option>
+              <option value="Equipos de audio">Equipos de audio</option>
+              <option value="Streaming">Streaming</option>
+              <option value="Cavas">Cavas</option>
+              <option value="Lavavajillas">Lavavajillas</option>
+            </select>
+          </Field>
           <Field label="Marca (opcional)">
             <input
               value={laundryBrand}
