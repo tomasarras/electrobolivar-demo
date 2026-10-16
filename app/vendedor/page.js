@@ -109,7 +109,7 @@ export default function VendedorResumenPage() {
         <div className="flex items-start gap-3">
           <Megaphone size={18} className="mt-0.5 shrink-0 text-accent" />
           <div className="text-sm text-ink-soft">
-            <p className="font-semibold text-ink">📢 Información para vendedores</p>
+            <p className="font-semibold text-ink">Información para vendedores</p>
             <p className="mt-2">
               Por cada venta concretada a través de BolivarMarket, cobramos una comisión del{" "}
               <strong className="text-ink">{commissionPct}%</strong> del valor de la venta.
