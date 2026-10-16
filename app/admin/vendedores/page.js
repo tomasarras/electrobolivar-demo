@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Store, TrendingUp, Percent, Wallet, TriangleAlert } from "lucide-react";
+import { Fragment, useEffect, useState } from "react";
+import { Store, TrendingUp, Percent, Wallet, TriangleAlert, ChevronDown, ChevronUp, Landmark } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
 
 export default function AdminVendedoresPage() {
   const [sellers, setSellers] = useState(null);
+  const [openId, setOpenId] = useState(null);
 
   useEffect(() => {
     fetch("/api/admin/sellers")
@@ -64,47 +65,91 @@ export default function AdminVendedoresPage() {
                 <th className="p-3 text-left">Comisión</th>
                 <th className="p-3 text-left">Neto</th>
                 <th className="p-3 text-left">Posible fraude</th>
+                <th className="p-3"></th>
               </tr>
             </thead>
             <tbody>
-              {sellers.map((s) => (
-                <tr key={s.id} className={`border-b border-line/60 last:border-0 ${s.flaggedFraud ? "bg-danger/5" : ""}`}>
-                  <td className="p-3">
-                    <span className="flex items-center gap-1.5 font-medium">
-                      {s.flaggedFraud && <TriangleAlert size={14} className="text-danger" />}
-                      {s.storeName}
-                    </span>
-                    {s.whatsapp && <p className="text-xs text-steel">{s.whatsapp}</p>}
-                  </td>
-                  <td className="p-3">{s.productCount}</td>
-                  <td className="p-3">
-                    {s.complaintCount > 0 ? (
-                      <span className="rounded-full bg-danger/10 px-2 py-0.5 text-xs font-semibold text-danger">
-                        {s.complaintCount}
+              {sellers.map((s) => {
+                const open = openId === s.id;
+                const hasPayoutInfo = s.payoutBank || s.payoutHolderName || s.payoutCbu || s.payoutAlias;
+                return (
+                <Fragment key={s.id}>
+                  <tr className={`border-b border-line/60 ${open ? "" : "last:border-0"} ${s.flaggedFraud ? "bg-danger/5" : ""}`}>
+                    <td className="p-3">
+                      <span className="flex items-center gap-1.5 font-medium">
+                        {s.flaggedFraud && <TriangleAlert size={14} className="text-danger" />}
+                        {s.storeName}
                       </span>
-                    ) : (
-                      <span className="text-xs text-steel">0</span>
-                    )}
-                  </td>
-                  <td className="p-3 font-mono">{formatCurrency(s.gross)}</td>
-                  <td className="p-3 font-mono text-danger">-{formatCurrency(s.commission)}</td>
-                  <td className="p-3 font-mono font-semibold">{formatCurrency(s.net)}</td>
-                  <td className="p-3">
-                    <label className="flex items-center gap-1.5 text-xs text-ink-soft">
-                      <input
-                        type="checkbox"
-                        checked={s.flaggedFraud}
-                        onChange={(e) => toggleFlag(s.id, e.target.checked)}
-                      />
-                      Marcar
-                    </label>
-                  </td>
-                </tr>
-              ))}
+                      {s.whatsapp && <p className="text-xs text-steel">{s.whatsapp}</p>}
+                    </td>
+                    <td className="p-3">{s.productCount}</td>
+                    <td className="p-3">
+                      {s.complaintCount > 0 ? (
+                        <span className="rounded-full bg-danger/10 px-2 py-0.5 text-xs font-semibold text-danger">
+                          {s.complaintCount}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-steel">0</span>
+                      )}
+                    </td>
+                    <td className="p-3 font-mono">{formatCurrency(s.gross)}</td>
+                    <td className="p-3 font-mono text-danger">-{formatCurrency(s.commission)}</td>
+                    <td className="p-3 font-mono font-semibold">{formatCurrency(s.net)}</td>
+                    <td className="p-3">
+                      <label className="flex items-center gap-1.5 text-xs text-ink-soft">
+                        <input
+                          type="checkbox"
+                          checked={s.flaggedFraud}
+                          onChange={(e) => toggleFlag(s.id, e.target.checked)}
+                        />
+                        Marcar
+                      </label>
+                    </td>
+                    <td className="p-3">
+                      <button
+                        type="button"
+                        onClick={() => setOpenId(open ? null : s.id)}
+                        className="flex items-center gap-1 text-xs text-steel hover:text-ink"
+                      >
+                        <Landmark size={13} />
+                        Cobro
+                        {open ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                      </button>
+                    </td>
+                  </tr>
+                  {open && (
+                    <tr className="border-b border-line/60 last:border-0">
+                      <td colSpan={7} className="bg-panel-2 p-4">
+                        {hasPayoutInfo ? (
+                          <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+                            <PayoutField label="Banco" value={s.payoutBank} />
+                            <PayoutField label="Titular" value={s.payoutHolderName} />
+                            <PayoutField label="CUIT/CUIL/DNI" value={s.payoutHolderDni} />
+                            <PayoutField label="CBU/CVU" value={s.payoutCbu} />
+                            <PayoutField label="Alias" value={s.payoutAlias} />
+                          </div>
+                        ) : (
+                          <p className="text-sm text-steel">Este vendedor todavía no cargó sus datos de cobro.</p>
+                        )}
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+                );
+              })}
             </tbody>
           </table>
         </div>
       )}
+    </div>
+  );
+}
+
+function PayoutField({ label, value }) {
+  return (
+    <div>
+      <p className="font-mono text-[10px] uppercase tracking-wide text-steel">{label}</p>
+      <p className={value ? "font-medium" : "text-steel"}>{value || "—"}</p>
     </div>
   );
 }

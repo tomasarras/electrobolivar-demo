@@ -170,6 +170,13 @@ model Seller {
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   storeName     String
   whatsapp      String?
+  // Where the seller wants their sales payouts sent — set by the seller
+  // themselves, never shown to buyers.
+  payoutBank        String?
+  payoutHolderName  String?
+  payoutHolderDni   String?
+  payoutCbu         String?
+  payoutAlias       String?
   // Manual admin flag — not automatic — for sellers worth a closer look,
   // typically after receiving a complaint. Shown as a warning on their
   // public profile.

@@ -28,3 +28,24 @@ export async function POST(request) {
   });
   return NextResponse.json(seller, { status: 201 });
 }
+
+export async function PATCH(request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+
+  const existing = await prisma.seller.findUnique({ where: { userId: session.user.id } });
+  if (!existing) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+
+  const data = await request.json();
+  const seller = await prisma.seller.update({
+    where: { userId: session.user.id },
+    data: {
+      payoutBank: data.payoutBank ? String(data.payoutBank).trim() : null,
+      payoutHolderName: data.payoutHolderName ? String(data.payoutHolderName).trim() : null,
+      payoutHolderDni: data.payoutHolderDni ? String(data.payoutHolderDni).trim() : null,
+      payoutCbu: data.payoutCbu ? String(data.payoutCbu).trim() : null,
+      payoutAlias: data.payoutAlias ? String(data.payoutAlias).trim() : null,
+    },
+  });
+  return NextResponse.json(seller);
+}

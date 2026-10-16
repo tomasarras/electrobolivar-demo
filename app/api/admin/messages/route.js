@@ -3,11 +3,29 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   const [messages, unreadCount] = await Promise.all([
-    prisma.message.findMany({ orderBy: { createdAt: "desc" } }),
+    prisma.message.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        product: {
+          select: {
+            seller: {
+              select: {
+                id: true,
+                storeName: true,
+                whatsapp: true,
+                flaggedFraud: true,
+                user: { select: { name: true, email: true, phone: true } },
+              },
+            },
+          },
+        },
+      },
+    }),
     prisma.message.count({ where: { read: false } }),
   ]);
 
-  return NextResponse.json({ messages, unreadCount });
+  const result = messages.map(({ product, ...m }) => ({ ...m, seller: product?.seller || null }));
+  return NextResponse.json({ messages: result, unreadCount });
 }
 
 export async function POST() {

@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { X, CreditCard, Landmark, Banknote, MessageCircle, Loader2, CheckCircle2, Copy, Check, Store, Truck } from "lucide-react";
+import { X, CreditCard, Landmark, Banknote, Loader2, CheckCircle2, Store, Truck } from "lucide-react";
 import StoreHeader from "@/components/StoreHeader";
 import ProductImagePlaceholder from "@/components/ProductImagePlaceholder";
 import StarRating from "@/components/StarRating";
@@ -21,8 +21,6 @@ const PAY_NOW_METHODS = {
   tarjeta: { label: "Otra tarjeta", description: "Ualá Bis, Getnet, Naranja X, Decidir", icon: CreditCard, color: "#1c1b18" },
 };
 
-const CVU = "0000003100094567892312";
-const ALIAS = "bolivarmarket.mp";
 const MP_ORDER_KEY = (code) => `eb_mp_order_${code}`;
 
 export default function CarritoPage() {
@@ -37,7 +35,6 @@ function CarritoContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { items, loaded, updateQty, removeItem, clearCart, total } = useCart();
-  const [whatsapp, setWhatsapp] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState("retiro");
   const [address, setAddress] = useState("");
   const [contactPhone, setContactPhone] = useState("");
@@ -48,15 +45,6 @@ function CarritoContent() {
   const [paymentError, setPaymentError] = useState("");
   const [orderCode, setOrderCode] = useState("");
   const [orderItems, setOrderItems] = useState([]);
-  const [copied, setCopied] = useState("");
-  const [cashCode] = useState(() => `${Math.floor(1000 + Math.random() * 9000)} ${Math.floor(1000 + Math.random() * 9000)}`);
-
-  useEffect(() => {
-    fetch("/api/settings")
-      .then((res) => res.json())
-      .then((data) => setWhatsapp(data.whatsapp || ""))
-      .catch(() => setWhatsapp(""));
-  }, []);
 
   // Best-effort order record — used to attribute sales/commission to sellers.
   // Never blocks checkout: a failed write here shouldn't break the demo.
@@ -156,13 +144,6 @@ function CarritoContent() {
     }
   }
 
-  function handleCopy(text, key) {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(key);
-      setTimeout(() => setCopied(""), 1500);
-    });
-  }
-
   if (!loaded) return null;
 
   if (status === "confirmed") {
@@ -210,15 +191,6 @@ function CarritoContent() {
     );
   }
 
-  const deliveryLine = deliveryMethod === "envio" ? `Envío a domicilio${address ? ` - ${address}` : ""}` : "Retiro en el local";
-  const message =
-    "Hola! Quiero consultar por este pedido de BolivarMarket:\n" +
-    items.map((i) => `${i.qty}x ${i.name} - ${formatCurrency(i.price * i.qty)}`).join("\n") +
-    `\n\nTotal estimado: ${formatCurrency(total)}` +
-    `\nEntrega: ${deliveryLine}` +
-    (contactPhone ? `\nContacto: ${contactPhone}` : "") +
-    (deliveryNote ? `\nNota: ${deliveryNote}` : "");
-  const whatsappHref = whatsapp ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}` : null;
   const payNow = PAY_NOW_METHODS[method];
 
   return (
@@ -336,36 +308,12 @@ function CarritoContent() {
               <MethodCard key={key} active={method === key} onClick={() => setMethod(key)} icon={m.icon} color={m.color} label={m.label} description={m.description} />
             ))}
             <MethodCard
-              active={method === "transferencia"}
-              onClick={() => setMethod("transferencia")}
-              icon={Landmark}
-              color="#2f5d50"
-              label="Transferencia"
-              description="CVU / alias, sin comisión"
-            />
-            <MethodCard
-              active={method === "efectivo"}
-              onClick={() => setMethod("efectivo")}
-              icon={Banknote}
-              color="#8a5a2e"
-              label="Rapipago / Pago Fácil"
-              description="Pagás en efectivo con un código"
-            />
-            <MethodCard
               active={method === "efectivo_local"}
               onClick={() => setMethod("efectivo_local")}
               icon={Banknote}
               color="#3f6b35"
               label="Efectivo en Bolívar"
               description="Retiro o entrega, solo ciudad de Bolívar"
-            />
-            <MethodCard
-              active={method === "whatsapp"}
-              onClick={() => setMethod("whatsapp")}
-              icon={MessageCircle}
-              color="#2c6b5e"
-              label="WhatsApp"
-              description="Coordinás el pago con el vendedor"
             />
           </div>
 
@@ -395,38 +343,7 @@ function CarritoContent() {
                   : "Demo de portfolio: la pasarela es una simulación, no se procesa ningún pago real."}
               </p>
             </>
-          ) : method === "transferencia" ? (
-            <div className="mt-5 space-y-3 rounded-md border border-line bg-panel-2 p-4">
-              <CopyRow label="CVU" value={CVU} copied={copied === "cvu"} onCopy={() => handleCopy(CVU, "cvu")} />
-              <CopyRow label="Alias" value={ALIAS} copied={copied === "alias"} onCopy={() => handleCopy(ALIAS, "alias")} />
-              <button
-                type="button"
-                onClick={() => handlePayNow("Transferencia bancaria")}
-                disabled={status === "processing"}
-                className="flex w-full items-center justify-center gap-2 rounded-md bg-ink py-3 text-sm font-semibold text-paper hover:brightness-110 disabled:opacity-70"
-              >
-                {status === "processing" ? <Loader2 size={16} className="animate-spin" /> : null}
-                Ya hice la transferencia
-              </button>
-              <p className="text-center text-xs text-steel">Demo de portfolio: no hay conciliación real, es solo una simulación.</p>
-            </div>
-          ) : method === "efectivo" ? (
-            <div className="mt-5 space-y-3 rounded-md border border-line bg-panel-2 p-4 text-center">
-              <p className="font-mono text-[11px] uppercase tracking-wide text-steel">Código de pago</p>
-              <p className="font-mono text-2xl font-bold tracking-widest">{cashCode}</p>
-              <p className="text-xs text-ink-soft">Pagalo en efectivo en cualquier Rapipago o Pago Fácil. Válido por 48hs.</p>
-              <button
-                type="button"
-                onClick={() => handlePayNow("Rapipago / Pago Fácil")}
-                disabled={status === "processing"}
-                className="flex w-full items-center justify-center gap-2 rounded-md bg-ink py-3 text-sm font-semibold text-paper hover:brightness-110 disabled:opacity-70"
-              >
-                {status === "processing" ? <Loader2 size={16} className="animate-spin" /> : null}
-                Ya pagué el cupón
-              </button>
-              <p className="text-xs text-steel">Demo de portfolio: es solo una simulación.</p>
-            </div>
-          ) : method === "efectivo_local" ? (
+          ) : (
             <div className="mt-5 space-y-3 rounded-md border border-line bg-panel-2 p-4 text-center">
               <p className="text-sm text-ink-soft">
                 Disponible solo para clientes de la ciudad de Bolívar, Buenos Aires: coordinás el retiro en el local o la
@@ -443,17 +360,6 @@ function CarritoContent() {
               </button>
               <p className="text-xs text-steel">Demo de portfolio: es solo una simulación.</p>
             </div>
-          ) : whatsappHref ? (
-            <a
-              href={whatsappHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-md bg-accent-2 py-3 text-sm font-semibold text-paper hover:brightness-105"
-            >
-              Enviar pedido por WhatsApp
-            </a>
-          ) : (
-            <p className="mt-5 text-sm text-steel">El vendedor todavía no configuró un WhatsApp de contacto.</p>
           )}
         </div>
       </main>
@@ -532,21 +438,6 @@ function ReviewForm({ item }) {
         className="mt-2 rounded-md bg-ink px-4 py-2 text-sm font-semibold text-paper hover:brightness-110 disabled:opacity-50"
       >
         {submitting ? "Enviando…" : "Enviar reseña"}
-      </button>
-    </div>
-  );
-}
-
-function CopyRow({ label, value, copied, onCopy }) {
-  return (
-    <div className="flex items-center justify-between gap-3 rounded border border-line bg-paper px-3 py-2">
-      <span>
-        <span className="block font-mono text-[10px] uppercase tracking-wide text-steel">{label}</span>
-        <span className="block font-mono text-sm">{value}</span>
-      </span>
-      <button type="button" onClick={onCopy} className="flex items-center gap-1 rounded-md border border-line px-2 py-1 text-xs hover:border-steel">
-        {copied ? <Check size={13} /> : <Copy size={13} />}
-        {copied ? "Copiado" : "Copiar"}
       </button>
     </div>
   );
