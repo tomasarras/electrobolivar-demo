@@ -30,6 +30,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
   const [freeShippingAmount, setFreeShippingAmount] = useState(
     product?.freeShippingMinAmount > 0 ? product.freeShippingMinAmount : ""
   );
+  const [location, setLocation] = useState(product?.location || "");
   const [scheduleDays, setScheduleDays] = useState(product?.scheduleDays || "");
   const [scheduleHours, setScheduleHours] = useState(product?.scheduleHours || "");
   const [scheduleHours2, setScheduleHours2] = useState(product?.scheduleHours2 || "");
@@ -164,6 +165,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
             : effectiveShipping && freeShippingMode === "threshold"
               ? Number(freeShippingAmount)
               : null,
+        location: location.trim(),
         scheduleDays: scheduleDays.trim(),
         scheduleHours: scheduleHours.trim(),
         scheduleHours2: showSecondSchedule ? scheduleHours2.trim() : "",
@@ -291,6 +293,15 @@ export default function ProductForm({ product, basePath = "/api/products", redir
           value={installments}
           onChange={(e) => setInstallments(e.target.value)}
           placeholder="12 cuotas sin interés"
+          className="input"
+        />
+      </Field>
+
+      <Field label="Ciudad o zona (opcional)">
+        <input
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          placeholder="Bolívar"
           className="input"
         />
       </Field>

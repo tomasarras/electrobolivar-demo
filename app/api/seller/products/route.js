@@ -45,6 +45,7 @@ export async function POST(request) {
         scheduleDays: input.scheduleDays,
         scheduleHours: input.scheduleHours,
         scheduleHours2: input.scheduleHours2,
+        location: input.location,
         vehicleCategory: input.vehicleCategory,
         vehicleYear: input.vehicleYear,
         vehicleKm: input.vehicleKm,

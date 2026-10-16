@@ -30,6 +30,9 @@ model Product {
   scheduleDays   String?
   scheduleHours  String?
   scheduleHours2 String?
+  // Ciudad o zona del producto, para todas las categorías — así el
+  // comprador puede ver si es de su ciudad antes de contactar.
+  location       String?
   // Only used for category "vehiculos".
   vehicleCategory String?
   vehicleYear  Int?

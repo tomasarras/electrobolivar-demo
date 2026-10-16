@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Store, ChevronRight, TriangleAlert } from "lucide-react";
+import { Store, ChevronRight, TriangleAlert, MapPin } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
 import { categoryLabel } from "@/lib/categories";
@@ -146,6 +146,12 @@ export default async function ProductoPage({ params }) {
                   )}
                 </div>
                 <h1 className="mt-1 font-display text-2xl font-bold">{product.name}</h1>
+                {product.location && (
+                  <p className="mt-1 flex items-center gap-1 text-sm text-steel">
+                    <MapPin size={14} />
+                    {product.location}
+                  </p>
+                )}
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <FavoriteButton product={product} size={40} />

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Star } from "lucide-react";
+import { Star, MapPin } from "lucide-react";
 import ProductImagePlaceholder from "@/components/ProductImagePlaceholder";
 import FavoriteButton from "@/components/FavoriteButton";
 import { formatCurrency } from "@/lib/format";
@@ -47,6 +47,12 @@ export default function ProductCard({ product }) {
         <span className="font-medium leading-snug">{product.name}</span>
         {product.seller?.storeName && (
           <span className="truncate text-xs text-steel">Vendido por {product.seller.storeName}</span>
+        )}
+        {product.location && (
+          <span className="flex items-center gap-1 truncate text-xs text-steel">
+            <MapPin size={12} />
+            {product.location}
+          </span>
         )}
         {avgRating && (
           <span className="flex items-center gap-1 text-xs text-steel">
