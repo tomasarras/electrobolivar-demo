@@ -8,6 +8,7 @@ import { ShoppingBag, Heart, User, LogOut, Store, Search, Camera, Loader2 } from
 import { useSession, signOut } from "next-auth/react";
 import { useCart } from "@/components/CartProvider";
 import { useFavorites } from "@/components/FavoritesProvider";
+import ImageCropModal from "@/components/ImageCropModal";
 
 export default function StoreHeader() {
   const { itemCount } = useCart() || { itemCount: 0 };
@@ -18,6 +19,7 @@ export default function StoreHeader() {
   const [q, setQ] = useState("");
   const [searchingPhoto, setSearchingPhoto] = useState(false);
   const [photoError, setPhotoError] = useState("");
+  const [cropFile, setCropFile] = useState(null);
 
   function handleSearchSubmit(e) {
     e.preventDefault();
@@ -26,15 +28,21 @@ export default function StoreHeader() {
     router.push(`/tienda?q=${encodeURIComponent(query)}`);
   }
 
-  async function handlePhotoChange(e) {
+  function handlePhotoChange(e) {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
     setPhotoError("");
+    setCropFile(file);
+  }
+
+  async function handleCropConfirm(croppedFile) {
+    setCropFile(null);
+    setPhotoError("");
     setSearchingPhoto(true);
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", croppedFile);
       const res = await fetch("/api/search/image", { method: "POST", body: formData });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "No se pudo buscar por foto");
@@ -47,6 +55,7 @@ export default function StoreHeader() {
   }
 
   return (
+    <>
     <header className="sticky top-0 z-20 border-b border-line bg-paper/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:gap-4 sm:px-6">
         <Link href="/tienda" className="flex items-baseline gap-2">
@@ -150,5 +159,10 @@ export default function StoreHeader() {
         </nav>
       </div>
     </header>
+
+    {cropFile && (
+      <ImageCropModal file={cropFile} onCancel={() => setCropFile(null)} onConfirm={handleCropConfirm} />
+    )}
+    </>
   );
 }
