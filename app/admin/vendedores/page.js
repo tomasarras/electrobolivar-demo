@@ -1,7 +1,8 @@
 "use client";
 
 import { Fragment, useEffect, useState } from "react";
-import { Store, TrendingUp, Percent, Wallet, TriangleAlert, ChevronDown, ChevronUp, Landmark } from "lucide-react";
+import Link from "next/link";
+import { Store, TrendingUp, Percent, Wallet, TriangleAlert, ChevronDown, ChevronUp, Landmark, Package } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
 
 export default function AdminVendedoresPage() {
@@ -82,7 +83,15 @@ export default function AdminVendedoresPage() {
                       </span>
                       {s.whatsapp && <p className="text-xs text-steel">{s.whatsapp}</p>}
                     </td>
-                    <td className="p-3">{s.productCount}</td>
+                    <td className="p-3">
+                      <Link
+                        href={`/admin/vendedores/${s.id}/productos`}
+                        className="flex items-center gap-1 text-ink-soft underline-offset-2 hover:text-ink hover:underline"
+                      >
+                        <Package size={13} />
+                        {s.productCount}
+                      </Link>
+                    </td>
                     <td className="p-3">
                       {s.complaintCount > 0 ? (
                         <span className="rounded-full bg-danger/10 px-2 py-0.5 text-xs font-semibold text-danger">
