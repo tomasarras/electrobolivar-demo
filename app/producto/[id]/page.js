@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
+import { getServerSession } from "next-auth";
 import { Store, ChevronRight, TriangleAlert, MapPin } from "lucide-react";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
 import { categoryLabel } from "@/lib/categories";
@@ -11,6 +14,7 @@ import FavoriteButton from "@/components/FavoriteButton";
 import StarRating from "@/components/StarRating";
 import ProductCard from "@/components/ProductCard";
 import ProductComplaintForm from "@/components/ProductComplaintForm";
+import DeliveryPhotosForm from "@/components/DeliveryPhotosForm";
 import { averageRating } from "@/lib/reviews";
 import { totalSold } from "@/lib/sales";
 
@@ -18,6 +22,7 @@ export const dynamic = "force-dynamic";
 
 export default async function ProductoPage({ params }) {
   const { id } = await params;
+  const session = await getServerSession(authOptions);
   const product = await prisma.product.findUnique({
     where: { id },
     include: {
@@ -26,10 +31,23 @@ export default async function ProductoPage({ params }) {
       seller: { select: { id: true, storeName: true, flaggedFraud: true } },
       reviews: { orderBy: { createdAt: "desc" } },
       orderItems: { select: { qty: true } },
+      deliveryPhotos: { orderBy: { createdAt: "desc" } },
     },
   });
 
   if (!product) notFound();
+
+  const eligibleOrderItem = session?.user?.id
+    ? await prisma.orderItem.findFirst({
+        where: {
+          productId: product.id,
+          order: { buyerId: session.user.id },
+          deliveryPhotos: { none: {} },
+        },
+        orderBy: { id: "desc" },
+        select: { id: true },
+      })
+    : null;
 
   const avgRating = averageRating(product.reviews);
   const salesCount = totalSold(product.orderItems);
@@ -338,6 +356,32 @@ export default async function ProductoPage({ params }) {
             )}
           </div>
         </div>
+
+        {(eligibleOrderItem || product.deliveryPhotos.length > 0) && (
+          <div className="mt-12 max-w-2xl">
+            <h2 className="font-display text-xl font-bold">Fotos de compradores</h2>
+            {eligibleOrderItem && (
+              <div className="mt-3">
+                <DeliveryPhotosForm orderItemId={eligibleOrderItem.id} />
+              </div>
+            )}
+            {product.deliveryPhotos.length > 0 && (
+              <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-4">
+                {product.deliveryPhotos.map((photo) => (
+                  <a
+                    key={photo.id}
+                    href={photo.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="relative aspect-square overflow-hidden rounded-md border border-line bg-panel-2"
+                  >
+                    <Image src={photo.url} alt="" fill sizes="25vw" className="object-cover" />
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {product.reviews.length > 0 && (
           <div className="mt-12 max-w-2xl">

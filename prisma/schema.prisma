@@ -98,6 +98,7 @@ model Product {
   seller       Seller?        @relation(fields: [sellerId], references: [id], onDelete: SetNull)
   orderItems   OrderItem[]
   reviews      Review[]
+  deliveryPhotos DeliveryPhoto[]
   messages     Message[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
@@ -165,6 +166,7 @@ model User {
   seller        Seller?
   orders        Order[]
   reviews       Review[]
+  deliveryPhotos DeliveryPhoto[]
   chatMessages  ChatMessage[]
   createdAt     DateTime  @default(now())
 }
@@ -269,6 +271,7 @@ model OrderItem {
   commissionPct Int
   commissionAmt Int
   review        Review?
+  deliveryPhotos DeliveryPhoto[]
 }
 
 // A buyer's rating/comment for one purchased line item. Tied to the
@@ -285,6 +288,23 @@ model Review {
   buyerName   String?
   rating      Int
   comment     String?
+  createdAt   DateTime  @default(now())
+}
+
+// Photos a buyer optionally posts on the product page showing how their
+// order actually arrived — independent of the star-rating Review, so a
+// buyer can share photos without being forced to also write a review.
+model DeliveryPhoto {
+  id          String    @id @default(cuid())
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItemId String
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  buyerId     String?
+  buyer       User?     @relation(fields: [buyerId], references: [id], onDelete: SetNull)
+  buyerName   String?
+  url         String
+  order       Int       @default(0)
   createdAt   DateTime  @default(now())
 }
 
