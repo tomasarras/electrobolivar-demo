@@ -67,6 +67,7 @@ export async function POST(request) {
     await prisma.notification.createMany({
       data: Array.from(itemsBySeller.entries()).map(([sellerId, sellerItems]) => ({
         sellerId,
+        orderId: order.id,
         message:
           sellerItems.length === 1
             ? `Vendiste ${sellerItems[0].qty}x "${sellerItems[0].productName}" (${formatCurrency(sellerItems[0].unitPrice * sellerItems[0].qty)}) · Pedido #${order.code}`

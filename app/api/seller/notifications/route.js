@@ -18,6 +18,18 @@ export async function GET() {
       where: { sellerId: seller.id },
       orderBy: { createdAt: "desc" },
       take: 20,
+      include: {
+        order: {
+          select: {
+            code: true,
+            deliveryMethod: true,
+            address: true,
+            contactPhone: true,
+            deliveryNote: true,
+            buyer: { select: { name: true, email: true, phone: true } },
+          },
+        },
+      },
     }),
     prisma.notification.count({ where: { sellerId: seller.id, read: false } }),
   ]);

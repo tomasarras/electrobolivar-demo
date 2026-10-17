@@ -1,14 +1,20 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Bell } from "lucide-react";
+import { Bell, MapPin, Phone, StickyNote, User } from "lucide-react";
 
 const POLL_MS = 20000;
+
+const DELIVERY_LABELS = {
+  envio: "Envío a domicilio",
+  retiro: "Retiro en el local",
+};
 
 export default function SellerNotificationBell() {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
+  const [openId, setOpenId] = useState(null);
   const containerRef = useRef(null);
 
   function load() {
@@ -68,14 +74,51 @@ export default function SellerNotificationBell() {
             <p className="px-3 py-6 text-center text-sm text-steel">Todavía no tenés ventas.</p>
           ) : (
             <ul className="max-h-80 divide-y divide-line overflow-y-auto">
-              {notifications.map((n) => (
-                <li key={n.id} className="px-3 py-2.5">
-                  <p className="text-sm">{n.message}</p>
-                  <p className="mt-0.5 font-mono text-[10px] text-steel">
-                    {new Date(n.createdAt).toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" })}
-                  </p>
-                </li>
-              ))}
+              {notifications.map((n) => {
+                const order = n.order;
+                const isOpen = openId === n.id;
+                return (
+                  <li key={n.id} className="px-3 py-2.5">
+                    <button
+                      type="button"
+                      onClick={() => setOpenId(isOpen ? null : n.id)}
+                      className="block w-full text-left"
+                      disabled={!order}
+                    >
+                      <p className="text-sm">{n.message}</p>
+                      <p className="mt-0.5 font-mono text-[10px] text-steel">
+                        {new Date(n.createdAt).toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" })}
+                        {order && <span className="ml-1.5 underline-offset-2 hover:underline">· ver comprador</span>}
+                      </p>
+                    </button>
+                    {isOpen && order && (
+                      <div className="mt-2 space-y-1.5 rounded-md border border-line bg-panel-2 p-2.5 text-xs">
+                        <p className="flex items-center gap-1.5 text-ink">
+                          <User size={12} className="shrink-0 text-steel" />
+                          {order.buyer?.name || order.buyer?.email || "Comprador sin cuenta"}
+                        </p>
+                        {(order.contactPhone || order.buyer?.phone) && (
+                          <p className="flex items-center gap-1.5 text-ink-soft">
+                            <Phone size={12} className="shrink-0 text-steel" />
+                            {order.contactPhone || order.buyer?.phone}
+                          </p>
+                        )}
+                        <p className="flex items-center gap-1.5 text-ink-soft">
+                          <MapPin size={12} className="shrink-0 text-steel" />
+                          {DELIVERY_LABELS[order.deliveryMethod] || order.deliveryMethod}
+                          {order.address ? ` — ${order.address}` : ""}
+                        </p>
+                        {order.deliveryNote && (
+                          <p className="flex items-start gap-1.5 text-ink-soft">
+                            <StickyNote size={12} className="mt-0.5 shrink-0 text-steel" />
+                            {order.deliveryNote}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
