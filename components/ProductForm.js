@@ -21,6 +21,8 @@ export default function ProductForm({ product, basePath = "/api/products", redir
   const [price, setPrice] = useState(product?.price || "");
   const [currency, setCurrency] = useState(product?.currency || "ARS");
   const [installments, setInstallments] = useState(product?.installments || "");
+  const [discountPct, setDiscountPct] = useState(product?.discountPct || "");
+  const [discountPeriod, setDiscountPeriod] = useState(product?.discountPeriod || "");
   const [condition, setCondition] = useState(product?.condition || "nuevo");
   const [stock, setStock] = useState(product?.stock ?? 0);
   const [shipping, setShipping] = useState(product?.shipping !== false);
@@ -164,6 +166,8 @@ export default function ProductForm({ product, basePath = "/api/products", redir
         price: Number(price),
         currency,
         installments: installments.trim(),
+        discountPct,
+        discountPeriod: discountPct ? discountPeriod : "",
         condition,
         stock: NO_STOCK_CATEGORIES.includes(category) ? 1 : Number(stock),
         shipping: effectiveShipping,
@@ -297,6 +301,31 @@ export default function ProductForm({ product, basePath = "/api/products", redir
               <option value="USD">USD</option>
             </select>
           </div>
+        </Field>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <Field label="Descuento (opcional)">
+          <select value={discountPct} onChange={(e) => setDiscountPct(e.target.value)} className="input">
+            <option value="">Sin descuento</option>
+            <option value="10">10%</option>
+            <option value="20">20%</option>
+            <option value="30">30%</option>
+            <option value="50">50%</option>
+          </select>
+        </Field>
+        <Field label="Duración del descuento">
+          <select
+            value={discountPeriod}
+            onChange={(e) => setDiscountPeriod(e.target.value)}
+            disabled={!discountPct}
+            className="input"
+          >
+            <option value="">Sin especificar</option>
+            <option value="semana">Semana</option>
+            <option value="mes">Mes</option>
+            <option value="siempre">Siempre</option>
+          </select>
         </Field>
       </div>
 

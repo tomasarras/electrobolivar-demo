@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth";
 import { Store, ChevronRight, TriangleAlert, MapPin } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, DISCOUNT_PERIOD_LABELS } from "@/lib/format";
 import { categoryLabel } from "@/lib/categories";
 import StoreHeader from "@/components/StoreHeader";
 import ProductGallery from "@/components/ProductGallery";
@@ -180,6 +180,11 @@ export default async function ProductoPage({ params }) {
               <p className="font-mono text-xl font-semibold">{formatCurrency(product.price, product.currency)}</p>
               {product.installments && <p className="font-mono text-sm text-accent-2">{product.installments}</p>}
             </div>
+            {product.discountPct && (
+              <p className="mt-1 text-sm font-semibold text-danger">
+                -{product.discountPct}% {DISCOUNT_PERIOD_LABELS[product.discountPeriod] || ""}
+              </p>
+            )}
             {product.seller ? (
               <Link
                 href={`/tienda/vendedores/${product.seller.id}`}

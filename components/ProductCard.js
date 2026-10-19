@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Star, MapPin } from "lucide-react";
 import ProductImagePlaceholder from "@/components/ProductImagePlaceholder";
 import FavoriteButton from "@/components/FavoriteButton";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, DISCOUNT_PERIOD_LABELS } from "@/lib/format";
 import { categoryLabel } from "@/lib/categories";
 import { averageRating } from "@/lib/reviews";
 import { totalSold } from "@/lib/sales";
@@ -64,6 +64,11 @@ export default function ProductCard({ product }) {
           <span className="font-mono font-semibold">{formatCurrency(product.price, product.currency)}</span>
           {product.installments && <span className="font-mono text-xs text-accent-2">{product.installments}</span>}
         </div>
+        {product.discountPct && (
+          <span className="text-xs font-semibold text-danger">
+            -{product.discountPct}% {DISCOUNT_PERIOD_LABELS[product.discountPeriod] || ""}
+          </span>
+        )}
         {freeShipping && <span className="text-xs font-semibold text-accent-2">Envío gratis</span>}
       </div>
     </Link>

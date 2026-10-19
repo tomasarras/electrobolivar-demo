@@ -26,6 +26,8 @@ export async function PATCH(request, { params }) {
         price: input.price,
         currency: input.currency,
         installments: input.installments,
+        discountPct: input.discountPct,
+        discountPeriod: input.discountPeriod,
         condition: input.condition,
         stock: input.stock,
         shipping: input.shipping,
