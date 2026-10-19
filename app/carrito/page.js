@@ -7,7 +7,6 @@ import Image from "next/image";
 import { X, CreditCard, Landmark, Banknote, Loader2, CheckCircle2, Store, Truck } from "lucide-react";
 import StoreHeader from "@/components/StoreHeader";
 import ProductImagePlaceholder from "@/components/ProductImagePlaceholder";
-import StarRating from "@/components/StarRating";
 import { formatCurrency } from "@/lib/format";
 import { useCart } from "@/components/CartProvider";
 
@@ -44,7 +43,6 @@ function CarritoContent() {
   const [paymentNote, setPaymentNote] = useState("");
   const [paymentError, setPaymentError] = useState("");
   const [orderCode, setOrderCode] = useState("");
-  const [orderItems, setOrderItems] = useState([]);
 
   // Best-effort order record — used to attribute sales/commission to sellers.
   // Never blocks checkout: a failed write here shouldn't break the demo.
@@ -90,7 +88,7 @@ function CarritoContent() {
             contactPhone: snapshot.contactPhone,
             paymentMethod: "mercadopago",
             deliveryNote: snapshot.deliveryNote,
-          }).then((order) => setOrderItems(order?.items || []));
+          });
         }
       }
       setPaymentNote(
@@ -110,8 +108,7 @@ function CarritoContent() {
 
   async function confirmOrder(methodLabel) {
     const code = `EB-${Date.now().toString().slice(-6)}`;
-    const order = await persistOrder({ code, items, deliveryMethod, address, contactPhone, paymentMethod: method, deliveryNote });
-    setOrderItems(order?.items || []);
+    await persistOrder({ code, items, deliveryMethod, address, contactPhone, paymentMethod: method, deliveryNote });
     setPaymentNote(`Simulación de pago con ${methodLabel} — es una demo de portfolio, no se realizó ningún cobro real.`);
     setOrderCode(code);
     setStatus("confirmed");
@@ -160,14 +157,13 @@ function CarritoContent() {
           {contactPhone && <p className="mt-1 text-sm text-ink-soft">Contacto: {contactPhone}</p>}
           <p className="mt-2 text-sm text-steel">{paymentNote}</p>
 
-          {orderItems.length > 0 && (
-            <div className="mt-8 space-y-3 text-left">
-              <p className="text-center font-mono text-[11px] uppercase tracking-wide text-steel">¿Qué te pareció tu compra?</p>
-              {orderItems.map((item) => (
-                <ReviewForm key={item.id} item={item} />
-              ))}
-            </div>
-          )}
+          <p className="mt-8 text-sm text-ink-soft">
+            Una vez que recibas tu pedido, vas a poder puntuarlo desde{" "}
+            <Link href="/perfil/compras" className="font-semibold text-ink underline-offset-2 hover:underline">
+              Mis compras
+            </Link>
+            .
+          </p>
 
           <Link href="/tienda" className="mt-6 inline-block rounded-md bg-ink px-6 py-3 text-sm font-semibold text-paper hover:brightness-110">
             Volver al catálogo
@@ -384,61 +380,5 @@ function MethodCard({ active, onClick, icon: Icon, color, label, description }) 
         <span className="block truncate text-xs text-ink-soft">{description}</span>
       </span>
     </button>
-  );
-}
-
-function ReviewForm({ item }) {
-  const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
-  async function handleSubmit() {
-    if (!rating) return;
-    setSubmitting(true);
-    try {
-      const res = await fetch("/api/reviews", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderItemId: item.id, rating, comment }),
-      });
-      if (res.ok) setSubmitted(true);
-    } catch {
-      // best effort — a failed review shouldn't block the confirmation screen
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  if (submitted) {
-    return (
-      <div className="rounded-md border border-line bg-panel p-4 text-center text-sm text-ink-soft">
-        ¡Gracias por tu reseña de {item.productName}!
-      </div>
-    );
-  }
-
-  return (
-    <div className="rounded-md border border-line bg-panel p-4">
-      <p className="text-sm font-medium">{item.productName}</p>
-      <div className="mt-2">
-        <StarRating value={rating} onChange={setRating} />
-      </div>
-      <textarea
-        value={comment}
-        onChange={(e) => setComment(e.target.value)}
-        rows={2}
-        placeholder="Contanos tu experiencia (opcional)"
-        className="mt-2 w-full resize-y rounded-md border border-line bg-paper px-3 py-2 text-sm"
-      />
-      <button
-        type="button"
-        onClick={handleSubmit}
-        disabled={!rating || submitting}
-        className="mt-2 rounded-md bg-ink px-4 py-2 text-sm font-semibold text-paper hover:brightness-110 disabled:opacity-50"
-      >
-        {submitting ? "Enviando…" : "Enviar reseña"}
-      </button>
-    </div>
   );
 }
