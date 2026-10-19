@@ -79,6 +79,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
   const [techCategory, setTechCategory] = useState(product?.techCategory || "");
   const [techBrand, setTechBrand] = useState(product?.techBrand || "");
   const [techColor, setTechColor] = useState(product?.techColor || "");
+  const [toolsCategory, setToolsCategory] = useState(product?.toolsCategory || "");
   const [videoUrl, setVideoUrl] = useState(product?.videoUrl || "");
   const [description, setDescription] = useState(product?.description || "");
   const [images, setImages] = useState((product?.images || []).map((img) => img.url));
@@ -220,6 +221,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
         techCategory: category === "cocina" ? techCategory : "",
         techBrand: category === "cocina" && techCategory !== "Celulares" ? techBrand.trim() : "",
         techColor: category === "cocina" && techCategory !== "Celulares" ? techColor.trim() : "",
+        toolsCategory: category === "herramientas" ? toolsCategory : "",
         videoUrl: videoUrl.trim(),
         description: description.trim(),
         images,
@@ -802,6 +804,34 @@ export default function ProductForm({ product, basePath = "/api/products", redir
               placeholder="Blanco"
               className="input"
             />
+          </Field>
+        </div>
+      )}
+
+      {category === "herramientas" && (
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Categoría (opcional)">
+            <select value={toolsCategory} onChange={(e) => setToolsCategory(e.target.value)} className="input">
+              <option value="">Sin especificar</option>
+              <option value="Htas. eléctricas">Htas. eléctricas</option>
+              <option value="Htas. jardín">Htas. jardín</option>
+              <option value="Htas. manuales">Htas. manuales</option>
+              <option value="Htas. medición">Htas. medición</option>
+              <option value="Acc. herramientas">Acc. herramientas</option>
+              <option value="Baños y sanitarios">Baños y sanitarios</option>
+              <option value="Electricidad">Electricidad</option>
+              <option value="Pinturería">Pinturería</option>
+              <option value="Plomería">Plomería</option>
+              <option value="Materiales de obras">Materiales de obras</option>
+              <option value="Aberturas">Aberturas</option>
+              <option value="Acc. construcción">Acc. construcción</option>
+              <option value="Pisos y revestimientos">Pisos y revestimientos</option>
+              <option value="Mobiliario cocinas">Mobiliario cocinas</option>
+              <option value="Maquinaria construcción">Maquinaria construcción</option>
+              <option value="Cajas y organizadores">Cajas y organizadores</option>
+              <option value="Htas. industriales">Htas. industriales</option>
+              <option value="Htas. neumáticas">Htas. neumáticas</option>
+            </select>
           </Field>
         </div>
       )}

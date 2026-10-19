@@ -76,6 +76,8 @@ model Product {
   techCategory String?
   techBrand    String?
   techColor    String?
+  // Only used for category "herramientas".
+  toolsCategory String?
   // Only used for category "climatizacion" (Hogar). homeSaleFormat: "Unidad" | "Pack".
   homeCategory   String?
   homeColor      String?

@@ -100,6 +100,7 @@ export async function PATCH(request, { params }) {
         techCategory: input.techCategory,
         techBrand: input.techBrand,
         techColor: input.techColor,
+        toolsCategory: input.toolsCategory,
         description: input.description,
         videoUrl: input.videoUrl,
         images: { create: input.images.map((url, order) => ({ url, order })) },
