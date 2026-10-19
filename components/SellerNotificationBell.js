@@ -55,14 +55,17 @@ export default function SellerNotificationBell() {
       <button
         type="button"
         onClick={handleToggle}
-        className="relative flex items-center gap-1.5 rounded-full px-3 py-1.5 text-ink-soft hover:bg-panel-2"
+        className="flex items-center gap-1.5 rounded-full px-3 py-1.5 hover:bg-panel-2"
       >
-        <Bell size={16} />
-        {unreadCount > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-semibold text-accent-ink">
-            {unreadCount > 9 ? "9+" : unreadCount}
-          </span>
-        )}
+        <span className="relative flex">
+          <Bell size={16} />
+          {unreadCount > 0 && (
+            <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-semibold text-accent-ink">
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
+          )}
+        </span>
+        <span className="hidden sm:inline">Notificaciones</span>
       </button>
 
       {open && (
