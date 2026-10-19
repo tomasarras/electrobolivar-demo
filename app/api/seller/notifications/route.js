@@ -17,7 +17,6 @@ export async function GET() {
     prisma.notification.findMany({
       where: { sellerId: seller.id },
       orderBy: { createdAt: "desc" },
-      take: 20,
       include: {
         order: {
           select: {
@@ -26,7 +25,7 @@ export async function GET() {
             address: true,
             contactPhone: true,
             deliveryNote: true,
-            buyer: { select: { name: true, email: true, phone: true } },
+            buyer: { select: { id: true, name: true, email: true, phone: true } },
           },
         },
       },
