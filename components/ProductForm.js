@@ -428,12 +428,19 @@ export default function ProductForm({ product, basePath = "/api/products", redir
           <Field label="Categoría (opcional)">
             <select value={vehicleCategory} onChange={(e) => setVehicleCategory(e.target.value)} className="input">
               <option value="">Sin especificar</option>
-              <option value="Auto">Auto</option>
-              <option value="Moto">Moto</option>
-              <option value="Avión">Avión</option>
-              <option value="Helicóptero">Helicóptero</option>
-              <option value="Lancha">Lancha</option>
-              <option value="Otros">Otros</option>
+              <option value="Autos">Autos</option>
+              <option value="Camionetas">Camionetas</option>
+              <option value="Camiones">Camiones</option>
+              <option value="Colectivos">Colectivos</option>
+              <option value="Maquinaria agrícola">Maquinaria agrícola</option>
+              <option value="Maquinaria vial">Maquinaria vial</option>
+              <option value="Motorhomes">Motorhomes</option>
+              <option value="Motos">Motos</option>
+              <option value="Náutica">Náutica</option>
+              <option value="Planes de ahorro">Planes de ahorro</option>
+              <option value="Semirremolques">Semirremolques</option>
+              <option value="Chocados">Chocados</option>
+              <option value="Colección">Colección</option>
             </select>
           </Field>
           <Field label="Marca (opcional)">
