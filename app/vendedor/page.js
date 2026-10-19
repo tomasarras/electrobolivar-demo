@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Loader2, Package, Megaphone, MessageSquare } from "lucide-react";
+import { Loader2, Package, Megaphone, MessageSquare, Bell } from "lucide-react";
 
 export default function VendedorResumenPage() {
   const [seller, setSeller] = useState(undefined); // undefined = loading, null = not yet a seller
@@ -12,6 +12,7 @@ export default function VendedorResumenPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [commissionPct, setCommissionPct] = useState(5);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   function load() {
     fetch("/api/seller")
@@ -32,7 +33,11 @@ export default function VendedorResumenPage() {
     if (!seller) return;
     fetch("/api/seller/products")
       .then((res) => res.json())
-      .then((products) => setProductCount(products.length));
+      .then((products) => setProductCount(Array.isArray(products) ? products.length : 0));
+    fetch("/api/seller/notifications")
+      .then((res) => res.json())
+      .then((data) => setUnreadNotifications(data.unreadCount || 0))
+      .catch(() => {});
   }, [seller]);
 
   async function handleSubmit(e) {
@@ -133,7 +138,8 @@ export default function VendedorResumenPage() {
       </div>
 
       <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <Stat icon={Package} label="Productos" value={productCount} />
+        <Stat icon={Package} label="Productos" value={productCount} href="/vendedor/productos" />
+        <Stat icon={Bell} label="Notificaciones" value={unreadNotifications} href="/vendedor/notificaciones" />
       </div>
 
       <div className="mt-8 flex gap-3">
@@ -154,12 +160,20 @@ export default function VendedorResumenPage() {
   );
 }
 
-function Stat({ icon: Icon, label, value }) {
-  return (
-    <div className="rounded-md border border-line bg-panel p-4">
+function Stat({ icon: Icon, label, value, href }) {
+  const content = (
+    <>
       <Icon size={18} className="text-steel" />
       <p className="mt-2 font-mono text-lg font-semibold">{value}</p>
       <p className="font-mono text-[10px] uppercase tracking-wide text-steel">{label}</p>
-    </div>
+    </>
   );
+  if (href) {
+    return (
+      <Link href={href} className="block rounded-md border border-line bg-panel p-4 hover:border-steel">
+        {content}
+      </Link>
+    );
+  }
+  return <div className="rounded-md border border-line bg-panel p-4">{content}</div>;
 }

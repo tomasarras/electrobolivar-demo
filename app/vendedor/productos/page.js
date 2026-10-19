@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import ProductImagePlaceholder from "@/components/ProductImagePlaceholder";
 import { formatCurrency } from "@/lib/format";
@@ -11,10 +12,16 @@ import { categoryLabel } from "@/lib/categories";
 export default function VendedorProductosPage() {
   const [products, setProducts] = useState(null);
   const [error, setError] = useState("");
+  const router = useRouter();
 
   async function load() {
     const res = await fetch("/api/seller/products");
-    setProducts(await res.json());
+    if (res.status === 401) {
+      router.replace("/login");
+      return;
+    }
+    const data = await res.json();
+    setProducts(Array.isArray(data) ? data : []);
   }
 
   useEffect(() => {

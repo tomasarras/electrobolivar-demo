@@ -2,15 +2,22 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { MessageSquare, User } from "lucide-react";
 
 export default function VendedorConsultasPage() {
   const [threads, setThreads] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
-    fetch("/api/seller/chat/threads")
-      .then((res) => res.json())
-      .then(setThreads);
+    fetch("/api/seller/chat/threads").then((res) => {
+      if (res.status === 401) {
+        router.replace("/login");
+        return;
+      }
+      res.json().then((data) => setThreads(Array.isArray(data) ? data : []));
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!threads) return <p className="text-sm text-steel">Cargando…</p>;
