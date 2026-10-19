@@ -1,15 +1,18 @@
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import StoreHeader from "@/components/StoreHeader";
 import ProductCard from "@/components/ProductCard";
 import PromoRail from "@/components/PromoRail";
+import { MapPin } from "lucide-react";
 import { CATEGORIES } from "@/lib/categories";
 import { serializePromo } from "@/lib/promos";
 
 export const dynamic = "force-dynamic";
 
 export default async function TiendaPage({ searchParams }) {
-  const { categoria, q, marca, modelo, anioMin, anioMax, kmMax, estado, subcategoria } = await searchParams;
+  const { categoria, q, marca, modelo, anioMin, anioMax, kmMax, estado, subcategoria, miciudad } = await searchParams;
   const query = (q || "").trim();
   const words = query.split(/\s+/).filter(Boolean).slice(0, 6);
   const isVehicles = categoria === "vehiculos";
@@ -18,6 +21,13 @@ export default async function TiendaPage({ searchParams }) {
   const isBelleza = categoria === "pequenos";
   const isRopa = categoria === "ropa";
   const isTecnologia = categoria === "cocina";
+
+  const session = await getServerSession(authOptions);
+  const buyer = session?.user?.id
+    ? await prisma.user.findUnique({ where: { id: session.user.id }, select: { locality: true } })
+    : null;
+  const buyerLocality = buyer?.locality || "";
+  const showMyCity = miciudad === "1" && Boolean(buyerLocality);
 
   const where = {
     ...(categoria ? { category: categoria } : {}),
@@ -46,6 +56,7 @@ export default async function TiendaPage({ searchParams }) {
     ...(isBelleza && subcategoria ? { beautyCategory: subcategoria } : {}),
     ...(isRopa && subcategoria ? { clothingCategory: subcategoria } : {}),
     ...(isTecnologia && subcategoria ? { techCategory: subcategoria } : {}),
+    ...(showMyCity ? { location: { contains: buyerLocality, mode: "insensitive" } } : {}),
   };
 
   const [
@@ -172,6 +183,23 @@ export default async function TiendaPage({ searchParams }) {
             </Link>
           ))}
         </div>
+
+        {buyerLocality && (
+          <div className="mt-3">
+            <Link
+              href={{
+                pathname: "/tienda",
+                query: { ...(categoria ? { categoria } : {}), ...(query ? { q: query } : {}), ...(showMyCity ? {} : { miciudad: "1" }) },
+              }}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium ${
+                showMyCity ? "border-ink bg-ink text-paper" : "border-line text-ink-soft hover:border-steel"
+              }`}
+            >
+              <MapPin size={14} />
+              Productos de mi ciudad ({buyerLocality})
+            </Link>
+          </div>
+        )}
 
         <div
           className={`mt-8 ${
@@ -526,7 +554,11 @@ export default async function TiendaPage({ searchParams }) {
           <div className="min-w-0 flex-1">
             {products.length === 0 ? (
               <p className="mt-2 text-sm text-steel sm:mt-0">
-                {query ? "No se encontraron productos para tu búsqueda." : "No hay productos en esta categoría todavía."}
+                {query
+                  ? "No se encontraron productos para tu búsqueda."
+                  : showMyCity
+                    ? `Todavía no hay productos de ${buyerLocality}.`
+                    : "No hay productos en esta categoría todavía."}
               </p>
             ) : (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
