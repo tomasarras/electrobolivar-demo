@@ -350,7 +350,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
 
       {category === "cocina" && (
         <div className="grid grid-cols-2 gap-4">
-          <Field label="Categoría (opcional)">
+          <Field label="Subcategoría (opcional)">
             <select value={techCategory} onChange={(e) => setTechCategory(e.target.value)} className="input">
               <option value="">Sin especificar</option>
               <option value="Celulares">Celulares</option>
@@ -456,7 +456,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
 
       {category === "vehiculos" && (
         <div className="grid grid-cols-2 gap-4">
-          <Field label="Categoría (opcional)">
+          <Field label="Subcategoría (opcional)">
             <select value={vehicleCategory} onChange={(e) => setVehicleCategory(e.target.value)} className="input">
               <option value="">Sin especificar</option>
               <option value="Autos">Autos</option>
@@ -605,7 +605,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
 
       {category === "ropa" && (
         <div className="grid grid-cols-2 gap-4">
-          <Field label="Categoría (opcional)">
+          <Field label="Subcategoría (opcional)">
             <select value={clothingCategory} onChange={(e) => setClothingCategory(e.target.value)} className="input">
               <option value="">Sin especificar</option>
               <option value="Remeras">Remeras</option>
@@ -720,7 +720,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
 
       {category === "pequenos" && (
         <div className="grid grid-cols-2 gap-4">
-          <Field label="Categoría (opcional)">
+          <Field label="Subcategoría (opcional)">
             <select value={beautyCategory} onChange={(e) => setBeautyCategory(e.target.value)} className="input">
               <option value="">Sin especificar</option>
               <option value="Artefactos para el cabello">Artefactos para el cabello</option>
@@ -744,7 +744,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
 
       {category === "climatizacion" && (
         <div className="grid grid-cols-2 gap-4">
-          <Field label="Categoría (opcional)">
+          <Field label="Subcategoría (opcional)">
             <select value={homeCategory} onChange={(e) => setHomeCategory(e.target.value)} className="input">
               <option value="">Sin especificar</option>
               <option value="Living comedor">Living comedor</option>
@@ -796,7 +796,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
 
       {category === "lavado" && (
         <div className="grid grid-cols-2 gap-4">
-          <Field label="Categoría (opcional)">
+          <Field label="Subcategoría (opcional)">
             <select value={laundryCategory} onChange={(e) => setLaundryCategory(e.target.value)} className="input">
               <option value="">Sin especificar</option>
               <option value="Heladeras y freezers">Heladeras y freezers</option>
@@ -839,7 +839,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
 
       {category === "herramientas" && (
         <div className="grid grid-cols-2 gap-4">
-          <Field label="Categoría (opcional)">
+          <Field label="Subcategoría (opcional)">
             <select value={toolsCategory} onChange={(e) => setToolsCategory(e.target.value)} className="input">
               <option value="">Sin especificar</option>
               <option value="Htas. eléctricas">Htas. eléctricas</option>
