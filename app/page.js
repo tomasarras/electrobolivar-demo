@@ -39,8 +39,10 @@ export default function RoleSelectorPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-paper px-4 text-center text-ink">
-      <span className="flex h-14 w-14 items-center justify-center rounded-md bg-accent font-display text-xl font-extrabold text-accent-ink">
-        BM
+      <span className="flex h-14 w-14 items-center justify-center gap-[3px] rounded-md bg-accent font-display text-xl font-extrabold leading-none text-accent-ink">
+        <span>B</span>
+        <span className="inline-block h-6 w-[3px] -skew-x-[22deg] bg-accent-ink" />
+        <span>M</span>
       </span>
       <h1 className="font-display text-3xl font-extrabold tracking-tight">
         BOLIVAR<span className="text-accent">MARKET</span>
