@@ -1,0 +1,1 @@
+ALTER TABLE "Seller" ADD COLUMN "sawPayoutNotice" BOOLEAN NOT NULL DEFAULT false;

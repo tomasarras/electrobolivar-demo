@@ -196,6 +196,9 @@ model Seller {
   // typically after receiving a complaint. Shown as a warning on their
   // public profile.
   flaggedFraud  Boolean        @default(false)
+  // Shown once on the seller's first visit, reminding them to fill out
+  // payout data before publishing. Dismissed permanently after "Entendido".
+  sawPayoutNotice Boolean      @default(false)
   products      Product[]
   orderItems    OrderItem[]
   notifications Notification[]

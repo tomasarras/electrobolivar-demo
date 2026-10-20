@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { Store, Package, MessageSquare, Wallet, MessagesSquare } from "lucide-react";
 import SellerNotificationBell from "@/components/SellerNotificationBell";
+import SellerPayoutNotice from "@/components/SellerPayoutNotice";
 
 const NAV_BEFORE_BELL = [
   { href: "/vendedor", label: "Resumen", icon: Store },
@@ -77,6 +78,7 @@ export default function VendedorLayout({ children }) {
           </nav>
         </div>
       </header>
+      <SellerPayoutNotice />
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">{children}</main>
     </div>
   );
