@@ -8,6 +8,7 @@ import PromoRail from "@/components/PromoRail";
 import { MapPin } from "lucide-react";
 import { CATEGORIES } from "@/lib/categories";
 import { serializePromo } from "@/lib/promos";
+import SubcategorySearch from "@/components/SubcategorySearch";
 
 export const dynamic = "force-dynamic";
 
@@ -153,12 +154,6 @@ export default async function TiendaPage({ searchParams }) {
 
   const hiddenFilters = { q: query || undefined, categoria };
   const hasVehicleFilters = Boolean(marca || modelo || anioMin || anioMax || kmMax || estado);
-  const hasElectroFilters = Boolean(subcategoria);
-  const hasHogarFilters = Boolean(subcategoria);
-  const hasBellezaFilters = Boolean(subcategoria);
-  const hasRopaFilters = Boolean(subcategoria);
-  const hasTecnologiaFilters = Boolean(subcategoria);
-  const hasHerramientasFilters = Boolean(subcategoria);
 
   return (
     <>
@@ -223,313 +218,79 @@ export default async function TiendaPage({ searchParams }) {
           {isHerramientas && (
             <aside className="sticky top-24 w-36 shrink-0 self-start rounded-md border border-line bg-panel p-3 sm:w-56 sm:p-4">
               <h2 className="font-mono text-[11px] uppercase tracking-wide text-steel">Buscar categoría</h2>
-              <form method="get" className="mt-3 space-y-3" key={subcategoria || ""}>
-                {Object.entries(hiddenFilters).map(
-                  ([key, value]) => value && <input key={key} type="hidden" name={key} value={value} />
-                )}
-
-                <VehicleField label="Categoría">
-                  <input
-                    list="herramientas-categorias"
-                    name="subcategoria"
-                    defaultValue={subcategoria || ""}
-                    placeholder="Buscar..."
-                    className="filter-input"
-                  />
-                  <datalist id="herramientas-categorias">
-                    {herramientasCategories.map(({ toolsCategory }) => (
-                      <option key={toolsCategory} value={toolsCategory} />
-                    ))}
-                  </datalist>
-                </VehicleField>
-
-                <button
-                  type="submit"
-                  className="w-full rounded-md bg-ink py-2 text-sm font-semibold text-paper hover:brightness-110"
-                >
-                  Filtrar
-                </button>
-                {hasHerramientasFilters && (
-                  <Link
-                    href={{ pathname: "/tienda", query: { categoria: "herramientas", ...(query ? { q: query } : {}) } }}
-                    className="block text-center text-xs text-ink-soft underline-offset-2 hover:text-accent hover:underline"
-                  >
-                    Limpiar filtros
-                  </Link>
-                )}
-              </form>
-
-              <style>{`
-                .filter-input {
-                  width: 100%;
-                  border-radius: 0.375rem;
-                  border: 1px solid var(--line);
-                  background: var(--paper);
-                  color: var(--ink);
-                  padding: 0.45rem 0.55rem;
-                  font-size: 0.85rem;
-                }
-              `}</style>
+              <div className="mt-3">
+                <SubcategorySearch
+                  categoria="herramientas"
+                  q={query}
+                  value={subcategoria || ""}
+                  options={herramientasCategories.map((c) => c.toolsCategory)}
+                />
+              </div>
             </aside>
           )}
           {isTecnologia && (
             <aside className="sticky top-24 w-36 shrink-0 self-start rounded-md border border-line bg-panel p-3 sm:w-56 sm:p-4">
               <h2 className="font-mono text-[11px] uppercase tracking-wide text-steel">Buscar categoría</h2>
-              <form method="get" className="mt-3 space-y-3" key={subcategoria || ""}>
-                {Object.entries(hiddenFilters).map(
-                  ([key, value]) => value && <input key={key} type="hidden" name={key} value={value} />
-                )}
-
-                <VehicleField label="Categoría">
-                  <input
-                    list="tecnologia-categorias"
-                    name="subcategoria"
-                    defaultValue={subcategoria || ""}
-                    placeholder="Buscar..."
-                    className="filter-input"
-                  />
-                  <datalist id="tecnologia-categorias">
-                    {tecnologiaCategories.map(({ techCategory }) => (
-                      <option key={techCategory} value={techCategory} />
-                    ))}
-                  </datalist>
-                </VehicleField>
-
-                <button
-                  type="submit"
-                  className="w-full rounded-md bg-ink py-2 text-sm font-semibold text-paper hover:brightness-110"
-                >
-                  Filtrar
-                </button>
-                {hasTecnologiaFilters && (
-                  <Link
-                    href={{ pathname: "/tienda", query: { categoria: "cocina", ...(query ? { q: query } : {}) } }}
-                    className="block text-center text-xs text-ink-soft underline-offset-2 hover:text-accent hover:underline"
-                  >
-                    Limpiar filtros
-                  </Link>
-                )}
-              </form>
-
-              <style>{`
-                .filter-input {
-                  width: 100%;
-                  border-radius: 0.375rem;
-                  border: 1px solid var(--line);
-                  background: var(--paper);
-                  color: var(--ink);
-                  padding: 0.45rem 0.55rem;
-                  font-size: 0.85rem;
-                }
-              `}</style>
+              <div className="mt-3">
+                <SubcategorySearch
+                  categoria="cocina"
+                  q={query}
+                  value={subcategoria || ""}
+                  options={tecnologiaCategories.map((c) => c.techCategory)}
+                />
+              </div>
             </aside>
           )}
           {isRopa && (
             <aside className="sticky top-24 w-36 shrink-0 self-start rounded-md border border-line bg-panel p-3 sm:w-56 sm:p-4">
               <h2 className="font-mono text-[11px] uppercase tracking-wide text-steel">Buscar categoría</h2>
-              <form method="get" className="mt-3 space-y-3" key={subcategoria || ""}>
-                {Object.entries(hiddenFilters).map(
-                  ([key, value]) => value && <input key={key} type="hidden" name={key} value={value} />
-                )}
-
-                <VehicleField label="Categoría">
-                  <input
-                    list="ropa-categorias"
-                    name="subcategoria"
-                    defaultValue={subcategoria || ""}
-                    placeholder="Buscar..."
-                    className="filter-input"
-                  />
-                  <datalist id="ropa-categorias">
-                    {ropaCategories.map(({ clothingCategory }) => (
-                      <option key={clothingCategory} value={clothingCategory} />
-                    ))}
-                  </datalist>
-                </VehicleField>
-
-                <button
-                  type="submit"
-                  className="w-full rounded-md bg-ink py-2 text-sm font-semibold text-paper hover:brightness-110"
-                >
-                  Filtrar
-                </button>
-                {hasRopaFilters && (
-                  <Link
-                    href={{ pathname: "/tienda", query: { categoria: "ropa", ...(query ? { q: query } : {}) } }}
-                    className="block text-center text-xs text-ink-soft underline-offset-2 hover:text-accent hover:underline"
-                  >
-                    Limpiar filtros
-                  </Link>
-                )}
-              </form>
-
-              <style>{`
-                .filter-input {
-                  width: 100%;
-                  border-radius: 0.375rem;
-                  border: 1px solid var(--line);
-                  background: var(--paper);
-                  color: var(--ink);
-                  padding: 0.45rem 0.55rem;
-                  font-size: 0.85rem;
-                }
-              `}</style>
+              <div className="mt-3">
+                <SubcategorySearch
+                  categoria="ropa"
+                  q={query}
+                  value={subcategoria || ""}
+                  options={ropaCategories.map((c) => c.clothingCategory)}
+                />
+              </div>
             </aside>
           )}
           {isBelleza && (
             <aside className="sticky top-24 w-36 shrink-0 self-start rounded-md border border-line bg-panel p-3 sm:w-56 sm:p-4">
               <h2 className="font-mono text-[11px] uppercase tracking-wide text-steel">Buscar categoría</h2>
-              <form method="get" className="mt-3 space-y-3" key={subcategoria || ""}>
-                {Object.entries(hiddenFilters).map(
-                  ([key, value]) => value && <input key={key} type="hidden" name={key} value={value} />
-                )}
-
-                <VehicleField label="Categoría">
-                  <input
-                    list="belleza-categorias"
-                    name="subcategoria"
-                    defaultValue={subcategoria || ""}
-                    placeholder="Buscar..."
-                    className="filter-input"
-                  />
-                  <datalist id="belleza-categorias">
-                    {bellezaCategories.map(({ beautyCategory }) => (
-                      <option key={beautyCategory} value={beautyCategory} />
-                    ))}
-                  </datalist>
-                </VehicleField>
-
-                <button
-                  type="submit"
-                  className="w-full rounded-md bg-ink py-2 text-sm font-semibold text-paper hover:brightness-110"
-                >
-                  Filtrar
-                </button>
-                {hasBellezaFilters && (
-                  <Link
-                    href={{ pathname: "/tienda", query: { categoria: "pequenos", ...(query ? { q: query } : {}) } }}
-                    className="block text-center text-xs text-ink-soft underline-offset-2 hover:text-accent hover:underline"
-                  >
-                    Limpiar filtros
-                  </Link>
-                )}
-              </form>
-
-              <style>{`
-                .filter-input {
-                  width: 100%;
-                  border-radius: 0.375rem;
-                  border: 1px solid var(--line);
-                  background: var(--paper);
-                  color: var(--ink);
-                  padding: 0.45rem 0.55rem;
-                  font-size: 0.85rem;
-                }
-              `}</style>
+              <div className="mt-3">
+                <SubcategorySearch
+                  categoria="pequenos"
+                  q={query}
+                  value={subcategoria || ""}
+                  options={bellezaCategories.map((c) => c.beautyCategory)}
+                />
+              </div>
             </aside>
           )}
           {isHogar && (
             <aside className="sticky top-24 w-36 shrink-0 self-start rounded-md border border-line bg-panel p-3 sm:w-56 sm:p-4">
               <h2 className="font-mono text-[11px] uppercase tracking-wide text-steel">Buscar categoría</h2>
-              <form method="get" className="mt-3 space-y-3" key={subcategoria || ""}>
-                {Object.entries(hiddenFilters).map(
-                  ([key, value]) => value && <input key={key} type="hidden" name={key} value={value} />
-                )}
-
-                <VehicleField label="Categoría">
-                  <input
-                    list="hogar-categorias"
-                    name="subcategoria"
-                    defaultValue={subcategoria || ""}
-                    placeholder="Buscar..."
-                    className="filter-input"
-                  />
-                  <datalist id="hogar-categorias">
-                    {hogarCategories.map(({ homeCategory }) => (
-                      <option key={homeCategory} value={homeCategory} />
-                    ))}
-                  </datalist>
-                </VehicleField>
-
-                <button
-                  type="submit"
-                  className="w-full rounded-md bg-ink py-2 text-sm font-semibold text-paper hover:brightness-110"
-                >
-                  Filtrar
-                </button>
-                {hasHogarFilters && (
-                  <Link
-                    href={{ pathname: "/tienda", query: { categoria: "climatizacion", ...(query ? { q: query } : {}) } }}
-                    className="block text-center text-xs text-ink-soft underline-offset-2 hover:text-accent hover:underline"
-                  >
-                    Limpiar filtros
-                  </Link>
-                )}
-              </form>
-
-              <style>{`
-                .filter-input {
-                  width: 100%;
-                  border-radius: 0.375rem;
-                  border: 1px solid var(--line);
-                  background: var(--paper);
-                  color: var(--ink);
-                  padding: 0.45rem 0.55rem;
-                  font-size: 0.85rem;
-                }
-              `}</style>
+              <div className="mt-3">
+                <SubcategorySearch
+                  categoria="climatizacion"
+                  q={query}
+                  value={subcategoria || ""}
+                  options={hogarCategories.map((c) => c.homeCategory)}
+                />
+              </div>
             </aside>
           )}
           {isElectro && (
             <aside className="sticky top-24 w-36 shrink-0 self-start rounded-md border border-line bg-panel p-3 sm:w-56 sm:p-4">
               <h2 className="font-mono text-[11px] uppercase tracking-wide text-steel">Buscar categoría</h2>
-              <form method="get" className="mt-3 space-y-3" key={subcategoria || ""}>
-                {Object.entries(hiddenFilters).map(
-                  ([key, value]) => value && <input key={key} type="hidden" name={key} value={value} />
-                )}
-
-                <VehicleField label="Categoría">
-                  <input
-                    list="electro-categorias"
-                    name="subcategoria"
-                    defaultValue={subcategoria || ""}
-                    placeholder="Buscar..."
-                    className="filter-input"
-                  />
-                  <datalist id="electro-categorias">
-                    {electroCategories.map(({ laundryCategory }) => (
-                      <option key={laundryCategory} value={laundryCategory} />
-                    ))}
-                  </datalist>
-                </VehicleField>
-
-                <button
-                  type="submit"
-                  className="w-full rounded-md bg-ink py-2 text-sm font-semibold text-paper hover:brightness-110"
-                >
-                  Filtrar
-                </button>
-                {hasElectroFilters && (
-                  <Link
-                    href={{ pathname: "/tienda", query: { categoria: "lavado", ...(query ? { q: query } : {}) } }}
-                    className="block text-center text-xs text-ink-soft underline-offset-2 hover:text-accent hover:underline"
-                  >
-                    Limpiar filtros
-                  </Link>
-                )}
-              </form>
-
-              <style>{`
-                .filter-input {
-                  width: 100%;
-                  border-radius: 0.375rem;
-                  border: 1px solid var(--line);
-                  background: var(--paper);
-                  color: var(--ink);
-                  padding: 0.45rem 0.55rem;
-                  font-size: 0.85rem;
-                }
-              `}</style>
+              <div className="mt-3">
+                <SubcategorySearch
+                  categoria="lavado"
+                  q={query}
+                  value={subcategoria || ""}
+                  options={electroCategories.map((c) => c.laundryCategory)}
+                />
+              </div>
             </aside>
           )}
           {isVehicles && (
