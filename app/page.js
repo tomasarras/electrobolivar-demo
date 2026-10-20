@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, ShieldCheck, Store, RotateCcw, Loader2, ShoppingCart } from "lucide-react";
+import { ShieldCheck, Store, RotateCcw, Loader2, ShoppingCart } from "lucide-react";
 import { useAdmin } from "@/components/AdminProvider";
 
 const ADMIN_EMAIL = "bolivarmarket08@gmail.com";
@@ -39,8 +39,8 @@ export default function RoleSelectorPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-paper px-4 text-center text-ink">
-      <span className="flex h-14 w-14 items-center justify-center rounded-md bg-accent text-accent-ink">
-        <Check size={26} />
+      <span className="flex h-14 w-14 items-center justify-center rounded-md bg-accent font-display text-xl font-extrabold text-accent-ink">
+        BM
       </span>
       <h1 className="font-display text-3xl font-extrabold tracking-tight">
         BOLIVAR<span className="text-accent">MARKET</span>
