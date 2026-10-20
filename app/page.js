@@ -5,12 +5,16 @@ import { useRouter } from "next/navigation";
 import { Zap, ShieldCheck, Store, RotateCcw, Loader2, ShoppingCart } from "lucide-react";
 import { useAdmin } from "@/components/AdminProvider";
 
+const ADMIN_EMAIL = "bolivarmarket08@gmail.com";
+
 export default function RoleSelectorPage() {
   const router = useRouter();
   const { enterAdmin } = useAdmin();
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [resetMessage, setResetMessage] = useState("");
+  const [adminEmail, setAdminEmail] = useState("");
+  const showAdminButton = adminEmail.trim().toLowerCase() === ADMIN_EMAIL;
 
   function handleAdmin() {
     enterAdmin();
@@ -43,7 +47,7 @@ export default function RoleSelectorPage() {
       </h1>
       <p className="max-w-sm text-sm text-ink-soft">Demo de portfolio · elegí cómo querés entrar.</p>
 
-      <div className="mt-4 grid w-full max-w-2xl grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="mt-4 grid w-full max-w-lg grid-cols-1 gap-4 sm:grid-cols-2">
         <button
           type="button"
           onClick={() => router.push("/tienda")}
@@ -67,18 +71,28 @@ export default function RoleSelectorPage() {
           <span className="block text-base font-semibold">Vendedor</span>
           <span className="block text-sm text-ink-soft">Publicar y vender tus productos</span>
         </button>
+      </div>
 
-        <button
-          type="button"
-          onClick={handleAdmin}
-          className="flex flex-col items-start gap-3 rounded-md border border-line bg-panel p-5 text-left transition hover:-translate-y-0.5 hover:border-steel"
-        >
-          <span className="flex h-11 w-11 items-center justify-center rounded-md bg-ink text-paper">
-            <ShieldCheck size={20} />
-          </span>
-          <span className="block text-base font-semibold">Administrador</span>
-          <span className="block text-sm text-ink-soft">Cargar productos y configurar la tienda</span>
-        </button>
+      <div className="mt-6 w-full max-w-xs">
+        <input
+          type="email"
+          value={adminEmail}
+          onChange={(e) => setAdminEmail(e.target.value)}
+          placeholder="Acceso administrador"
+          className="w-full rounded-md border border-line bg-panel px-3 py-2 text-center text-xs text-ink-soft placeholder:text-steel focus:outline-none"
+        />
+        {showAdminButton && (
+          <button
+            type="button"
+            onClick={handleAdmin}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-line bg-panel p-3 text-left transition hover:-translate-y-0.5 hover:border-steel"
+          >
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-ink text-paper">
+              <ShieldCheck size={18} />
+            </span>
+            <span className="block text-sm font-semibold">Entrar como administrador</span>
+          </button>
+        )}
       </div>
 
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
