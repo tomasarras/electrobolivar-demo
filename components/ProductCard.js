@@ -22,7 +22,7 @@ export default function ProductCard({ product }) {
       href={`/producto/${product.id}`}
       className="group flex flex-col overflow-hidden rounded-md border border-line bg-panel transition hover:-translate-y-0.5 hover:border-steel"
     >
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-panel-2">
+      <div className="relative aspect-square w-full overflow-hidden bg-panel-2">
         <span
           className={`absolute left-2 top-2 z-10 rounded border px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide ${
             outOfStock ? "border-danger text-danger" : "border-line text-accent-2"
@@ -42,34 +42,34 @@ export default function ProductCard({ product }) {
           <ProductImagePlaceholder category={product.category} className="h-full w-full" />
         )}
       </div>
-      <div className="flex flex-1 flex-col gap-1 p-4">
-        <span className="font-mono text-[11px] uppercase tracking-wide text-steel">{categoryLabel(product.category)}</span>
-        <span className="font-medium leading-snug">{product.name}</span>
+      <div className="flex flex-1 flex-col gap-0.5 p-3">
+        <span className="font-mono text-[10px] uppercase tracking-wide text-steel">{categoryLabel(product.category)}</span>
+        <span className="text-sm font-medium leading-snug">{product.name}</span>
         {product.seller?.storeName && (
-          <span className="truncate text-xs text-steel">Vendido por {product.seller.storeName}</span>
+          <span className="truncate text-[11px] text-steel">Vendido por {product.seller.storeName}</span>
         )}
         {product.location && (
-          <span className="flex items-center gap-1 truncate text-xs text-steel">
-            <MapPin size={12} />
+          <span className="flex items-center gap-1 truncate text-[11px] text-steel">
+            <MapPin size={11} />
             {product.location}
           </span>
         )}
         {avgRating && (
-          <span className="flex items-center gap-1 text-xs text-steel">
-            <Star size={12} fill="currentColor" className="text-accent" />
+          <span className="flex items-center gap-1 text-[11px] text-steel">
+            <Star size={11} fill="currentColor" className="text-accent" />
             {avgRating.toFixed(1)} ({salesCount})
           </span>
         )}
-        <div className="mt-auto flex items-baseline justify-between gap-2 pt-2">
-          <span className="font-mono font-semibold">{formatCurrency(product.price, product.currency)}</span>
-          {product.installments && <span className="font-mono text-xs text-accent-2">{product.installments}</span>}
+        <div className="mt-auto flex items-baseline justify-between gap-2 pt-1.5">
+          <span className="font-mono text-sm font-semibold">{formatCurrency(product.price, product.currency)}</span>
+          {product.installments && <span className="font-mono text-[11px] text-accent-2">{product.installments}</span>}
         </div>
         {product.discountPct && (
-          <span className="text-xs font-semibold text-danger">
+          <span className="text-[11px] font-semibold text-danger">
             -{product.discountPct}% {DISCOUNT_PERIOD_LABELS[product.discountPeriod] || ""}
           </span>
         )}
-        {freeShipping && <span className="text-xs font-semibold text-accent-2">Envío gratis</span>}
+        {freeShipping && <span className="text-[11px] font-semibold text-accent-2">Envío gratis</span>}
       </div>
     </Link>
   );
