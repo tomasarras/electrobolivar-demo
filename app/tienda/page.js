@@ -21,6 +21,7 @@ export default async function TiendaPage({ searchParams }) {
   const isBelleza = categoria === "pequenos";
   const isRopa = categoria === "ropa";
   const isTecnologia = categoria === "cocina";
+  const isHerramientas = categoria === "herramientas";
 
   const session = await getServerSession(authOptions);
   const buyer = session?.user?.id
@@ -56,6 +57,7 @@ export default async function TiendaPage({ searchParams }) {
     ...(isBelleza && subcategoria ? { beautyCategory: subcategoria } : {}),
     ...(isRopa && subcategoria ? { clothingCategory: subcategoria } : {}),
     ...(isTecnologia && subcategoria ? { techCategory: subcategoria } : {}),
+    ...(isHerramientas && subcategoria ? { toolsCategory: subcategoria } : {}),
     ...(showMyCity ? { location: { contains: buyerLocality, mode: "insensitive" } } : {}),
   };
 
@@ -69,6 +71,7 @@ export default async function TiendaPage({ searchParams }) {
     bellezaCategories,
     ropaCategories,
     tecnologiaCategories,
+    herramientasCategories,
   ] = await Promise.all([
     prisma.product.findMany({
       where: Object.keys(where).length ? where : undefined,
@@ -137,6 +140,14 @@ export default async function TiendaPage({ searchParams }) {
           orderBy: { techCategory: "asc" },
         })
       : [],
+    isHerramientas
+      ? prisma.product.findMany({
+          where: { category: "herramientas", toolsCategory: { not: null } },
+          select: { toolsCategory: true },
+          distinct: ["toolsCategory"],
+          orderBy: { toolsCategory: "asc" },
+        })
+      : [],
   ]);
   const promos = promoImages.map(serializePromo);
 
@@ -147,6 +158,7 @@ export default async function TiendaPage({ searchParams }) {
   const hasBellezaFilters = Boolean(subcategoria);
   const hasRopaFilters = Boolean(subcategoria);
   const hasTecnologiaFilters = Boolean(subcategoria);
+  const hasHerramientasFilters = Boolean(subcategoria);
 
   return (
     <>
@@ -203,11 +215,63 @@ export default async function TiendaPage({ searchParams }) {
 
         <div
           className={`mt-8 ${
-            isVehicles || isElectro || isHogar || isBelleza || isRopa || isTecnologia
+            isVehicles || isElectro || isHogar || isBelleza || isRopa || isTecnologia || isHerramientas
               ? "flex items-start gap-4 sm:gap-6"
               : ""
           }`}
         >
+          {isHerramientas && (
+            <aside className="sticky top-24 w-36 shrink-0 self-start rounded-md border border-line bg-panel p-3 sm:w-56 sm:p-4">
+              <h2 className="font-mono text-[11px] uppercase tracking-wide text-steel">Buscar categoría</h2>
+              <form method="get" className="mt-3 space-y-3" key={subcategoria || ""}>
+                {Object.entries(hiddenFilters).map(
+                  ([key, value]) => value && <input key={key} type="hidden" name={key} value={value} />
+                )}
+
+                <VehicleField label="Categoría">
+                  <input
+                    list="herramientas-categorias"
+                    name="subcategoria"
+                    defaultValue={subcategoria || ""}
+                    placeholder="Buscar..."
+                    className="filter-input"
+                  />
+                  <datalist id="herramientas-categorias">
+                    {herramientasCategories.map(({ toolsCategory }) => (
+                      <option key={toolsCategory} value={toolsCategory} />
+                    ))}
+                  </datalist>
+                </VehicleField>
+
+                <button
+                  type="submit"
+                  className="w-full rounded-md bg-ink py-2 text-sm font-semibold text-paper hover:brightness-110"
+                >
+                  Filtrar
+                </button>
+                {hasHerramientasFilters && (
+                  <Link
+                    href={{ pathname: "/tienda", query: { categoria: "herramientas", ...(query ? { q: query } : {}) } }}
+                    className="block text-center text-xs text-ink-soft underline-offset-2 hover:text-accent hover:underline"
+                  >
+                    Limpiar filtros
+                  </Link>
+                )}
+              </form>
+
+              <style>{`
+                .filter-input {
+                  width: 100%;
+                  border-radius: 0.375rem;
+                  border: 1px solid var(--line);
+                  background: var(--paper);
+                  color: var(--ink);
+                  padding: 0.45rem 0.55rem;
+                  font-size: 0.85rem;
+                }
+              `}</style>
+            </aside>
+          )}
           {isTecnologia && (
             <aside className="sticky top-24 w-36 shrink-0 self-start rounded-md border border-line bg-panel p-3 sm:w-56 sm:p-4">
               <h2 className="font-mono text-[11px] uppercase tracking-wide text-steel">Buscar categoría</h2>
