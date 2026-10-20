@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { X, CreditCard, Landmark, Banknote, Loader2, CheckCircle2, Store, Truck } from "lucide-react";
+import { X, CreditCard, Landmark, Loader2, CheckCircle2, Store, Truck } from "lucide-react";
 import StoreHeader from "@/components/StoreHeader";
 import ProductImagePlaceholder from "@/components/ProductImagePlaceholder";
 import { formatCurrency } from "@/lib/format";
@@ -303,60 +303,31 @@ function CarritoContent() {
             {Object.entries(PAY_NOW_METHODS).map(([key, m]) => (
               <MethodCard key={key} active={method === key} onClick={() => setMethod(key)} icon={m.icon} color={m.color} label={m.label} description={m.description} />
             ))}
-            <MethodCard
-              active={method === "efectivo_local"}
-              onClick={() => setMethod("efectivo_local")}
-              icon={Banknote}
-              color="#3f6b35"
-              label="Efectivo en Bolívar"
-              description="Retiro o entrega, solo ciudad de Bolívar"
-            />
           </div>
 
-          {payNow ? (
-            <>
-              <button
-                type="button"
-                onClick={() => (method === "mercadopago" ? handleMercadoPagoCheckout() : handlePayNow(payNow.label))}
-                disabled={status === "processing"}
-                style={{ backgroundColor: payNow.color }}
-                className="mt-5 flex w-full items-center justify-center gap-2 rounded-md py-3 text-sm font-semibold text-white hover:brightness-105 disabled:opacity-70"
-              >
-                {status === "processing" ? (
-                  <>
-                    <Loader2 size={16} className="animate-spin" /> {method === "mercadopago" ? "Redirigiendo…" : "Procesando…"}
-                  </>
-                ) : (
-                  <>
-                    <payNow.icon size={16} /> Pagar con {payNow.label}
-                  </>
-                )}
-              </button>
-              {paymentError && <p className="mt-2 text-center text-sm text-danger">{paymentError}</p>}
-              <p className="mt-2 text-center text-xs text-steel">
-                {method === "mercadopago"
-                  ? "Te redirige a Mercado Pago en modo sandbox/test: usá una tarjeta de prueba, no se procesa ningún cobro real."
-                  : "Demo de portfolio: la pasarela es una simulación, no se procesa ningún pago real."}
-              </p>
-            </>
-          ) : (
-            <div className="mt-5 space-y-3 rounded-md border border-line bg-panel-2 p-4 text-center">
-              <p className="text-sm text-ink-soft">
-                Disponible solo para clientes de la ciudad de Bolívar, Buenos Aires: coordinás el retiro en el local o la
-                entrega, y pagás en efectivo en el momento.
-              </p>
-              <button
-                type="button"
-                onClick={() => handlePayNow("Efectivo en Bolívar")}
-                disabled={status === "processing"}
-                className="flex w-full items-center justify-center gap-2 rounded-md bg-ink py-3 text-sm font-semibold text-paper hover:brightness-110 disabled:opacity-70"
-              >
-                {status === "processing" ? <Loader2 size={16} className="animate-spin" /> : null}
-                Confirmar pedido en efectivo
-              </button>
-              <p className="text-xs text-steel">Demo de portfolio: es solo una simulación.</p>
-            </div>
-          )}
+          <button
+            type="button"
+            onClick={() => (method === "mercadopago" ? handleMercadoPagoCheckout() : handlePayNow(payNow.label))}
+            disabled={status === "processing"}
+            style={{ backgroundColor: payNow.color }}
+            className="mt-5 flex w-full items-center justify-center gap-2 rounded-md py-3 text-sm font-semibold text-white hover:brightness-105 disabled:opacity-70"
+          >
+            {status === "processing" ? (
+              <>
+                <Loader2 size={16} className="animate-spin" /> {method === "mercadopago" ? "Redirigiendo…" : "Procesando…"}
+              </>
+            ) : (
+              <>
+                <payNow.icon size={16} /> Pagar con {payNow.label}
+              </>
+            )}
+          </button>
+          {paymentError && <p className="mt-2 text-center text-sm text-danger">{paymentError}</p>}
+          <p className="mt-2 text-center text-xs text-steel">
+            {method === "mercadopago"
+              ? "Te redirige a Mercado Pago en modo sandbox/test: usá una tarjeta de prueba, no se procesa ningún cobro real."
+              : "Demo de portfolio: la pasarela es una simulación, no se procesa ningún pago real."}
+          </p>
         </div>
       </main>
     </>
