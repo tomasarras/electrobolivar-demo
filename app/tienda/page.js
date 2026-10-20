@@ -23,6 +23,7 @@ export default async function TiendaPage({ searchParams }) {
   const isRopa = categoria === "ropa";
   const isTecnologia = categoria === "cocina";
   const isHerramientas = categoria === "herramientas";
+  const isInmobiliaria = categoria === "inmobiliaria";
 
   const session = await getServerSession(authOptions);
   const buyer = session?.user?.id
@@ -59,6 +60,7 @@ export default async function TiendaPage({ searchParams }) {
     ...(isRopa && subcategoria ? { clothingCategory: subcategoria } : {}),
     ...(isTecnologia && subcategoria ? { techCategory: subcategoria } : {}),
     ...(isHerramientas && subcategoria ? { toolsCategory: subcategoria } : {}),
+    ...(isInmobiliaria && subcategoria ? { propertyCategory: subcategoria } : {}),
     ...(showMyCity ? { location: { contains: buyerLocality, mode: "insensitive" } } : {}),
   };
 
@@ -73,6 +75,7 @@ export default async function TiendaPage({ searchParams }) {
     ropaCategories,
     tecnologiaCategories,
     herramientasCategories,
+    inmobiliariaCategories,
   ] = await Promise.all([
     prisma.product.findMany({
       where: Object.keys(where).length ? where : undefined,
@@ -149,6 +152,14 @@ export default async function TiendaPage({ searchParams }) {
           orderBy: { toolsCategory: "asc" },
         })
       : [],
+    isInmobiliaria
+      ? prisma.product.findMany({
+          where: { category: "inmobiliaria", propertyCategory: { not: null } },
+          select: { propertyCategory: true },
+          distinct: ["propertyCategory"],
+          orderBy: { propertyCategory: "asc" },
+        })
+      : [],
   ]);
   const promos = promoImages.map(serializePromo);
 
@@ -210,11 +221,24 @@ export default async function TiendaPage({ searchParams }) {
 
         <div
           className={`mt-8 ${
-            isVehicles || isElectro || isHogar || isBelleza || isRopa || isTecnologia || isHerramientas
+            isVehicles || isElectro || isHogar || isBelleza || isRopa || isTecnologia || isHerramientas || isInmobiliaria
               ? "flex items-start gap-4 sm:gap-6"
               : ""
           }`}
         >
+          {isInmobiliaria && (
+            <aside className="sticky top-24 w-36 shrink-0 self-start rounded-md border border-line bg-panel p-3 sm:w-56 sm:p-4">
+              <h2 className="font-mono text-[11px] uppercase tracking-wide text-steel">Buscar categoría</h2>
+              <div className="mt-3">
+                <SubcategorySearch
+                  categoria="inmobiliaria"
+                  q={query}
+                  value={subcategoria || ""}
+                  options={inmobiliariaCategories.map((c) => c.propertyCategory)}
+                />
+              </div>
+            </aside>
+          )}
           {isHerramientas && (
             <aside className="sticky top-24 w-36 shrink-0 self-start rounded-md border border-line bg-panel p-3 sm:w-56 sm:p-4">
               <h2 className="font-mono text-[11px] uppercase tracking-wide text-steel">Buscar categoría</h2>

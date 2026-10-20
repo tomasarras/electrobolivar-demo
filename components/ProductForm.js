@@ -43,6 +43,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
   const [vehicleBrand, setVehicleBrand] = useState(product?.vehicleBrand || "");
   const [vehicleModel, setVehicleModel] = useState(product?.vehicleModel || "");
   const [vehicleColor, setVehicleColor] = useState(product?.vehicleColor || "");
+  const [propertyCategory, setPropertyCategory] = useState(product?.propertyCategory || "");
   const [propertyOperation, setPropertyOperation] = useState(product?.propertyOperation || "venta");
   const [propertyCoveredArea, setPropertyCoveredArea] = useState(product?.propertyCoveredArea ?? "");
   const [propertyTotalArea, setPropertyTotalArea] = useState(product?.propertyTotalArea ?? "");
@@ -187,6 +188,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
         vehicleBrand: category === "vehiculos" ? vehicleBrand.trim() : "",
         vehicleModel: category === "vehiculos" ? vehicleModel.trim() : "",
         vehicleColor: category === "vehiculos" ? vehicleColor.trim() : "",
+        propertyCategory: category === "inmobiliaria" ? propertyCategory : "",
         propertyOperation: category === "inmobiliaria" ? propertyOperation : null,
         propertyCoveredArea: category === "inmobiliaria" && propertyCoveredArea !== "" ? Number(propertyCoveredArea) : null,
         propertyTotalArea: category === "inmobiliaria" && propertyTotalArea !== "" ? Number(propertyTotalArea) : null,
@@ -523,6 +525,21 @@ export default function ProductForm({ product, basePath = "/api/products", redir
 
       {category === "inmobiliaria" && (
         <>
+          <Field label="Subcategoría (opcional)">
+            <select value={propertyCategory} onChange={(e) => setPropertyCategory(e.target.value)} className="input">
+              <option value="">Sin especificar</option>
+              <option value="Casa">Casa</option>
+              <option value="Departamento">Departamento</option>
+              <option value="PH">PH</option>
+              <option value="Terreno/Lote">Terreno/Lote</option>
+              <option value="Local comercial">Local comercial</option>
+              <option value="Oficina">Oficina</option>
+              <option value="Galpón/Depósito">Galpón/Depósito</option>
+              <option value="Quinta/Campo">Quinta/Campo</option>
+              <option value="Cochera">Cochera</option>
+            </select>
+          </Field>
+
           <Field label="Ubicación (opcional)">
             <input
               value={propertyLocation}

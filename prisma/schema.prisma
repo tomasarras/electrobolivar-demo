@@ -45,6 +45,7 @@ model Product {
   vehicleModel String?
   vehicleColor String?
   // Only used for category "inmobiliaria". "alquiler" | "venta".
+  propertyCategory    String?
   propertyOperation   String?
   propertyCoveredArea Int?
   propertyTotalArea   Int?

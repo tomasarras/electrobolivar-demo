@@ -42,6 +42,7 @@ export async function PATCH(request, { params }) {
         vehicleBrand: input.vehicleBrand,
         vehicleModel: input.vehicleModel,
         vehicleColor: input.vehicleColor,
+        propertyCategory: input.propertyCategory,
         propertyOperation: input.propertyOperation,
         propertyCoveredArea: input.propertyCoveredArea,
         propertyTotalArea: input.propertyTotalArea,
