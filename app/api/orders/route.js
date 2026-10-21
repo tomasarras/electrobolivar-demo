@@ -17,44 +17,59 @@ export async function POST(request) {
 
   const products = await prisma.product.findMany({
     where: { id: { in: items.map((i) => i.productId) } },
-    select: { id: true, sellerId: true, currency: true },
+    select: { id: true, sellerId: true, currency: true, stock: true },
   });
   const sellerByProduct = new Map(products.map((p) => [p.id, p.sellerId]));
   const currencyByProduct = new Map(products.map((p) => [p.id, p.currency || "ARS"]));
+  const stockByProduct = new Map(products.map((p) => [p.id, p.stock]));
+
+  const qtyByProduct = new Map();
+  for (const item of items) {
+    qtyByProduct.set(item.productId, (qtyByProduct.get(item.productId) || 0) + item.qty);
+  }
 
   const total = items.reduce((sum, i) => sum + i.price * i.qty, 0);
 
-  const order = await prisma.order.create({
-    data: {
-      code,
-      buyerId: session?.user?.id || null,
-      paymentMethod: paymentMethod || "desconocido",
-      deliveryMethod: deliveryMethod || "retiro",
-      address: address || null,
-      contactPhone: contactPhone || null,
-      deliveryNote: (deliveryNote || "").trim() || null,
-      total,
-      items: {
-        create: items.map((item) => {
-          const sellerId = sellerByProduct.get(item.productId) || null;
-          return {
-            productId: item.productId,
-            productName: item.name,
-            unitPrice: item.price,
-            currency: currencyByProduct.get(item.productId) || "ARS",
-            qty: item.qty,
-            sellerId,
-            commissionPct: sellerId ? commissionPct : 0,
-            commissionAmt: sellerId ? commissionAmount(item.price, item.qty, commissionPct) : 0,
-          };
-        }),
+  const order = await prisma.$transaction(async (tx) => {
+    const created = await tx.order.create({
+      data: {
+        code,
+        buyerId: session?.user?.id || null,
+        paymentMethod: paymentMethod || "desconocido",
+        deliveryMethod: deliveryMethod || "retiro",
+        address: address || null,
+        contactPhone: contactPhone || null,
+        deliveryNote: (deliveryNote || "").trim() || null,
+        total,
+        items: {
+          create: items.map((item) => {
+            const sellerId = sellerByProduct.get(item.productId) || null;
+            return {
+              productId: item.productId,
+              productName: item.name,
+              unitPrice: item.price,
+              currency: currencyByProduct.get(item.productId) || "ARS",
+              qty: item.qty,
+              sellerId,
+              commissionPct: sellerId ? commissionPct : 0,
+              commissionAmt: sellerId ? commissionAmount(item.price, item.qty, commissionPct) : 0,
+            };
+          }),
+        },
       },
-    },
-    select: {
-      id: true,
-      code: true,
-      items: { select: { id: true, productId: true, productName: true, qty: true, unitPrice: true, sellerId: true } },
-    },
+      select: {
+        id: true,
+        code: true,
+        items: { select: { id: true, productId: true, productName: true, qty: true, unitPrice: true, sellerId: true } },
+      },
+    });
+
+    for (const [productId, qty] of qtyByProduct) {
+      const currentStock = stockByProduct.get(productId) ?? 0;
+      await tx.product.update({ where: { id: productId }, data: { stock: Math.max(0, currentStock - qty) } });
+    }
+
+    return created;
   });
 
   const itemsBySeller = new Map();
