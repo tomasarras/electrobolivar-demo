@@ -11,7 +11,10 @@ const TEL = "tel:2314572888";
 // desktop (tall 9:16 panel) image, managed from Admin → Configuración, since
 // the two slots are different fixed shapes and one crop never fits both.
 export default function PromoRail({ promos }) {
-  const [index, setIndex] = useState(0);
+  // Starts at a time-derived slot (not always promos[0]) so repeat visits
+  // don't always see the same promo first. Deterministic from the clock
+  // (not Math.random()) so server and client render the same index.
+  const [index, setIndex] = useState(() => Math.floor(Date.now() / ROTATE_MS));
 
   useEffect(() => {
     if (!promos || promos.length <= 1) return;
