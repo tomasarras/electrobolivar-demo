@@ -50,6 +50,8 @@ export async function PATCH(request, { params }) {
         installments: input.installments,
         discountPct: input.discountPct,
         discountPeriod: input.discountPeriod,
+        warrantyValue: input.warrantyValue,
+        warrantyUnit: input.warrantyUnit,
         condition: input.condition,
         stock: input.stock,
         shipping: input.shipping,

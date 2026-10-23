@@ -40,6 +40,8 @@ export async function POST(request) {
         installments: input.installments,
         discountPct: input.discountPct,
         discountPeriod: input.discountPeriod,
+        warrantyValue: input.warrantyValue,
+        warrantyUnit: input.warrantyUnit,
         condition: input.condition,
         stock: input.stock,
         shipping: input.shipping,

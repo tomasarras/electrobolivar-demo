@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { getServerSession } from "next-auth";
-import { Store, ChevronRight, TriangleAlert, MapPin } from "lucide-react";
+import { Store, ChevronRight, TriangleAlert, MapPin, ShieldCheck } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, DISCOUNT_PERIOD_LABELS } from "@/lib/format";
@@ -183,6 +183,12 @@ export default async function ProductoPage({ params }) {
             {product.discountPct && (
               <p className="mt-1 text-sm font-semibold text-danger">
                 -{product.discountPct}% {DISCOUNT_PERIOD_LABELS[product.discountPeriod] || ""}
+              </p>
+            )}
+            {product.warrantyValue && (
+              <p className="mt-1 flex items-center gap-1 text-sm text-ink-soft">
+                <ShieldCheck size={14} />
+                Garantía de {product.warrantyValue} {product.warrantyUnit || "meses"}
               </p>
             )}
             {product.seller ? (

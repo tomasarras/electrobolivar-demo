@@ -2,13 +2,17 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Loader2, Package, Megaphone, MessageSquare, Bell } from "lucide-react";
+import Image from "next/image";
+import { Loader2, Package, Megaphone, MessageSquare, Bell, User as UserIcon, X } from "lucide-react";
 
 export default function VendedorResumenPage() {
   const [seller, setSeller] = useState(undefined); // undefined = loading, null = not yet a seller
   const [productCount, setProductCount] = useState(0);
   const [storeName, setStoreName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [image, setImage] = useState("");
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [profileRest, setProfileRest] = useState({ province: "", locality: "", address: "", phone: "" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [commissionPct, setCommissionPct] = useState(5);
@@ -27,7 +31,39 @@ export default function VendedorResumenPage() {
       .then((res) => res.json())
       .then((data) => setCommissionPct(data.commissionPct ?? 5))
       .catch(() => {});
+    fetch("/api/profile")
+      .then((res) => res.json())
+      .then((data) => {
+        setImage(data.image || "");
+        setProfileRest({
+          province: data.province || "",
+          locality: data.locality || "",
+          address: data.address || "",
+          phone: data.phone || "",
+        });
+      })
+      .catch(() => {});
   }, []);
+
+  async function handlePhotoChange(e) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setError("");
+    setUploadingPhoto(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "No se pudo subir la foto");
+      setImage(data.url);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setUploadingPhoto(false);
+    }
+  }
 
   useEffect(() => {
     if (!seller) return;
@@ -56,6 +92,11 @@ export default function VendedorResumenPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "No se pudo crear tu tienda");
+      await fetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...profileRest, image }),
+      });
       setSeller(data);
     } catch (err) {
       setError(err.message);
@@ -74,13 +115,39 @@ export default function VendedorResumenPage() {
           Creá tu tienda para empezar a publicar productos. La plataforma cobra una comisión sobre cada venta.
         </p>
         <form onSubmit={handleSubmit} className="mt-6 space-y-3">
-          <label className="block font-mono text-[11px] uppercase tracking-wide text-steel">Nombre de tu tienda</label>
-          <input
-            value={storeName}
-            onChange={(e) => setStoreName(e.target.value)}
-            placeholder="Electrodomésticos del Sur"
-            className="w-full rounded-md border border-line bg-paper px-3 py-2 text-sm"
-          />
+          <div className="flex items-end gap-4">
+            <div className="flex-1">
+              <label className="block font-mono text-[11px] uppercase tracking-wide text-steel">Nombre de tu tienda</label>
+              <input
+                value={storeName}
+                onChange={(e) => setStoreName(e.target.value)}
+                placeholder="Electrodomésticos del Sur"
+                className="w-full rounded-md border border-line bg-paper px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block font-mono text-[11px] uppercase tracking-wide text-steel">Foto de perfil (opcional)</label>
+              <div className="mt-1 flex items-center gap-2">
+                <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-line bg-panel-2 text-steel">
+                  {image ? (
+                    <Image src={image} alt="" fill className="object-cover" sizes="40px" />
+                  ) : (
+                    <UserIcon size={18} />
+                  )}
+                </div>
+                <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-line px-3 py-2 text-xs font-semibold hover:border-steel">
+                  {uploadingPhoto ? <Loader2 size={13} className="animate-spin" /> : null}
+                  {image ? "Cambiar" : "Subir"}
+                  <input type="file" accept="image/*" className="hidden" disabled={uploadingPhoto} onChange={handlePhotoChange} />
+                </label>
+                {image && (
+                  <button type="button" onClick={() => setImage("")} aria-label="Quitar foto" className="text-ink-soft hover:text-danger">
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
           <label className="block font-mono text-[11px] uppercase tracking-wide text-steel">
             WhatsApp de contacto (opcional)
           </label>

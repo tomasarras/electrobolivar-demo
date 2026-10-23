@@ -24,6 +24,9 @@ model Product {
   discountPct    String?
   // "semana" | "mes" | "siempre" — duración del descuento.
   discountPeriod String?
+  // Garantía del producto (opcional). warrantyUnit: "meses" | "años".
+  warrantyValue  Int?
+  warrantyUnit   String?
   // "nuevo" | "usado" — plain string rather than an enum so it matches the
   // rest of the schema's style (category is a plain string too).
   condition    String         @default("nuevo")

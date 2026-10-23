@@ -23,6 +23,8 @@ export default function ProductForm({ product, basePath = "/api/products", redir
   const [installments, setInstallments] = useState(product?.installments || "");
   const [discountPct, setDiscountPct] = useState(product?.discountPct || "");
   const [discountPeriod, setDiscountPeriod] = useState(product?.discountPeriod || "");
+  const [warrantyValue, setWarrantyValue] = useState(product?.warrantyValue ?? "");
+  const [warrantyUnit, setWarrantyUnit] = useState(product?.warrantyUnit || "meses");
   const [condition, setCondition] = useState(product?.condition || "nuevo");
   const [stock, setStock] = useState(product?.stock ?? 0);
   const [shipping, setShipping] = useState(product?.shipping !== false);
@@ -169,6 +171,8 @@ export default function ProductForm({ product, basePath = "/api/products", redir
         installments: installments.trim(),
         discountPct,
         discountPeriod: discountPct ? discountPeriod : "",
+        warrantyValue: warrantyValue !== "" ? Number(warrantyValue) : null,
+        warrantyUnit: warrantyValue !== "" ? warrantyUnit : "",
         condition,
         stock: NO_STOCK_CATEGORIES.includes(category) ? 1 : Number(stock),
         shipping: effectiveShipping,
@@ -339,6 +343,31 @@ export default function ProductForm({ product, basePath = "/api/products", redir
           className="input"
         />
       </Field>
+
+      <div className="grid grid-cols-2 gap-4">
+        <Field label="Garantía (opcional)">
+          <input
+            type="number"
+            min="0"
+            value={warrantyValue}
+            onChange={(e) => setWarrantyValue(e.target.value)}
+            placeholder="12"
+            className="input"
+          />
+        </Field>
+        <Field label="Unidad de garantía">
+          <select
+            value={warrantyUnit}
+            onChange={(e) => setWarrantyUnit(e.target.value)}
+            disabled={warrantyValue === ""}
+            className="input"
+          >
+            <option value="meses">Meses</option>
+            <option value="año">Año</option>
+            <option value="años">Años</option>
+          </select>
+        </Field>
+      </div>
 
       <Field label="Ciudad o zona">
         <input
