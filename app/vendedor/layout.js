@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { Store, Package, MessageSquare, Wallet, MessagesSquare } from "lucide-react";
+import { Store, Package, MessageSquare, Wallet, MessagesSquare, HelpCircle } from "lucide-react";
 import SellerNotificationBell from "@/components/SellerNotificationBell";
 import SellerPayoutNotice from "@/components/SellerPayoutNotice";
+import SellerEscrowNotice from "@/components/SellerEscrowNotice";
 
 const NAV_BEFORE_BELL = [
   { href: "/vendedor", label: "Resumen", icon: Store },
@@ -23,6 +24,7 @@ export default function VendedorLayout({ children }) {
   const { status } = useSession();
   const pathname = usePathname();
   const router = useRouter();
+  const [showEscrowNotice, setShowEscrowNotice] = useState(true);
 
   useEffect(() => {
     if (status === "unauthenticated") router.replace(`/login?callbackUrl=${encodeURIComponent(pathname)}`);
@@ -60,16 +62,28 @@ export default function VendedorLayout({ children }) {
             {NAV_AFTER_BELL.map(({ href, label, icon: Icon }) => {
               const active = pathname.startsWith(href);
               return (
-              <Link
-                key={href}
-                href={href}
-                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 ${
-                  active ? "bg-ink text-paper" : "hover:bg-panel-2"
-                }`}
-              >
-                <Icon size={16} />
-                <span className="hidden sm:inline">{label}</span>
-              </Link>
+              <Fragment key={href}>
+                {href === "/vendedor/mensajes" && (
+                  <button
+                    type="button"
+                    onClick={() => setShowEscrowNotice(true)}
+                    title="Sistema de seguridad para envíos a domicilio"
+                    aria-label="Ver información del sistema de seguridad para envíos a domicilio"
+                    className="flex items-center justify-center rounded-full p-1.5 text-ink-soft hover:bg-panel-2 hover:text-ink"
+                  >
+                    <HelpCircle size={16} />
+                  </button>
+                )}
+                <Link
+                  href={href}
+                  className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 ${
+                    active ? "bg-ink text-paper" : "hover:bg-panel-2"
+                  }`}
+                >
+                  <Icon size={16} />
+                  <span className="hidden sm:inline">{label}</span>
+                </Link>
+              </Fragment>
               );
             })}
             <Link href="/tienda" className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-ink-soft hover:bg-panel-2">
@@ -79,6 +93,11 @@ export default function VendedorLayout({ children }) {
         </div>
       </header>
       <SellerPayoutNotice />
+      {showEscrowNotice && (
+        <div className="mx-auto max-w-6xl px-4 pt-8 sm:px-6">
+          <SellerEscrowNotice onDismiss={() => setShowEscrowNotice(false)} />
+        </div>
+      )}
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">{children}</main>
     </div>
   );
