@@ -3,6 +3,10 @@
     {
       "path": "/api/demo/reset",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/release-orders",
+      "schedule": "0 18 * * *"
     }
   ]
 }

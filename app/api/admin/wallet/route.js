@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
+  // Solo cuenta lo ya liberado ("entregado"): envíos a domicilio todavía
+  // retenidos en custodia no son ingreso realizado para la plataforma.
   const items = await prisma.orderItem.findMany({
-    where: { sellerId: { not: null } },
+    where: { sellerId: { not: null }, status: "entregado" },
     select: { currency: true, commissionAmt: true, unitPrice: true, qty: true },
   });
 

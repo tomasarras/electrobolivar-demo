@@ -44,6 +44,9 @@ export async function POST(request) {
         items: {
           create: items.map((item) => {
             const sellerId = sellerByProduct.get(item.productId) || null;
+            // Home delivery ("envio") holds the payment in escrow until the
+            // buyer confirms receipt; pickup ("retiro") settles instantly.
+            const isHomeDelivery = deliveryMethod === "envio";
             return {
               productId: item.productId,
               productName: item.name,
@@ -53,6 +56,8 @@ export async function POST(request) {
               sellerId,
               commissionPct: sellerId ? commissionPct : 0,
               commissionAmt: sellerId ? commissionAmount(item.price, item.qty, commissionPct) : 0,
+              status: isHomeDelivery ? "pendiente" : "entregado",
+              deliveredAt: isHomeDelivery ? null : new Date(),
             };
           }),
         },

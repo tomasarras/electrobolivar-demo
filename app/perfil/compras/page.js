@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Package, Undo2, Loader2 } from "lucide-react";
+import { Package, Undo2, Loader2, Truck, CheckCircle2, XCircle } from "lucide-react";
 import ProductImagePlaceholder from "@/components/ProductImagePlaceholder";
 import StarRating from "@/components/StarRating";
 import { formatCurrency } from "@/lib/format";
+import { deliveryDeadline } from "@/lib/delivery";
 
 export default function MisComprasPage() {
   const [orders, setOrders] = useState(null);
@@ -41,7 +42,7 @@ export default function MisComprasPage() {
               </div>
               <ul className="mt-3 divide-y divide-line">
                 {order.items.map((item) => (
-                  <OrderItemRow key={item.id} item={item} orderCode={order.code} />
+                  <OrderItemRow key={item.id} item={item} orderCode={order.code} deliveryMethod={order.deliveryMethod} />
                 ))}
               </ul>
               <div className="mt-2 flex justify-end border-t border-line pt-2 text-sm font-semibold">
@@ -55,7 +56,7 @@ export default function MisComprasPage() {
   );
 }
 
-function OrderItemRow({ item, orderCode }) {
+function OrderItemRow({ item, orderCode, deliveryMethod }) {
   const image = item.product?.images?.[0];
 
   return (
@@ -78,6 +79,9 @@ function OrderItemRow({ item, orderCode }) {
         <p className="font-mono text-xs text-ink-soft">
           {item.qty} x {formatCurrency(item.unitPrice, item.currency)}
         </p>
+
+        {deliveryMethod === "envio" && <ShipmentStatus item={item} />}
+
         <div className="mt-1.5">
           {item.review ? (
             <div className="flex items-center gap-2">
@@ -92,6 +96,89 @@ function OrderItemRow({ item, orderCode }) {
       {item.productId && <ReturnRequestForm item={item} orderCode={orderCode} />}
     </li>
   );
+}
+
+function ShipmentStatus({ item }) {
+  const [status, setStatus] = useState(item.status);
+  const [submitting, setSubmitting] = useState(false);
+
+  async function respond(received) {
+    setSubmitting(true);
+    try {
+      const res = await fetch(`/api/profile/order-items/${item.id}/confirm`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ received }),
+      });
+      if (res.ok) setStatus(received ? "entregado" : "cancelado");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (status === "pendiente") {
+    return (
+      <p className="mt-1 flex items-center gap-1 text-xs text-steel">
+        <Package size={12} />
+        El vendedor todavía no despachó el envío.
+      </p>
+    );
+  }
+
+  if (status === "enviado") {
+    const deadline = deliveryDeadline(item.shippedAt);
+    return (
+      <div className="mt-1.5 rounded-md border border-line bg-panel-2 p-2.5">
+        <p className="flex items-center gap-1.5 text-xs font-semibold text-ink">
+          <Truck size={13} />
+          Tu pedido está en camino
+        </p>
+        <p className="mt-0.5 text-[11px] text-ink-soft">
+          Si no confirmás antes del {deadline?.toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" })}, se confirma la entrega automáticamente.
+        </p>
+        <p className="mt-1.5 text-xs font-medium">¿Recibiste el producto?</p>
+        <div className="mt-1 flex gap-1.5">
+          <button
+            type="button"
+            onClick={() => respond(true)}
+            disabled={submitting}
+            className="flex items-center gap-1 rounded-md bg-ink px-2.5 py-1 text-xs font-semibold text-paper hover:brightness-110 disabled:opacity-50"
+          >
+            {submitting && <Loader2 size={11} className="animate-spin" />}
+            Sí, lo recibí
+          </button>
+          <button
+            type="button"
+            onClick={() => respond(false)}
+            disabled={submitting}
+            className="rounded-md border border-line px-2.5 py-1 text-xs font-semibold text-danger hover:border-danger disabled:opacity-50"
+          >
+            No lo recibí
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === "entregado") {
+    return (
+      <p className="mt-1 flex items-center gap-1 text-xs text-accent-2">
+        <CheckCircle2 size={12} />
+        Entregado
+      </p>
+    );
+  }
+
+  if (status === "cancelado") {
+    return (
+      <p className="mt-1 flex items-center gap-1 text-xs text-danger">
+        <XCircle size={12} />
+        Compra cancelada — tu dinero fue reembolsado
+      </p>
+    );
+  }
+
+  return null;
 }
 
 function ReturnRequestForm({ item, orderCode }) {

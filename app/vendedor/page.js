@@ -58,10 +58,30 @@ export default function VendedorResumenPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "No se pudo subir la foto");
       setImage(data.url);
+      // Once the seller already exists, this screen has no separate save
+      // step (unlike the first-time "crear tienda" form), so persist right away.
+      if (seller) {
+        await fetch("/api/profile", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...profileRest, image: data.url }),
+        });
+      }
     } catch (err) {
       setError(err.message);
     } finally {
       setUploadingPhoto(false);
+    }
+  }
+
+  async function handleRemovePhoto() {
+    setImage("");
+    if (seller) {
+      await fetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...profileRest, image: "" }),
+      });
     }
   }
 
@@ -141,7 +161,7 @@ export default function VendedorResumenPage() {
                   <input type="file" accept="image/*" className="hidden" disabled={uploadingPhoto} onChange={handlePhotoChange} />
                 </label>
                 {image && (
-                  <button type="button" onClick={() => setImage("")} aria-label="Quitar foto" className="text-ink-soft hover:text-danger">
+                  <button type="button" onClick={handleRemovePhoto} aria-label="Quitar foto" className="text-ink-soft hover:text-danger">
                     <X size={14} />
                   </button>
                 )}
@@ -174,10 +194,57 @@ export default function VendedorResumenPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-bold">{seller.storeName}</h1>
+      <div className="flex items-center gap-3">
+        <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-line bg-panel-2 text-steel">
+          {image ? (
+            <Image src={image} alt="" fill className="object-cover" sizes="48px" />
+          ) : (
+            <UserIcon size={22} />
+          )}
+        </div>
+        <div>
+          <h1 className="font-display text-2xl font-bold">{seller.storeName}</h1>
+          <div className="flex items-center gap-2">
+            <label className="inline-flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-ink-soft hover:text-ink hover:underline">
+              {uploadingPhoto ? <Loader2 size={12} className="animate-spin" /> : null}
+              {image ? "Cambiar foto de perfil" : "Subir foto de perfil (opcional)"}
+              <input type="file" accept="image/*" className="hidden" disabled={uploadingPhoto} onChange={handlePhotoChange} />
+            </label>
+            {image && (
+              <button type="button" onClick={handleRemovePhoto} className="text-xs text-ink-soft hover:text-danger">
+                Quitar
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
       <p className="mt-1 text-sm text-ink-soft">Resumen de tu actividad como vendedor.</p>
 
       <div className="mt-6 rounded-md border border-line bg-panel p-4">
+        <p className="font-semibold text-ink">🔒 Sistema de seguridad para envíos a domicilio</p>
+        <p className="mt-2 text-sm text-ink-soft">
+          Cuando un comprador realiza una compra, el dinero queda retenido temporalmente en BolivarMarket.
+        </p>
+        <p className="mt-3 text-sm font-semibold text-ink">📦 ¿Cómo funciona?</p>
+        <ol className="mt-2 list-decimal space-y-2 pl-5 text-sm text-ink-soft">
+          <li>El vendedor recibe la notificación de la venta y, al seleccionar «Enviar producto», comienza el plazo de 48 horas.</li>
+          <li>
+            El comprador recibe una notificación indicando que su pedido está en camino y puede seleccionar una de estas opciones:
+            <ul className="mt-1 space-y-0.5 pl-4">
+              <li>✅ Recibí el producto.</li>
+              <li>❌ No recibí el producto.</li>
+            </ul>
+          </li>
+          <li>Si el comprador confirma que recibió el producto, se inicia la liberación del dinero: el 95&nbsp;% se deposita al vendedor y el 5&nbsp;% corresponde a la comisión de BolivarMarket.</li>
+          <li>Si el comprador indica que no recibió el producto, se suspende la liberación del dinero y se revisa la situación para determinar si corresponde cancelar la compra y realizar el reembolso.</li>
+          <li>Si el comprador no responde dentro de las 48 horas, el sistema libera automáticamente el dinero al vendedor, siempre que se cumplan las condiciones de entrega y no existan reclamos pendientes.</li>
+        </ol>
+        <p className="mt-3 text-sm text-ink-soft">
+          🛡️ <strong className="text-ink">Importante:</strong> este sistema busca brindar mayor seguridad y confianza tanto a compradores como a vendedores. La retención y liberación del dinero están sujetas a las condiciones del servicio de pagos de BolivarMarket.
+        </p>
+      </div>
+
+      <div className="mt-4 rounded-md border border-line bg-panel p-4">
         <div className="flex items-start gap-3">
           <Megaphone size={18} className="mt-0.5 shrink-0 text-accent" />
           <div className="text-sm text-ink-soft">

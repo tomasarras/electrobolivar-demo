@@ -283,6 +283,14 @@ model OrderItem {
   seller        Seller?  @relation(fields: [sellerId], references: [id], onDelete: SetNull)
   commissionPct Int
   commissionAmt Int
+  // Escrow state for orders with home delivery ("envio"): the sale amount is
+  // held until the buyer confirms receipt (or 48hs pass with no response).
+  // Pickup orders ("retiro") settle instantly and start at "entregado".
+  // "pendiente" | "enviado" | "entregado" | "cancelado"
+  status        String    @default("pendiente")
+  shippedAt     DateTime?
+  deliveredAt   DateTime?
+  cancelledAt   DateTime?
   review        Review?
   deliveryPhotos DeliveryPhoto[]
 }
