@@ -129,6 +129,17 @@ function OrderItemRow({ item, orderCode, deliveryMethod }) {
               Ya recibí mi compra
             </button>
           )}
+          {canConfirmReceived && (
+            <button
+              type="button"
+              onClick={() => respond(false)}
+              disabled={confirming}
+              className="flex items-center gap-1 rounded-full border border-line px-2.5 py-1 text-[11px] font-medium text-danger hover:border-danger disabled:opacity-50"
+            >
+              {confirming ? <Loader2 size={12} className="animate-spin" /> : <XCircle size={12} />}
+              Cancelar compra
+            </button>
+          )}
         </div>
       )}
     </li>
