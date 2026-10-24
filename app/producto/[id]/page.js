@@ -28,7 +28,7 @@ export default async function ProductoPage({ params }) {
     include: {
       images: { orderBy: { order: "asc" } },
       specs: { orderBy: { order: "asc" } },
-      seller: { select: { id: true, storeName: true, flaggedFraud: true } },
+      seller: { select: { id: true, storeName: true, flaggedFraud: true, user: { select: { image: true } } } },
       reviews: { orderBy: { createdAt: "desc" } },
       orderItems: { select: { qty: true } },
       deliveryPhotos: { orderBy: { createdAt: "desc" } },
@@ -196,8 +196,12 @@ export default async function ProductoPage({ params }) {
                 href={`/tienda/vendedores/${product.seller.id}`}
                 className="mt-3 flex items-center gap-3 rounded-md border border-line bg-panel p-3 transition hover:border-steel"
               >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-ink text-paper">
-                  <Store size={18} />
+                <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-ink text-paper">
+                  {product.seller.user?.image ? (
+                    <Image src={product.seller.user.image} alt="" fill className="object-cover" sizes="40px" />
+                  ) : (
+                    <Store size={18} />
+                  )}
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="flex items-center gap-1.5 truncate text-sm font-semibold">

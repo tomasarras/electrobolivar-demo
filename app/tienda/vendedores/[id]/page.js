@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Store, Star, TriangleAlert, MessageSquare } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import StoreHeader from "@/components/StoreHeader";
@@ -13,7 +14,7 @@ export default async function VendedorPublicoPage({ params }) {
 
   const seller = await prisma.seller.findUnique({
     where: { id },
-    select: { id: true, storeName: true, createdAt: true, flaggedFraud: true },
+    select: { id: true, storeName: true, createdAt: true, flaggedFraud: true, user: { select: { image: true } } },
   });
 
   if (!seller) notFound();
@@ -41,8 +42,12 @@ export default async function VendedorPublicoPage({ params }) {
       <StoreHeader />
       <main className="mx-auto max-w-6xl px-4 pb-28 pt-10 sm:px-6 xl:pb-10">
         <div className="flex items-center gap-4 rounded-md border border-line bg-panel p-5">
-          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-md bg-ink text-paper">
-            <Store size={24} />
+          <span className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-md bg-ink text-paper">
+            {seller.user?.image ? (
+              <Image src={seller.user.image} alt="" fill className="object-cover" sizes="56px" />
+            ) : (
+              <Store size={24} />
+            )}
           </span>
           <div className="min-w-0 flex-1">
             <h1 className="font-display text-xl font-bold">{seller.storeName}</h1>
