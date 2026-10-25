@@ -178,6 +178,7 @@ model User {
   reviews       Review[]
   deliveryPhotos DeliveryPhoto[]
   chatMessages  ChatMessage[]
+  notifications Notification[]
   createdAt     DateTime  @default(now())
 }
 
@@ -229,12 +230,15 @@ model ChatMessage {
   @@index([buyerId, sellerId])
 }
 
-// "You made a sale" alerts for the seller panel — created alongside the
-// OrderItem at checkout, read/unread so the panel can show a badge count.
+// Alerts for the seller panel ("You made a sale") and, since the envío a
+// domicilio escrow flow, also for buyers ("your order shipped/arrived").
+// Exactly one of sellerId/buyerId is set per row depending on the recipient.
 model Notification {
   id        String   @id @default(cuid())
-  sellerId  String
-  seller    Seller   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  sellerId  String?
+  seller    Seller?  @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  buyerId   String?
+  buyer     User?    @relation(fields: [buyerId], references: [id], onDelete: Cascade)
   orderId   String?
   order     Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
   message   String

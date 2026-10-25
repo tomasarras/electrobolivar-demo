@@ -13,6 +13,7 @@ const DELIVERY_LABELS = {
 export default function VendedorNotificacionesPage() {
   const [notifications, setNotifications] = useState(null);
   const [shipping, setShipping] = useState(null);
+  const [delivering, setDelivering] = useState(null);
 
   function load() {
     fetch("/api/seller/notifications")
@@ -32,6 +33,16 @@ export default function VendedorNotificacionesPage() {
       if (res.ok) load();
     } finally {
       setShipping(null);
+    }
+  }
+
+  async function markDelivered(itemId) {
+    setDelivering(itemId);
+    try {
+      const res = await fetch(`/api/seller/order-items/${itemId}/deliver`, { method: "POST" });
+      if (res.ok) load();
+    } finally {
+      setDelivering(null);
     }
   }
 
@@ -94,7 +105,14 @@ export default function VendedorNotificacionesPage() {
                     {order.deliveryMethod === "envio" && order.items?.length > 0 && (
                       <div className="mt-2 space-y-1.5 border-t border-line pt-2">
                         {order.items.map((item) => (
-                          <ShipmentRow key={item.id} item={item} shipping={shipping} onShip={markShipped} />
+                          <ShipmentRow
+                            key={item.id}
+                            item={item}
+                            shipping={shipping}
+                            delivering={delivering}
+                            onShip={markShipped}
+                            onDeliver={markDelivered}
+                          />
                         ))}
                       </div>
                     )}
@@ -109,7 +127,7 @@ export default function VendedorNotificacionesPage() {
   );
 }
 
-function ShipmentRow({ item, shipping, onShip }) {
+function ShipmentRow({ item, shipping, delivering, onShip, onDeliver }) {
   return (
     <div className="flex items-center justify-between gap-2 text-xs">
       <span className="truncate text-ink-soft">
@@ -127,10 +145,21 @@ function ShipmentRow({ item, shipping, onShip }) {
         </button>
       )}
       {item.status === "enviado" && (
-        <span className="flex shrink-0 items-center gap-1 text-steel" title={`Se libera automáticamente el ${deliveryDeadline(item.shippedAt)?.toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" })}`}>
-          <Clock size={12} />
-          Esperando confirmación del comprador
-        </span>
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="flex items-center gap-1 text-steel" title={`Se libera automáticamente el ${deliveryDeadline(item.shippedAt)?.toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" })}`}>
+            <Clock size={12} />
+            Esperando confirmación del comprador
+          </span>
+          <button
+            type="button"
+            onClick={() => onDeliver(item.id)}
+            disabled={delivering === item.id}
+            className="flex items-center gap-1 rounded-full border border-line px-2.5 py-1 font-medium text-ink-soft hover:border-steel hover:text-ink disabled:opacity-50"
+          >
+            {delivering === item.id ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
+            Marcar como entregado
+          </button>
+        </div>
       )}
       {item.status === "entregado" && (
         <span className="flex shrink-0 items-center gap-1 text-accent-2">

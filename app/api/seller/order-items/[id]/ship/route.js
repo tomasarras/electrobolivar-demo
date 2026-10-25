@@ -13,7 +13,7 @@ export async function POST(request, { params }) {
   const { id } = await params;
   const item = await prisma.orderItem.findUnique({
     where: { id },
-    include: { order: { select: { deliveryMethod: true } } },
+    include: { order: { select: { code: true, deliveryMethod: true, buyerId: true } } },
   });
   if (!item || item.sellerId !== seller.id) {
     return NextResponse.json({ error: "No encontrado" }, { status: 404 });
@@ -29,5 +29,16 @@ export async function POST(request, { params }) {
     where: { id: item.id },
     data: { status: "enviado", shippedAt: new Date() },
   });
+
+  if (item.order.buyerId) {
+    await prisma.notification.create({
+      data: {
+        buyerId: item.order.buyerId,
+        orderId: item.orderId,
+        message: `Tu pedido #${item.order.code} está en camino — "${item.productName}".`,
+      },
+    });
+  }
+
   return NextResponse.json(updated);
 }

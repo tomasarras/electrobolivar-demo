@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { MapPin, Package, MessageSquare } from "lucide-react";
+import { MapPin, Package, MessageSquare, Bell } from "lucide-react";
 import StoreHeader from "@/components/StoreHeader";
 
 const NAV = [
   { href: "/perfil", label: "Mis datos", icon: MapPin },
   { href: "/perfil/compras", label: "Mis compras", icon: Package },
+  { href: "/perfil/notificaciones", label: "Notificaciones", icon: Bell },
   { href: "/perfil/mensajes", label: "Mensajes", icon: MessageSquare },
 ];
 
@@ -17,12 +18,21 @@ export default function PerfilLayout({ children }) {
   const { status } = useSession();
   const pathname = usePathname();
   const router = useRouter();
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.replace(`/login?callbackUrl=${encodeURIComponent(pathname)}`);
     }
   }, [status, pathname, router]);
+
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    fetch("/api/profile/notifications")
+      .then((res) => res.json())
+      .then((data) => setUnreadCount(data.unreadCount || 0))
+      .catch(() => {});
+  }, [status, pathname]);
 
   if (status !== "authenticated") {
     return (
@@ -50,7 +60,14 @@ export default function PerfilLayout({ children }) {
                   active ? "bg-ink text-paper" : "text-ink-soft hover:bg-panel-2"
                 }`}
               >
-                <Icon size={15} />
+                <span className="relative flex">
+                  <Icon size={15} />
+                  {href === "/perfil/notificaciones" && unreadCount > 0 && (
+                    <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-semibold text-accent-ink">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
+                </span>
                 {label}
               </Link>
             );
