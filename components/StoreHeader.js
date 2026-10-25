@@ -1,14 +1,16 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ShoppingBag, Heart, User, LogOut, Store, Search, Camera, Loader2 } from "lucide-react";
+import { ShoppingBag, Heart, Bell, User, LogOut, Store, Search, Camera, Loader2 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { useCart } from "@/components/CartProvider";
 import { useFavorites } from "@/components/FavoritesProvider";
 import ImageCropModal from "@/components/ImageCropModal";
+
+const NOTIFICATIONS_POLL_MS = 20000;
 
 export default function StoreHeader() {
   const { itemCount } = useCart() || { itemCount: 0 };
@@ -20,6 +22,20 @@ export default function StoreHeader() {
   const [searchingPhoto, setSearchingPhoto] = useState(false);
   const [photoError, setPhotoError] = useState("");
   const [cropFile, setCropFile] = useState(null);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    function load() {
+      fetch("/api/profile/notifications")
+        .then((res) => res.json())
+        .then((data) => setUnreadNotifications(data.unreadCount || 0))
+        .catch(() => {});
+    }
+    load();
+    const interval = setInterval(load, NOTIFICATIONS_POLL_MS);
+    return () => clearInterval(interval);
+  }, [status]);
 
   function handleSearchSubmit(e) {
     e.preventDefault();
@@ -137,6 +153,17 @@ export default function StoreHeader() {
                 <span className="hidden sm:inline">Iniciar sesión</span>
               </Link>
             </div>
+          )}
+
+          {status === "authenticated" && (
+            <Link href="/perfil/notificaciones" className="relative flex items-center gap-1 hover:text-accent">
+              <Bell size={20} />
+              {unreadNotifications > 0 && (
+                <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-semibold text-accent-ink">
+                  {unreadNotifications > 9 ? "9+" : unreadNotifications}
+                </span>
+              )}
+            </Link>
           )}
 
           <Link href="/favoritos" className="relative flex items-center gap-1 hover:text-accent">
