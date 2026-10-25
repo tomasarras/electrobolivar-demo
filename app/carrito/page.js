@@ -116,11 +116,20 @@ function CarritoContent() {
   }
 
   function handlePayNow(methodLabel) {
+    if (deliveryMethod === "envio" && !address.trim()) {
+      setPaymentError("Completá la dirección de entrega para el envío a domicilio.");
+      return;
+    }
+    setPaymentError("");
     setStatus("processing");
     setTimeout(() => confirmOrder(methodLabel), 1400);
   }
 
   async function handleMercadoPagoCheckout() {
+    if (deliveryMethod === "envio" && !address.trim()) {
+      setPaymentError("Completá la dirección de entrega para el envío a domicilio.");
+      return;
+    }
     setPaymentError("");
     setStatus("processing");
     const code = `EB-${Date.now().toString().slice(-6)}`;
