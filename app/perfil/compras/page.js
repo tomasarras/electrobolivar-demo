@@ -232,6 +232,7 @@ function ReturnRequestForm({ item, orderCode }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           productId: item.productId,
+          orderId: item.orderId,
           about: "devolucion",
           body: `Pedido #${orderCode} — Quiero devolver "${item.productName}". Motivo: ${reason.trim()}`,
         }),
