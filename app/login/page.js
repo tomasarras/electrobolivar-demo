@@ -30,6 +30,8 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const explicitCallbackUrl = searchParams.get("callbackUrl");
   const callbackUrl = explicitCallbackUrl || "/tienda";
+  // Vender exige cuenta de Google (mayor seguridad) — sin opción de email.
+  const isVendorFlow = explicitCallbackUrl === "/vendedor";
   const [mode, setMode] = useState("login"); // login | register
   const [googleEnabled, setGoogleEnabled] = useState(false);
   const [name, setName] = useState("");
@@ -74,17 +76,21 @@ function LoginForm() {
     <>
       <StoreHeader />
       <main className="mx-auto flex min-h-[70vh] max-w-sm flex-col justify-center px-4 py-10 sm:px-6">
-        <h1 className="font-display text-2xl font-bold">{mode === "login" ? "Iniciar sesión" : "Crear cuenta"}</h1>
+        <h1 className="font-display text-2xl font-bold">
+          {isVendorFlow ? "Iniciar sesión" : mode === "login" ? "Iniciar sesión" : "Crear cuenta"}
+        </h1>
         <p className="mt-1 text-sm text-ink-soft">
-          {explicitCallbackUrl
-            ? "Iniciá sesión o creá una cuenta para continuar con tu compra."
-            : mode === "login"
-              ? "Entrá para ver tu cuenta y tus pedidos."
-              : "Creá tu cuenta para comprar más rápido la próxima vez."}
+          {isVendorFlow
+            ? "Para vender en BolivarMarket, iniciá sesión con tu cuenta de Google (mayor seguridad)."
+            : explicitCallbackUrl
+              ? "Iniciá sesión o creá una cuenta para continuar con tu compra."
+              : mode === "login"
+                ? "Entrá para ver tu cuenta y tus pedidos."
+                : "Creá tu cuenta para comprar más rápido la próxima vez."}
         </p>
 
-        {googleEnabled && (
-          <>
+        {isVendorFlow ? (
+          googleEnabled ? (
             <button
               type="button"
               onClick={() => signIn("google", { callbackUrl })}
@@ -92,74 +98,92 @@ function LoginForm() {
             >
               <GoogleIcon /> Continuar con Google
             </button>
-            <div className="my-5 flex items-center gap-3 text-xs text-steel">
-              <span className="h-px flex-1 bg-line" />o con tu email
-              <span className="h-px flex-1 bg-line" />
-            </div>
+          ) : (
+            <p className="mt-6 text-sm text-ink-soft">
+              El inicio de sesión con Google todavía no está disponible. Probá de nuevo más tarde.
+            </p>
+          )
+        ) : (
+          <>
+            {googleEnabled && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => signIn("google", { callbackUrl })}
+                  className="mt-6 flex w-full items-center justify-center gap-2 rounded-md border border-line bg-panel py-2.5 text-sm font-semibold hover:border-steel"
+                >
+                  <GoogleIcon /> Continuar con Google
+                </button>
+                <div className="my-5 flex items-center gap-3 text-xs text-steel">
+                  <span className="h-px flex-1 bg-line" />o con tu email
+                  <span className="h-px flex-1 bg-line" />
+                </div>
+              </>
+            )}
+
+            <form onSubmit={handleSubmit} className={`space-y-3 ${googleEnabled ? "" : "mt-6"}`}>
+              {mode === "register" && (
+                <Field label="Nombre (opcional)">
+                  <input value={name} onChange={(e) => setName(e.target.value)} className="input" placeholder="Tu nombre" />
+                </Field>
+              )}
+              <Field label="Email">
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="input"
+                  placeholder="vos@email.com"
+                />
+              </Field>
+              <Field label="Contraseña">
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    minLength={6}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="input"
+                    style={{ paddingRight: "2.25rem" }}
+                    placeholder="Mínimo 6 caracteres"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    className="absolute right-0 top-0 flex h-full w-9 items-center justify-center text-ink-soft hover:text-ink"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </Field>
+
+              {error && <p className="text-sm text-danger">{error}</p>}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex w-full items-center justify-center gap-2 rounded-md bg-ink py-3 text-sm font-semibold text-paper hover:brightness-110 disabled:opacity-60"
+              >
+                {loading && <Loader2 size={14} className="animate-spin" />}
+                {mode === "login" ? "Iniciar sesión" : "Crear cuenta"}
+              </button>
+            </form>
+
+            <button
+              type="button"
+              onClick={() => {
+                setMode(mode === "login" ? "register" : "login");
+                setError("");
+              }}
+              className="mt-5 text-center text-sm text-ink-soft hover:underline"
+            >
+              {mode === "login" ? "¿No tenés cuenta? Creá una" : "¿Ya tenés cuenta? Iniciá sesión"}
+            </button>
           </>
         )}
-
-        <form onSubmit={handleSubmit} className={`space-y-3 ${googleEnabled ? "" : "mt-6"}`}>
-          {mode === "register" && (
-            <Field label="Nombre (opcional)">
-              <input value={name} onChange={(e) => setName(e.target.value)} className="input" placeholder="Tu nombre" />
-            </Field>
-          )}
-          <Field label="Email">
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="input"
-              placeholder="vos@email.com"
-            />
-          </Field>
-          <Field label="Contraseña">
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                required
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input"
-                style={{ paddingRight: "2.25rem" }}
-                placeholder="Mínimo 6 caracteres"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                className="absolute right-0 top-0 flex h-full w-9 items-center justify-center text-ink-soft hover:text-ink"
-              >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-          </Field>
-
-          {error && <p className="text-sm text-danger">{error}</p>}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex w-full items-center justify-center gap-2 rounded-md bg-ink py-3 text-sm font-semibold text-paper hover:brightness-110 disabled:opacity-60"
-          >
-            {loading && <Loader2 size={14} className="animate-spin" />}
-            {mode === "login" ? "Iniciar sesión" : "Crear cuenta"}
-          </button>
-        </form>
-
-        <button
-          type="button"
-          onClick={() => {
-            setMode(mode === "login" ? "register" : "login");
-            setError("");
-          }}
-          className="mt-5 text-center text-sm text-ink-soft hover:underline"
-        >
-          {mode === "login" ? "¿No tenés cuenta? Creá una" : "¿Ya tenés cuenta? Iniciá sesión"}
-        </button>
 
         <style jsx>{`
           .input {
