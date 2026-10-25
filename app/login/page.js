@@ -1,9 +1,8 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { signIn, getProviders } from "next-auth/react";
-import { Loader2, Eye, EyeOff } from "lucide-react";
 import StoreHeader from "@/components/StoreHeader";
 
 function GoogleIcon() {
@@ -25,21 +24,12 @@ export default function LoginPage() {
   );
 }
 
+// Google es la única forma de iniciar sesión en todo el sitio (comprador y
+// vendedor), por mayor seguridad — no hay alternativa de email/contraseña.
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const explicitCallbackUrl = searchParams.get("callbackUrl");
-  const callbackUrl = explicitCallbackUrl || "/tienda";
-  // Vender exige cuenta de Google (mayor seguridad) — sin opción de email.
-  const isVendorFlow = explicitCallbackUrl === "/vendedor";
-  const [mode, setMode] = useState("login"); // login | register
+  const callbackUrl = searchParams.get("callbackUrl") || "/tienda";
   const [googleEnabled, setGoogleEnabled] = useState(false);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     getProviders().then((providers) => {
@@ -47,165 +37,27 @@ function LoginForm() {
     });
   }, []);
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-    try {
-      if (mode === "register") {
-        const res = await fetch("/api/auth/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, password }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "No se pudo crear la cuenta");
-      }
-      const result = await signIn("credentials", { email, password, redirect: false });
-      if (result?.error) throw new Error("Email o contraseña incorrectos");
-      router.push(callbackUrl);
-      router.refresh();
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   return (
     <>
       <StoreHeader />
       <main className="mx-auto flex min-h-[70vh] max-w-sm flex-col justify-center px-4 py-10 sm:px-6">
-        <h1 className="font-display text-2xl font-bold">
-          {isVendorFlow ? "Iniciar sesión" : mode === "login" ? "Iniciar sesión" : "Crear cuenta"}
-        </h1>
-        <p className="mt-1 text-sm text-ink-soft">
-          {isVendorFlow
-            ? "Para vender en BolivarMarket, iniciá sesión con tu cuenta de Google (mayor seguridad)."
-            : explicitCallbackUrl
-              ? "Iniciá sesión o creá una cuenta para continuar con tu compra."
-              : mode === "login"
-                ? "Entrá para ver tu cuenta y tus pedidos."
-                : "Creá tu cuenta para comprar más rápido la próxima vez."}
-        </p>
+        <h1 className="font-display text-2xl font-bold">Iniciar sesión</h1>
+        <p className="mt-1 text-sm text-ink-soft">Iniciá sesión con tu cuenta de Google.</p>
 
-        {isVendorFlow ? (
-          googleEnabled ? (
-            <button
-              type="button"
-              onClick={() => signIn("google", { callbackUrl })}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-md border border-line bg-panel py-2.5 text-sm font-semibold hover:border-steel"
-            >
-              <GoogleIcon /> Continuar con Google
-            </button>
-          ) : (
-            <p className="mt-6 text-sm text-ink-soft">
-              El inicio de sesión con Google todavía no está disponible. Probá de nuevo más tarde.
-            </p>
-          )
+        {googleEnabled ? (
+          <button
+            type="button"
+            onClick={() => signIn("google", { callbackUrl })}
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-md border border-line bg-panel py-2.5 text-sm font-semibold hover:border-steel"
+          >
+            <GoogleIcon /> Continuar con Google
+          </button>
         ) : (
-          <>
-            {googleEnabled && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => signIn("google", { callbackUrl })}
-                  className="mt-6 flex w-full items-center justify-center gap-2 rounded-md border border-line bg-panel py-2.5 text-sm font-semibold hover:border-steel"
-                >
-                  <GoogleIcon /> Continuar con Google
-                </button>
-                <div className="my-5 flex items-center gap-3 text-xs text-steel">
-                  <span className="h-px flex-1 bg-line" />o con tu email
-                  <span className="h-px flex-1 bg-line" />
-                </div>
-              </>
-            )}
-
-            <form onSubmit={handleSubmit} className={`space-y-3 ${googleEnabled ? "" : "mt-6"}`}>
-              {mode === "register" && (
-                <Field label="Nombre (opcional)">
-                  <input value={name} onChange={(e) => setName(e.target.value)} className="input" placeholder="Tu nombre" />
-                </Field>
-              )}
-              <Field label="Email">
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input"
-                  placeholder="vos@email.com"
-                />
-              </Field>
-              <Field label="Contraseña">
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    required
-                    minLength={6}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="input"
-                    style={{ paddingRight: "2.25rem" }}
-                    placeholder="Mínimo 6 caracteres"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                    className="absolute right-0 top-0 flex h-full w-9 items-center justify-center text-ink-soft hover:text-ink"
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-              </Field>
-
-              {error && <p className="text-sm text-danger">{error}</p>}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex w-full items-center justify-center gap-2 rounded-md bg-ink py-3 text-sm font-semibold text-paper hover:brightness-110 disabled:opacity-60"
-              >
-                {loading && <Loader2 size={14} className="animate-spin" />}
-                {mode === "login" ? "Iniciar sesión" : "Crear cuenta"}
-              </button>
-            </form>
-
-            <button
-              type="button"
-              onClick={() => {
-                setMode(mode === "login" ? "register" : "login");
-                setError("");
-              }}
-              className="mt-5 text-center text-sm text-ink-soft hover:underline"
-            >
-              {mode === "login" ? "¿No tenés cuenta? Creá una" : "¿Ya tenés cuenta? Iniciá sesión"}
-            </button>
-          </>
+          <p className="mt-6 text-sm text-ink-soft">
+            El inicio de sesión con Google todavía no está disponible. Probá de nuevo más tarde.
+          </p>
         )}
-
-        <style jsx>{`
-          .input {
-            width: 100%;
-            border-radius: 0.375rem;
-            border: 1px solid var(--line);
-            background: var(--panel);
-            color: var(--ink);
-            padding: 0.55rem 0.65rem;
-            font-size: 0.9rem;
-          }
-        `}</style>
       </main>
     </>
-  );
-}
-
-function Field({ label, children }) {
-  return (
-    <div>
-      <label className="mb-1 block font-mono text-[11px] uppercase tracking-wide text-steel">{label}</label>
-      {children}
-    </div>
   );
 }
