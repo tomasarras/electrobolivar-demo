@@ -141,6 +141,13 @@ model StoreSettings {
   id            String  @id @default("singleton")
   whatsapp      String?
   commissionPct Int     @default(10)
+  // Dónde la plataforma recibe el 5% de comisión de cada venta. Solo lo ve
+  // la administración, nunca vendedores ni compradores.
+  payoutBank       String?
+  payoutHolderName String?
+  payoutHolderDni  String?
+  payoutCbu        String?
+  payoutAlias      String?
 }
 
 // Rotating ad banners (e.g. the sponsor's promo), managed from the admin

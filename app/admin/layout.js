@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { LayoutGrid, Package, Settings, LogOut, BarChart3, Store, MessageSquare, Wallet, Check } from "lucide-react";
+import { LayoutGrid, Package, Settings, LogOut, BarChart3, Store, MessageSquare, Wallet, Landmark, Check } from "lucide-react";
 import { useAdmin } from "@/components/AdminProvider";
 
 const NAV = [
@@ -11,6 +11,7 @@ const NAV = [
   { href: "/admin/productos", label: "Productos", icon: Package },
   { href: "/admin/vendedores", label: "Vendedores", icon: Store },
   { href: "/admin/billetera", label: "Billetera", icon: Wallet },
+  { href: "/admin/cobros", label: "Datos de cobro", icon: Landmark },
   { href: "/admin/mensajes", label: "Mensajes", icon: MessageSquare },
   { href: "/admin/configuracion", label: "Configuración", icon: Settings },
 ];
