@@ -1,0 +1,1 @@
+ALTER TABLE "Seller" ADD COLUMN "sawEscrowNotice" BOOLEAN NOT NULL DEFAULT false;

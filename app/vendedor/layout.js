@@ -24,11 +24,28 @@ export default function VendedorLayout({ children }) {
   const { status } = useSession();
   const pathname = usePathname();
   const router = useRouter();
-  const [showEscrowNotice, setShowEscrowNotice] = useState(true);
+  // null = todavía no sabemos si el vendedor ya lo vio (se carga de /api/seller).
+  const [sawEscrowNotice, setSawEscrowNotice] = useState(null);
+  const [forceShowEscrowNotice, setForceShowEscrowNotice] = useState(false);
+  const showEscrowNotice = forceShowEscrowNotice || sawEscrowNotice === false;
 
   useEffect(() => {
     if (status === "unauthenticated") router.replace(`/login?callbackUrl=${encodeURIComponent(pathname)}`);
   }, [status, pathname, router]);
+
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    fetch("/api/seller")
+      .then((res) => res.json())
+      .then((seller) => setSawEscrowNotice(Boolean(seller?.sawEscrowNotice)))
+      .catch(() => setSawEscrowNotice(true));
+  }, [status]);
+
+  async function dismissEscrowNotice() {
+    setForceShowEscrowNotice(false);
+    setSawEscrowNotice(true);
+    await fetch("/api/seller/escrow-notice", { method: "POST" }).catch(() => {});
+  }
 
   if (status !== "authenticated") {
     return <div className="flex min-h-screen items-center justify-center bg-paper text-sm text-steel">Cargando…</div>;
@@ -66,7 +83,7 @@ export default function VendedorLayout({ children }) {
                 {href === "/vendedor/mensajes" && (
                   <button
                     type="button"
-                    onClick={() => setShowEscrowNotice(true)}
+                    onClick={() => setForceShowEscrowNotice(true)}
                     title="Sistema de seguridad para envíos a domicilio"
                     aria-label="Ver información del sistema de seguridad para envíos a domicilio"
                     className="flex items-center justify-center rounded-full p-1.5 text-ink-soft hover:bg-panel-2 hover:text-ink"
@@ -95,7 +112,7 @@ export default function VendedorLayout({ children }) {
       <SellerPayoutNotice />
       {showEscrowNotice && (
         <div className="mx-auto max-w-6xl px-4 pt-8 sm:px-6">
-          <SellerEscrowNotice onDismiss={() => setShowEscrowNotice(false)} />
+          <SellerEscrowNotice onDismiss={dismissEscrowNotice} />
         </div>
       )}
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">{children}</main>

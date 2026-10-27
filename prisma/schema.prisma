@@ -213,6 +213,9 @@ model Seller {
   // Shown once on the seller's first visit, reminding them to fill out
   // payout data before publishing. Dismissed permanently after "Entendido".
   sawPayoutNotice Boolean      @default(false)
+  // Igual que sawPayoutNotice, pero para el cartel del sistema de seguridad
+  // de envíos a domicilio — se puede volver a abrir a mano con el ícono "?".
+  sawEscrowNotice Boolean      @default(false)
   products      Product[]
   orderItems    OrderItem[]
   notifications Notification[]
