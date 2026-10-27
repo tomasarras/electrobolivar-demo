@@ -75,9 +75,11 @@ function OrderItemRow({ item, orderCode, deliveryMethod }) {
     }
   }
 
-  // Solo puede confirmar o rechazar una vez que el vendedor marcó el
-  // pedido como "Ya entregado" — no antes.
-  const canConfirmReceived = status === "enviado" && Boolean(item.sellerDeliveredAt);
+  // "Ya recibí mi compra" está disponible desde que está en camino (por si
+  // ya lo tiene en mano). "No recibí el producto" recién se habilita cuando
+  // el vendedor marca "Ya entregado" — antes no hay nada que rechazar.
+  const canConfirmReceived = status === "enviado";
+  const canReportNotReceived = status === "enviado" && Boolean(item.sellerDeliveredAt);
 
   return (
     <li className="flex items-start gap-3 py-3">
@@ -129,7 +131,7 @@ function OrderItemRow({ item, orderCode, deliveryMethod }) {
               Ya recibí mi compra
             </button>
           )}
-          {canConfirmReceived && (
+          {canReportNotReceived && (
             <button
               type="button"
               onClick={() => respond(false)}
