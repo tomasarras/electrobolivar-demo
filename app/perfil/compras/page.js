@@ -134,10 +134,10 @@ function OrderItemRow({ item, orderCode, deliveryMethod }) {
               type="button"
               onClick={() => respond(false)}
               disabled={confirming}
-              className="flex items-center gap-1 rounded-full border border-line px-2.5 py-1 text-[11px] font-medium text-danger hover:border-danger disabled:opacity-50"
+              className="flex items-center gap-1 rounded-full bg-danger px-2.5 py-1 text-[11px] font-semibold text-white hover:brightness-95 disabled:opacity-50"
             >
               {confirming ? <Loader2 size={12} className="animate-spin" /> : <XCircle size={12} />}
-              Cancelar compra
+              No recibí el producto
             </button>
           )}
         </div>
@@ -328,7 +328,7 @@ function ReviewForm({ item }) {
 
   if (!open) {
     return (
-      <button type="button" onClick={() => setOpen(true)} className="text-xs text-steel underline-offset-2 hover:text-accent hover:underline">
+      <button type="button" onClick={() => setOpen(true)} className="text-xs font-semibold text-accent underline-offset-2 hover:underline">
         Dejar reseña
       </button>
     );
