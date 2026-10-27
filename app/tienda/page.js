@@ -171,7 +171,7 @@ export default async function TiendaPage({ searchParams }) {
     <>
       <StoreHeader />
       <main className="mx-auto max-w-6xl px-4 pb-28 pt-10 sm:px-6 xl:pb-10">
-        <h1 className="font-display text-2xl font-bold text-accent">Catálogo</h1>
+        <h1 className="font-display text-2xl font-bold">Catálogo</h1>
         {query && (
           <p className="mt-1 text-sm text-ink-soft">
             Resultados para <span className="font-semibold">&quot;{query}&quot;</span> ·{" "}
