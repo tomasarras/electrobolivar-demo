@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import StoreHeader from "@/components/StoreHeader";
 import ProductCard from "@/components/ProductCard";
 import PromoRail from "@/components/PromoRail";
+import AdminAccessFooter from "@/components/AdminAccessFooter";
 import { MapPin } from "lucide-react";
 import { CATEGORIES } from "@/lib/categories";
 import { serializePromo } from "@/lib/promos";
@@ -419,6 +420,7 @@ export default async function TiendaPage({ searchParams }) {
           </div>
         </div>
       </main>
+      <AdminAccessFooter />
       <PromoRail promos={promos} />
     </>
   );
