@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ShieldCheck, Store, RotateCcw, Loader2, ShoppingCart } from "lucide-react";
+import { ShieldCheck, RotateCcw, Loader2 } from "lucide-react";
 import { useAdmin } from "@/components/AdminProvider";
+import StoreHeader from "@/components/StoreHeader";
 
 const ADMIN_EMAIL = "bolivarmarket08@gmail.com";
 
@@ -38,7 +39,9 @@ export default function RoleSelectorPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-paper px-4 text-center text-ink">
+    <>
+      <StoreHeader />
+      <div className="flex flex-col items-center justify-center gap-4 bg-paper px-4 py-16 text-center text-ink">
       <span className="flex h-14 w-14 items-center justify-center rounded-md bg-accent">
         <span className="flex items-center font-display text-3xl font-extrabold leading-none tracking-tight text-accent-ink">
           <span>B</span>
@@ -49,33 +52,7 @@ export default function RoleSelectorPage() {
       <h1 className="font-display text-3xl font-extrabold tracking-tight">
         BOLIVAR<span className="text-accent">MARKET</span>
       </h1>
-      <p className="max-w-sm text-sm text-ink-soft">Demo de portfolio · elegí cómo querés entrar.</p>
-
-      <div className="mt-4 grid w-full max-w-lg grid-cols-1 gap-4 sm:grid-cols-2">
-        <button
-          type="button"
-          onClick={() => router.push("/tienda")}
-          className="flex flex-col items-start gap-3 rounded-md border border-line bg-panel p-5 text-left transition hover:-translate-y-0.5 hover:border-steel"
-        >
-          <span className="flex h-11 w-11 items-center justify-center rounded-md bg-accent text-accent-ink">
-            <ShoppingCart size={20} />
-          </span>
-          <span className="block text-base font-semibold">Cliente</span>
-          <span className="block text-sm text-ink-soft">Comprar electrodomésticos</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => router.push("/login?callbackUrl=%2Fvendedor")}
-          className="flex flex-col items-start gap-3 rounded-md border border-line bg-panel p-5 text-left transition hover:-translate-y-0.5 hover:border-steel"
-        >
-          <span className="flex h-11 w-11 items-center justify-center rounded-md bg-accent text-accent-ink">
-            <Store size={20} />
-          </span>
-          <span className="block text-base font-semibold">Vendedor</span>
-          <span className="block text-sm text-ink-soft">Publicar y vender tus productos</span>
-        </button>
-      </div>
+      <p className="max-w-sm text-sm text-ink-soft">Demo de portfolio.</p>
 
       <div className="mt-6 w-full max-w-xs">
         <input
@@ -138,6 +115,7 @@ export default function RoleSelectorPage() {
       <p className="mt-8 max-w-md text-center text-xs text-steel">
         Es un proyecto de portfolio: no hay contraseñas reales, elegís cómo entrar y listo. Los datos son ficticios.
       </p>
-    </div>
+      </div>
+    </>
   );
 }
