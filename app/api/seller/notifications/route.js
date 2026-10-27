@@ -28,7 +28,18 @@ export async function GET() {
             buyer: { select: { id: true, name: true, email: true, phone: true } },
             items: {
               where: { sellerId: seller.id },
-              select: { id: true, productName: true, qty: true, status: true, shippedAt: true, deliveredAt: true, cancelledAt: true },
+              select: {
+                id: true,
+                productName: true,
+                qty: true,
+                status: true,
+                shippedAt: true,
+                deliveredAt: true,
+                cancelledAt: true,
+                product: {
+                  select: { category: true, images: { orderBy: { order: "asc" }, take: 1, select: { url: true } } },
+                },
+              },
             },
           },
         },

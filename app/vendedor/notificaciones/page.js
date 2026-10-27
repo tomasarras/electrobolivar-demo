@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Bell, User, Phone, MapPin, StickyNote, MessageCircle, Truck, Loader2, Clock, CheckCircle2, XCircle } from "lucide-react";
+import ProductImagePlaceholder from "@/components/ProductImagePlaceholder";
 import { deliveryDeadline } from "@/lib/delivery";
 
 const DELIVERY_LABELS = {
@@ -68,6 +70,23 @@ export default function VendedorNotificacionesPage() {
                 <p className="mt-0.5 font-mono text-[11px] text-steel">
                   {new Date(n.createdAt).toLocaleString("es-AR", { dateStyle: "long", timeStyle: "short" })}
                 </p>
+
+                {order?.items?.length > 0 && (
+                  <div className="mt-2 flex gap-2">
+                    {order.items.map((item) => {
+                      const image = item.product?.images?.[0];
+                      return (
+                        <div key={item.id} className="relative h-12 w-12 shrink-0 overflow-hidden rounded border border-line bg-panel-2">
+                          {image ? (
+                            <Image src={image.url} alt="" fill className="object-cover" sizes="48px" />
+                          ) : (
+                            <ProductImagePlaceholder category={item.product?.category} className="h-full w-full" />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
                 {order && (
                   <div className="mt-3 space-y-1.5 rounded-md border border-line bg-panel-2 p-3 text-sm">
