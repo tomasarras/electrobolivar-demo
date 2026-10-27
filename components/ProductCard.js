@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Star, MapPin } from "lucide-react";
+import { Star, MapPin, Zap } from "lucide-react";
 import ProductImagePlaceholder from "@/components/ProductImagePlaceholder";
 import FavoriteButton from "@/components/FavoriteButton";
 import { formatCurrency, DISCOUNT_PERIOD_LABELS } from "@/lib/format";
@@ -70,6 +70,12 @@ export default function ProductCard({ product }) {
           </span>
         )}
         {freeShipping && <span className="text-[11px] font-semibold text-accent-2">Envío gratis</span>}
+        {product.fastShipping && (
+          <span className="flex items-center gap-0.5 text-[11px] font-semibold text-accent">
+            <Zap size={11} fill="currentColor" />
+            Envío rápido BM
+          </span>
+        )}
       </div>
     </Link>
   );

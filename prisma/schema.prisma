@@ -34,6 +34,8 @@ model Product {
   shipping     Boolean        @default(true)
   // null = no free-shipping offer, 0 = always free, N = free above $N.
   freeShippingMinAmount Int?
+  // Insignia opcional "Envío rápido BM" que el vendedor activa a mano.
+  fastShipping Boolean @default(false)
   scheduleDays   String?
   scheduleHours  String?
   scheduleHours2 String?

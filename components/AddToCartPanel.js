@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { PlayCircle, CreditCard, Truck, Store, Clock } from "lucide-react";
+import { PlayCircle, CreditCard, Truck, Store, Clock, Zap } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
 import { formatCurrency } from "@/lib/format";
 
@@ -98,6 +98,12 @@ export default function AddToCartPanel({ product }) {
       {product.shipping !== false && (product.freeShippingMinAmount === 0 || product.freeShippingMinAmount > 0) && (
         <p className="text-xs text-steel">
           El envío gratis aplica dentro de un radio de 4 km. A otras ciudades puede tener costo adicional.
+        </p>
+      )}
+      {product.shipping !== false && product.fastShipping && (
+        <p className="flex items-center gap-1.5 text-xs font-semibold text-accent">
+          <Zap size={14} fill="currentColor" />
+          Envío rápido BM
         </p>
       )}
       {(product.scheduleDays || product.scheduleHours) && (

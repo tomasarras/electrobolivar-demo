@@ -1,0 +1,1 @@
+ALTER TABLE "Product" ADD COLUMN "fastShipping" BOOLEAN NOT NULL DEFAULT false;

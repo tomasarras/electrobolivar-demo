@@ -34,6 +34,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
   const [freeShippingAmount, setFreeShippingAmount] = useState(
     product?.freeShippingMinAmount > 0 ? product.freeShippingMinAmount : ""
   );
+  const [fastShipping, setFastShipping] = useState(product?.fastShipping || false);
   const [location, setLocation] = useState(product?.location || "");
   const [scheduleDays, setScheduleDays] = useState(product?.scheduleDays || "");
   const [scheduleHours, setScheduleHours] = useState(product?.scheduleHours || "");
@@ -182,6 +183,7 @@ export default function ProductForm({ product, basePath = "/api/products", redir
             : effectiveShipping && freeShippingMode === "threshold"
               ? Number(freeShippingAmount)
               : null,
+        fastShipping: effectiveShipping && fastShipping,
         location: location.trim(),
         scheduleDays: scheduleDays.trim(),
         scheduleHours: scheduleHours.trim(),
@@ -977,6 +979,18 @@ export default function ProductForm({ product, basePath = "/api/products", redir
               Aclaración: el envío gratis aplica dentro de un radio de 4&nbsp;km. Si el pedido es para otra ciudad, el envío
               puede tener un costo adicional a coordinar con el comprador.
             </p>
+          )}
+
+          {shipping && (
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={fastShipping}
+                onChange={(e) => setFastShipping(e.target.checked)}
+                className="h-4 w-4 rounded border-line"
+              />
+              Envío rápido BM
+            </label>
           )}
         </>
       )}

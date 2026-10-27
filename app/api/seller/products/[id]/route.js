@@ -56,6 +56,7 @@ export async function PATCH(request, { params }) {
         stock: input.stock,
         shipping: input.shipping,
         freeShippingMinAmount: input.freeShippingMinAmount,
+        fastShipping: input.fastShipping,
         scheduleDays: input.scheduleDays,
         scheduleHours: input.scheduleHours,
         scheduleHours2: input.scheduleHours2,
