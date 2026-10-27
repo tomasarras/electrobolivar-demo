@@ -24,10 +24,15 @@ export async function POST(request, { params }) {
   if (item.status !== "enviado") {
     return NextResponse.json({ error: "Primero marcá el producto como enviado" }, { status: 409 });
   }
+  if (item.sellerDeliveredAt) {
+    return NextResponse.json({ error: "Este producto ya fue marcado como entregado" }, { status: 409 });
+  }
 
+  // Ojo: esto NO libera el pago todavía — solo habilita que el comprador
+  // confirme o rechace la recepción (o se libere solo pasadas 48hs).
   const updated = await prisma.orderItem.update({
     where: { id: item.id },
-    data: { status: "entregado", deliveredAt: new Date() },
+    data: { sellerDeliveredAt: new Date() },
   });
 
   if (item.order.buyerId) {
@@ -35,7 +40,7 @@ export async function POST(request, { params }) {
       data: {
         buyerId: item.order.buyerId,
         orderId: item.orderId,
-        message: `Tu pedido #${item.order.code} fue entregado — "${item.productName}". Dejanos tu reseña o pedí una devolución si hubo algún problema.`,
+        message: `Tu pedido #${item.order.code} fue entregado — "${item.productName}". Confirmá que lo recibiste o avisanos si hubo algún problema.`,
       },
     });
   }

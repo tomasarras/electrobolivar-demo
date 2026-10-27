@@ -17,10 +17,9 @@ export async function POST(request, { params }) {
   if (!item || item.order.buyerId !== session.user.id) {
     return NextResponse.json({ error: "No encontrado" }, { status: 404 });
   }
-  // El comprador puede confirmar la recepción tanto si el vendedor ya marcó
-  // el envío como "enviado" como si todavía no lo hizo ("pendiente") —
-  // cubre el caso de que ya tenga el producto en mano.
-  if (item.status !== "pendiente" && item.status !== "enviado") {
+  // El comprador solo puede confirmar o rechazar una vez que el vendedor
+  // marcó el pedido como "Ya entregado".
+  if (item.status !== "enviado" || !item.sellerDeliveredAt) {
     return NextResponse.json({ error: "Este producto no está esperando confirmación" }, { status: 409 });
   }
 

@@ -75,9 +75,9 @@ function OrderItemRow({ item, orderCode, deliveryMethod }) {
     }
   }
 
-  // Todavía no se confirmó la entrega ni se canceló: el comprador puede
-  // avisar que ya la recibió para liberar el pago al vendedor.
-  const canConfirmReceived = status === "pendiente" || status === "enviado";
+  // Solo puede confirmar o rechazar una vez que el vendedor marcó el
+  // pedido como "Ya entregado" — no antes.
+  const canConfirmReceived = status === "enviado" && Boolean(item.sellerDeliveredAt);
 
   return (
     <li className="flex items-start gap-3 py-3">
@@ -101,7 +101,7 @@ function OrderItemRow({ item, orderCode, deliveryMethod }) {
         </p>
 
         {deliveryMethod === "envio" && (
-          <ShipmentStatus status={status} shippedAt={item.shippedAt} submitting={confirming} onRespond={respond} />
+          <ShipmentStatus status={status} sellerDeliveredAt={item.sellerDeliveredAt} />
         )}
 
         <div className="mt-1.5">
@@ -146,7 +146,7 @@ function OrderItemRow({ item, orderCode, deliveryMethod }) {
   );
 }
 
-function ShipmentStatus({ status, shippedAt, submitting, onRespond }) {
+function ShipmentStatus({ status, sellerDeliveredAt }) {
   if (status === "pendiente") {
     return (
       <p className="mt-1 flex items-center gap-1 text-xs text-steel">
@@ -156,37 +156,28 @@ function ShipmentStatus({ status, shippedAt, submitting, onRespond }) {
     );
   }
 
-  if (status === "enviado") {
-    const deadline = deliveryDeadline(shippedAt);
+  if (status === "enviado" && !sellerDeliveredAt) {
+    return (
+      <p className="mt-1 flex items-center gap-1 text-xs text-ink">
+        <Truck size={13} />
+        Tu pedido está en camino
+      </p>
+    );
+  }
+
+  if (status === "enviado" && sellerDeliveredAt) {
+    const deadline = deliveryDeadline(sellerDeliveredAt);
     return (
       <div className="mt-1.5 rounded-md border border-line bg-panel-2 p-2.5">
         <p className="flex items-center gap-1.5 text-xs font-semibold text-ink">
-          <Truck size={13} />
-          Tu pedido está en camino
+          <CheckCircle2 size={13} />
+          El vendedor marcó tu pedido como entregado
         </p>
         <p className="mt-0.5 text-[11px] text-ink-soft">
-          Si no confirmás antes del {deadline?.toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" })}, se confirma la entrega automáticamente.
+          ¿Recibiste el producto? Confirmá con los botones de la derecha. Si no respondés antes del{" "}
+          {deadline?.toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" })}, se confirma la entrega
+          automáticamente.
         </p>
-        <p className="mt-1.5 text-xs font-medium">¿Recibiste el producto?</p>
-        <div className="mt-1 flex gap-1.5">
-          <button
-            type="button"
-            onClick={() => onRespond(true)}
-            disabled={submitting}
-            className="flex items-center gap-1 rounded-md bg-ink px-2.5 py-1 text-xs font-semibold text-paper hover:brightness-110 disabled:opacity-50"
-          >
-            {submitting && <Loader2 size={11} className="animate-spin" />}
-            Sí, lo recibí
-          </button>
-          <button
-            type="button"
-            onClick={() => onRespond(false)}
-            disabled={submitting}
-            className="rounded-md border border-line px-2.5 py-1 text-xs font-semibold text-danger hover:border-danger disabled:opacity-50"
-          >
-            No lo recibí
-          </button>
-        </div>
       </div>
     );
   }

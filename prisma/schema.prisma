@@ -305,6 +305,11 @@ model OrderItem {
   // "pendiente" | "enviado" | "entregado" | "cancelado"
   status        String    @default("pendiente")
   shippedAt     DateTime?
+  // Cuándo el vendedor marcó "Ya entregado" — recién desde acá el comprador
+  // puede confirmar o rechazar la recepción (status sigue en "enviado" hasta
+  // que el comprador confirma o pasan 48hs). deliveredAt, en cambio, es
+  // cuándo se liberó realmente el pago (confirmación o vencimiento).
+  sellerDeliveredAt DateTime?
   deliveredAt   DateTime?
   cancelledAt   DateTime?
   review        Review?

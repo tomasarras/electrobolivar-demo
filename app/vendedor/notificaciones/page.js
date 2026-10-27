@@ -163,22 +163,25 @@ function ShipmentRow({ item, shipping, delivering, onShip, onDeliver }) {
           Marcar como enviado
         </button>
       )}
-      {item.status === "enviado" && (
-        <div className="flex shrink-0 items-center gap-2">
-          <span className="flex items-center gap-1 text-steel" title={`Se libera automáticamente el ${deliveryDeadline(item.shippedAt)?.toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" })}`}>
-            <Clock size={12} />
-            Esperando confirmación del comprador
-          </span>
-          <button
-            type="button"
-            onClick={() => onDeliver(item.id)}
-            disabled={delivering === item.id}
-            className="flex items-center gap-1 rounded-full border border-line px-2.5 py-1 font-medium text-ink-soft hover:border-steel hover:text-ink disabled:opacity-50"
-          >
-            {delivering === item.id ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
-            Marcar como entregado
-          </button>
-        </div>
+      {item.status === "enviado" && !item.sellerDeliveredAt && (
+        <button
+          type="button"
+          onClick={() => onDeliver(item.id)}
+          disabled={delivering === item.id}
+          className="flex shrink-0 items-center gap-1 rounded-full border border-line px-2.5 py-1 font-medium text-ink-soft hover:border-steel hover:text-ink disabled:opacity-50"
+        >
+          {delivering === item.id ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
+          Marcar como entregado
+        </button>
+      )}
+      {item.status === "enviado" && item.sellerDeliveredAt && (
+        <span
+          className="flex shrink-0 items-center gap-1 text-steel"
+          title={`Se libera automáticamente el ${deliveryDeadline(item.sellerDeliveredAt)?.toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" })}`}
+        >
+          <Clock size={12} />
+          Esperando confirmación del comprador
+        </span>
       )}
       {item.status === "entregado" && (
         <span className="flex shrink-0 items-center gap-1 text-accent-2">

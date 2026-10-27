@@ -34,6 +34,7 @@ export async function GET() {
                 qty: true,
                 status: true,
                 shippedAt: true,
+                sellerDeliveredAt: true,
                 deliveredAt: true,
                 cancelledAt: true,
                 product: {
