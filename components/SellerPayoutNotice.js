@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { TriangleAlert } from "lucide-react";
 
 export default function SellerPayoutNotice() {
@@ -13,12 +14,11 @@ export default function SellerPayoutNotice() {
       .catch(() => {});
   }, []);
 
-  if (!seller || seller.sawPayoutNotice) return null;
-
-  function handleDismiss() {
-    setSeller((prev) => ({ ...prev, sawPayoutNotice: true }));
-    fetch("/api/seller/payout-notice", { method: "POST" }).catch(() => {});
-  }
+  if (!seller) return null;
+  // Sigue apareciendo hasta que el vendedor realmente cargue cómo cobrar
+  // (CBU/CVU o alias) — no es un simple "Entendido" que se descarta solo.
+  const hasPayoutInfo = Boolean(seller.payoutCbu?.trim() || seller.payoutAlias?.trim());
+  if (hasPayoutInfo) return null;
 
   return (
     <div className="border-b border-line bg-accent/10">
@@ -27,15 +27,14 @@ export default function SellerPayoutNotice() {
         <div className="flex-1 text-sm">
           <p className="font-semibold text-ink">¡Antes de vender!</p>
           <p className="mt-0.5 text-ink-soft">
-            Para recibir tus pagos, recordá completar tus datos de cobro antes de publicar tu primer producto.
+            Para recibir tus pagos, completá tus datos de cobro. Este aviso va a seguir apareciendo hasta que los cargues.
           </p>
-          <button
-            type="button"
-            onClick={handleDismiss}
-            className="mt-2 rounded-md bg-ink px-3 py-1.5 text-xs font-semibold text-paper hover:brightness-110"
+          <Link
+            href="/vendedor/cobros"
+            className="mt-2 inline-block rounded-md bg-ink px-3 py-1.5 text-xs font-semibold text-paper hover:brightness-110"
           >
-            Entendido
-          </button>
+            Completar datos de cobro
+          </Link>
         </div>
       </div>
     </div>
