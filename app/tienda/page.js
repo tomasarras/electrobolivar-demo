@@ -185,7 +185,7 @@ export default async function TiendaPage({ searchParams }) {
           <Link
             href="/tienda"
             className={`rounded-full border px-4 py-1.5 text-sm font-medium ${
-              !categoria ? "border-ink bg-ink text-paper" : "border-line text-ink-soft hover:border-steel"
+              !categoria ? "border-accent bg-accent text-accent-ink" : "border-line text-ink-soft hover:border-steel"
             }`}
           >
             Todos
@@ -195,7 +195,7 @@ export default async function TiendaPage({ searchParams }) {
               key={c.slug}
               href={`/tienda?categoria=${c.slug}`}
               className={`rounded-full border px-4 py-1.5 text-sm font-medium ${
-                categoria === c.slug ? "border-ink bg-ink text-paper" : "border-line text-ink-soft hover:border-steel"
+                categoria === c.slug ? "border-accent bg-accent text-accent-ink" : "border-line text-ink-soft hover:border-steel"
               }`}
             >
               {c.label}
