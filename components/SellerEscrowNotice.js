@@ -1,38 +1,31 @@
 export default function SellerEscrowNotice({ onDismiss }) {
   return (
     <div className="rounded-md border border-line bg-panel p-4">
-      <p className="font-semibold text-ink">🔒 Sistema de seguridad en envíos a domicilio</p>
+      <p className="font-semibold text-ink">🛡️ Sistema de seguridad en envíos a domicilio</p>
       <p className="mt-2 text-sm text-ink-soft">
-        En BolivarMarket trabajamos para brindar mayor seguridad y confianza en cada compra, protegiendo tanto a
-        compradores como a vendedores.
+        En BolivarMarket buscamos que cada compra sea más segura, tanto para el comprador como para el vendedor.
       </p>
-      <p className="mt-3 text-sm font-semibold text-ink">🚚 ¿Cómo funciona?</p>
+      <p className="mt-3 text-sm font-semibold text-ink">¿Cómo funciona?</p>
       <ol className="mt-2 list-decimal space-y-2 pl-5 text-sm text-ink-soft">
-        <li>Compra realizada: el vendedor recibe una notificación cuando se concreta una compra.</li>
-        <li>Pedido en camino: cuando despacha el producto, el vendedor puede actualizar el estado del pedido.</li>
-        <li>Producto entregado: al entregar el pedido, el vendedor debe marcar la opción «Ya entregado».</li>
+        <li>Compra realizada: el vendedor recibe una notificación cuando alguien compra su producto.</li>
+        <li>Pedido en camino: cuando el vendedor despacha el producto, se notifica que el pedido está en camino.</li>
+        <li>Producto entregado: al entregar el producto, el vendedor debe marcar la opción «Ya entregado» en BolivarMarket.</li>
+        <li>Confirmación del comprador: el comprador recibe una notificación y puede confirmar que recibió el producto o informar que no lo recibió.</li>
         <li>
-          Confirmación de recepción: el comprador recibe una notificación y puede confirmar que recibió el producto o
-          informar que todavía no lo recibió.
+          Plazo de confirmación: una vez entregado el producto, si el comprador no responde al mensaje dentro de las
+          48 horas, el pago se deposita automáticamente al vendedor, descontando la comisión del 5% de BolivarMarket.
         </li>
-        <li>
-          Calificación: una vez realizada la compra, el comprador puede calificar su experiencia y contribuir a la
-          reputación del vendedor.
-        </li>
+        <li>Calificación: el comprador puede calificar su experiencia para ayudar a construir la reputación de los vendedores.</li>
       </ol>
-      <p className="mt-3 text-sm font-semibold text-ink">💰 Pagos y comisión</p>
+      <p className="mt-3 text-sm font-semibold text-ink">💰 ¿Cómo se distribuye el pago?</p>
       <p className="mt-2 text-sm text-ink-soft">
-        BolivarMarket cobra una comisión del 5&nbsp;% por cada venta realizada a través de la plataforma. El vendedor
-        recibe el 95&nbsp;% restante, de acuerdo con las condiciones de pago establecidas.
+        El vendedor recibe el 95% del importe de la venta y BolivarMarket retiene el 5% correspondiente a su comisión.
       </p>
       <p className="mt-3 text-sm text-ink-soft">
-        🛡️ <strong className="text-ink">Importante:</strong> el vendedor debe marcar «Ya entregado» únicamente
-        cuando haya entregado el producto al comprador. Si el comprador informa que no recibió su pedido, la
-        situación deberá revisarse para determinar cómo proceder con el pago.
+        ⚠️ <strong className="text-ink">Importante:</strong> si el comprador informa que no recibió el producto, se
+        deberá revisar el reclamo antes de liberar el pago.
       </p>
-      <p className="mt-3 text-sm text-ink-soft">
-        En BolivarMarket, la confianza se construye con cada compra, entrega y buena experiencia.
-      </p>
+      <p className="mt-3 text-sm text-ink-soft">Nuestro objetivo es brindar más confianza y transparencia en cada operación.</p>
       <button
         type="button"
         onClick={onDismiss}
